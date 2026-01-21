@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-muted">
-      <main className="flex flex-col items-center gap-8 px-4 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-background to-muted py-16">
+      <div className="flex flex-col items-center gap-8 px-4 text-center">
         <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
           LaunchReady
         </h1>
@@ -16,7 +16,7 @@ export default function Home() {
             <Link href="/generate">Get Started</Link>
           </Button>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
