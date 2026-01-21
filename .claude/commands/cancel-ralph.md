@@ -35,6 +35,7 @@ Le mode boucle autonome est maintenant arrêté. Les prochaines sorties ne seron
 ## Logs
 
 Si des logs ont été générés, tu peux les retrouver dans :
+
 ```
 docs/ralph-logs/ralph-session-[SESSION_ID].md
 ```
@@ -42,5 +43,6 @@ docs/ralph-logs/ralph-session-[SESSION_ID].md
 ## Reprendre le travail
 
 Tu peux maintenant :
+
 - Continuer manuellement avec `/feature`
 - Relancer en mode auto avec `/auto-loop`, `/auto-discovery` ou `/auto-feature`

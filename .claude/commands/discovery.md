@@ -29,13 +29,13 @@ Je vais t'accompagner dans la structuration de ton projet/feature.
 
 ## Critères de détection
 
-| Critère | LIGHT | FULL |
-|---------|-------|------|
-| Nombre de features | 1-2 | 3+ |
-| Complexité technique | Simple | Multi-composants |
-| Écrans/pages UI | 1-2 | 3+ |
-| Intégrations externes | 0 | 1+ |
-| Estimation dev | < 1 jour | > 1 jour |
+| Critère               | LIGHT    | FULL             |
+| --------------------- | -------- | ---------------- |
+| Nombre de features    | 1-2      | 3+               |
+| Complexité technique  | Simple   | Multi-composants |
+| Écrans/pages UI       | 1-2      | 3+               |
+| Intégrations externes | 0        | 1+               |
+| Estimation dev        | < 1 jour | > 1 jour         |
 
 **Tu peux toujours overrider** mon choix si tu préfères un autre mode.
 
@@ -52,34 +52,40 @@ Je vais t'accompagner dans la structuration de ton projet/feature.
 ## Discovery: $ARGUMENTS
 
 ### Phase 1: Écoute & Analyse
+
 - [ ] Besoin exprimé
 - [ ] Scope analysé
 - [ ] Mode détecté : [FULL/LIGHT]
 - [ ] ✅ Mode validé
 
 ### Phase 2: Brainstorm (si FULL)
+
 - [ ] Idées explorées
 - [ ] Direction choisie
 - [ ] ✅ Brainstorm validé
 
 ### Phase 3: PRD
+
 - [ ] Questions clarifiées
 - [ ] PRD rédigé
 - [ ] Sauvegardé: docs/planning/prd/PRD-xxx.md
 - [ ] ✅ PRD validé
 
 ### Phase 4: Architecture (si FULL)
+
 - [ ] Stack défini
 - [ ] Composants identifiés
 - [ ] Sauvegardé: docs/planning/architecture/ARCH-xxx.md
 - [ ] ✅ Architecture validée
 
 ### Phase 5: Stories
+
 - [ ] Epics identifiées
 - [ ] Stories rédigées
 - [ ] ✅ Stories validées
 
 ### Phase 6: Publication GitHub
+
 - [ ] Epic créée → Issue #XX
 - [ ] Stories créées → Issues #YY, #ZZ
 - [ ] Liens partagés

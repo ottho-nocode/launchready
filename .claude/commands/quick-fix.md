@@ -9,12 +9,15 @@ description: Fix rapide sans passer par tout le workflow EPCT+R. Pour les petits
 ## 📥 Contexte projet chargé automatiquement
 
 ### État git actuel
+
 !`git status --short 2>/dev/null | head -10 || echo "Pas de repo git"`
 
 ### Fichiers modifiés récemment
+
 !`git diff --name-only HEAD~3 2>/dev/null | head -10 || echo "Pas de commits récents"`
 
 ### Erreurs lint/types actuelles
+
 !`npm run lint 2>&1 | grep -E "error|warning" | head -10 || npm run typecheck 2>&1 | grep -E "error" | head -10 || echo "Pas d'erreurs détectées"`
 
 ---
@@ -45,15 +48,18 @@ description: Fix rapide sans passer par tout le workflow EPCT+R. Pour les petits
 ## Process simplifié
 
 ### 1. Analyse rapide
+
 - Identifier le problème
 - Localiser le(s) fichier(s) concerné(s)
 - Évaluer l'impact
 
 ### 2. Fix
+
 - Appliquer la correction
 - Vérifier lint/types
 
 ### 3. Validation
+
 ```bash
 npm run lint && npm run typecheck && npm test
 ```
@@ -76,20 +82,25 @@ npm run lint && npm run typecheck && npm test
 ## Quick Fix: [Description courte]
 
 ### Problème
+
 [Description du problème]
 
 ### Solution
+
 [Ce qui a été fait]
 
 ### Fichiers modifiés
+
 - `path/to/file.ts` - [Description]
 
 ### Vérifications
+
 - Lint: ✅/❌
 - Types: ✅/❌
 - Tests: ✅/❌
 
 ### Commit suggéré
+
 fix(scope): [description courte]
 ```
 

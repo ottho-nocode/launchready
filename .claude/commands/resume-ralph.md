@@ -31,15 +31,16 @@ Je vais analyser les logs RALPH pour reprendre là où on s'est arrêté.
 **Fichier log:** docs/ralph-logs/[session-id].md
 
 ### État récupéré
-| Paramètre | Valeur |
-|-----------|--------|
-| Mode | [auto-loop / auto-discovery / auto-feature] |
-| Prompt original | [Récupéré du log] |
-| Dernière itération | [N] |
-| Max iterations | [M] |
-| Completion promise | [Texte] |
-| Dernière action | [Description] |
-| Status | [Interrompu / Timeout / Erreur] |
+
+| Paramètre          | Valeur                                      |
+| ------------------ | ------------------------------------------- |
+| Mode               | [auto-loop / auto-discovery / auto-feature] |
+| Prompt original    | [Récupéré du log]                           |
+| Dernière itération | [N]                                         |
+| Max iterations     | [M]                                         |
+| Completion promise | [Texte]                                     |
+| Dernière action    | [Description]                               |
+| Status             | [Interrompu / Timeout / Erreur]             |
 ```
 
 ### 2. Diagnostic de l'interruption
@@ -48,6 +49,7 @@ Je vais analyser les logs RALPH pour reprendre là où on s'est arrêté.
 ## 🔎 Diagnostic
 
 ### Raison de l'arrêt
+
 - [ ] Timeout atteint
 - [ ] Erreur technique
 - [ ] Interruption manuelle (/cancel-ralph)
@@ -55,9 +57,11 @@ Je vais analyser les logs RALPH pour reprendre là où on s'est arrêté.
 - [ ] Autre: [...]
 
 ### Dernière étape complétée
+
 [Description de ce qui a été fait]
 
 ### Prochaine étape prévue
+
 [Ce qui devait être fait ensuite]
 ```
 
@@ -67,21 +71,25 @@ Je vais analyser les logs RALPH pour reprendre là où on s'est arrêté.
 ## 📋 Options
 
 **[C] Continuer** - Reprendre exactement où on en était
+
 - Restaurer l'état RALPH
 - Continuer les itérations restantes
 - Même prompt, même objectif
 
 **[R] Restart** - Recommencer depuis le début
+
 - Réinitialiser les itérations
 - Utiliser le même prompt
 - Fresh start
 
 **[M] Modifier** - Ajuster avant de continuer
+
 - Modifier le prompt
 - Changer les paramètres (max, timeout)
 - Puis continuer
 
 **[A] Abandonner** - Marquer comme terminé
+
 - Archiver les logs
 - Pas de reprise
 
@@ -127,12 +135,14 @@ Ton choix ?
 
 ```markdown
 **Paramètres actuels :**
+
 - Prompt: [...]
 - Max iterations: [M]
 - Timeout: [T]
 - Promise: [...]
 
 **Que veux-tu modifier ?**
+
 1. Le prompt
 2. Max iterations (--max N)
 3. Timeout (--timeout Xh)
@@ -148,8 +158,10 @@ Indique tes modifications :
 Selon le mode RALPH :
 
 ### Si auto-discovery
+
 ```markdown
 ### Contexte Discovery récupéré
+
 - [ ] Brainstorm créé ? → docs/planning/brainstorms/
 - [ ] PRD créé ? → docs/planning/prd/
 - [ ] Architecture créée ? → docs/planning/architecture/
@@ -158,8 +170,10 @@ Selon le mode RALPH :
 ```
 
 ### Si auto-feature
+
 ```markdown
 ### Contexte Feature récupéré
+
 - [ ] Issue lue ?
 - [ ] Codebase analysé ?
 - [ ] Plan créé ?
@@ -169,8 +183,10 @@ Selon le mode RALPH :
 ```
 
 ### Si auto-loop
+
 ```markdown
 ### Contexte Loop récupéré
+
 - [ ] Tâche en cours : [...]
 - [ ] Progress : [Description]
 - [ ] Fichiers modifiés : [Liste]
@@ -188,13 +204,15 @@ Selon le mode RALPH :
 **Nouvelle session:** ${CLAUDE_SESSION_ID}
 
 ### État
-| Paramètre | Valeur |
-|-----------|--------|
+
+| Paramètre | Valeur      |
+| --------- | ----------- |
 | Itération | [N+1] / [M] |
-| Prompt | [Résumé] |
-| Contexte | [Restauré] |
+| Prompt    | [Résumé]    |
+| Contexte  | [Restauré]  |
 
 ### Prochaine action
+
 [Description de ce que je vais faire]
 
 ---

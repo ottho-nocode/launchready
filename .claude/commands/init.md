@@ -30,24 +30,24 @@ Je vais initialiser un nouveau projet avec la structure et configuration appropr
 
 ## Arguments
 
-| Argument | Description |
-|----------|-------------|
-| `next` | Next.js 14 App Router + TypeScript |
-| `express` | Express.js API + TypeScript |
-| `api` | API REST minimaliste (Hono/Fastify) |
-| `cli` | CLI tool avec Commander.js |
-| `lib` | Library npm publishable |
-| (none) | Choix interactif |
+| Argument  | Description                         |
+| --------- | ----------------------------------- |
+| `next`    | Next.js 14 App Router + TypeScript  |
+| `express` | Express.js API + TypeScript         |
+| `api`     | API REST minimaliste (Hono/Fastify) |
+| `cli`     | CLI tool avec Commander.js          |
+| `lib`     | Library npm publishable             |
+| (none)    | Choix interactif                    |
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--name <name>` | Nom du projet |
-| `--db <type>` | Base de données (postgres, mysql, sqlite) |
-| `--auth` | Ajouter authentification |
-| `--docker` | Ajouter Docker config |
-| `--ci` | Ajouter GitHub Actions |
+| Option          | Description                               |
+| --------------- | ----------------------------------------- |
+| `--name <name>` | Nom du projet                             |
+| `--db <type>`   | Base de données (postgres, mysql, sqlite) |
+| `--auth`        | Ajouter authentification                  |
+| `--docker`      | Ajouter Docker config                     |
+| `--ci`          | Ajouter GitHub Actions                    |
 
 ---
 
@@ -214,21 +214,25 @@ GitHub Actions : [yes/no]
 ### 4. Options additionnelles
 
 Si `--db` :
+
 - Ajouter ORM (Prisma ou Drizzle)
 - Créer schema de base
 - Configurer connexion
 
 Si `--auth` :
+
 - Ajouter next-auth ou lucia-auth
 - Créer routes auth de base
 - Configurer session
 
 Si `--docker` :
+
 - Créer Dockerfile
 - Créer docker-compose.yml
 - Configurer multi-stage build
 
 Si `--ci` :
+
 - Copier templates GitHub Actions
 - Configurer CI/CD
 
@@ -383,6 +387,7 @@ AUTH_SECRET=
 **Arguments reçus :** $ARGUMENTS
 
 Je vais maintenant :
+
 1. Détecter le contexte (dossier vide ?)
 2. Proposer le template ou utiliser l'argument
 3. Configurer les options

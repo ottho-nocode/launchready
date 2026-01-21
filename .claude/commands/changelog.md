@@ -27,34 +27,40 @@ Je vais analyser les commits et issues pour générer un changelog structuré.
 
 ## Arguments
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `[version]` | Auto-detect | Version à générer (ex: `1.2.0`) |
-| `--since <tag>` | Dernier tag | Depuis quel tag |
-| `--format <type>` | `conventional` | Format du changelog |
-| `--dry-run` | false | Prévisualiser sans écrire |
+| Argument          | Default        | Description                     |
+| ----------------- | -------------- | ------------------------------- |
+| `[version]`       | Auto-detect    | Version à générer (ex: `1.2.0`) |
+| `--since <tag>`   | Dernier tag    | Depuis quel tag                 |
+| `--format <type>` | `conventional` | Format du changelog             |
+| `--dry-run`       | false          | Prévisualiser sans écrire       |
 
 ### Formats supportés
 
 **conventional** (default) :
+
 ```markdown
 ## [1.2.0] - 2024-01-20
 
 ### Added
+
 - feat(auth): add OAuth2 support (#123)
 
 ### Fixed
+
 - fix(api): resolve timeout issue (#124)
 ```
 
 **keep-a-changelog** :
+
 ```markdown
 ## [1.2.0] - 2024-01-20
 
 ### Added
+
 - OAuth2 authentication support
 
 ### Fixed
+
 - API timeout issue resolved
 ```
 
@@ -85,6 +91,7 @@ Types reconnus:
 ### 2. Récupération des issues/PRs
 
 Pour chaque commit avec `#123` ou `Closes #123` :
+
 - Récupérer le titre de l'issue/PR
 - Ajouter le lien vers GitHub
 
@@ -92,24 +99,31 @@ Pour chaque commit avec `#123` ou `Closes #123` :
 
 ```markdown
 ### ⚠️ Breaking Changes
+
 - Description du breaking change
 
 ### ✨ Added (feat)
+
 - Nouvelles fonctionnalités
 
 ### 🐛 Fixed (fix)
+
 - Corrections de bugs
 
 ### 🔄 Changed (refactor, perf)
+
 - Modifications
 
 ### 📚 Documentation (docs)
+
 - Mises à jour de documentation
 
 ### 🗑️ Deprecated
+
 - Fonctionnalités dépréciées
 
 ### 🔒 Security
+
 - Correctifs de sécurité
 ```
 
@@ -204,11 +218,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Si pas de version spécifiée, je détecte automatiquement :
 
-| Commits | Version bump |
-|---------|--------------|
+| Commits                   | Version bump              |
+| ------------------------- | ------------------------- |
 | `BREAKING CHANGE` ou `!:` | **Major** (1.0.0 → 2.0.0) |
-| `feat:` | **Minor** (1.0.0 → 1.1.0) |
-| `fix:`, `docs:`, etc. | **Patch** (1.0.0 → 1.0.1) |
+| `feat:`                   | **Minor** (1.0.0 → 1.1.0) |
+| `fix:`, `docs:`, etc.     | **Patch** (1.0.0 → 1.0.1) |
 
 ---
 
@@ -222,7 +236,7 @@ Pour générer automatiquement le changelog dans GitHub Actions :
   uses: TriPSs/conventional-changelog-action@v5
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
-    output-file: "CHANGELOG.md"
+    output-file: 'CHANGELOG.md'
 ```
 
 ---
@@ -232,6 +246,7 @@ Pour générer automatiquement le changelog dans GitHub Actions :
 **Arguments reçus :** $ARGUMENTS
 
 Je vais maintenant :
+
 1. Analyser les commits depuis le dernier tag
 2. Récupérer les issues/PRs liées
 3. Générer le changelog structuré

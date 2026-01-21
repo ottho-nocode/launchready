@@ -1,13 +1,18 @@
 <!-- PROJECT-RULES-START -->
+
 # Project Rules
 
 > **Cette section est préservée lors des updates.** Ajoutez vos règles projet ici.
 
 ```markdown
 # Exemple de règles à ajouter :
+
 # - Stack technique spécifique
+
 # - Conventions de nommage
+
 # - Règles métier
+
 # - Intégrations tierces
 ```
 
@@ -90,11 +95,11 @@
 
 ### Configuration RALPH
 
-| Commande | Max Iter | Timeout | Completion Promise |
-|----------|----------|---------|-------------------|
-| `/auto-loop` | 20 | 1h | "DONE" |
-| `/auto-discovery` | 30 | 1h | "DISCOVERY COMPLETE" |
-| `/auto-feature` | 50 | 2h | "FEATURE COMPLETE" |
+| Commande          | Max Iter | Timeout | Completion Promise   |
+| ----------------- | -------- | ------- | -------------------- |
+| `/auto-loop`      | 20       | 1h      | "DONE"               |
+| `/auto-discovery` | 30       | 1h      | "DISCOVERY COMPLETE" |
+| `/auto-feature`   | 50       | 2h      | "FEATURE COMPLETE"   |
 
 **Options :** `--max N`, `--timeout Xh`, `--promise "TEXT"`, `--no-log`, `--verbose`
 
@@ -104,34 +109,34 @@
 
 ### Phase Planning
 
-| Skill | Rôle | Fonctionnalités clés |
-|-------|------|----------------------|
-| `idea-brainstorm` | Exploration créative | Mode **Creative** ou **Research-first**, techniques SCAMPER/Five Whys, **auto-trigger UX/UI** |
-| `pm-prd` | Product Requirements | Mode **FULL** (complet) ou **LIGHT** (simplifié), auto-détection, **auto-trigger UX/UI** |
-| `architect` | Architecture technique | Stack, structure, data model, APIs, ADRs |
-| `pm-stories` | Epics + Stories | INVEST, Given/When/Then, **Implementation Readiness Check** (score /15) |
-| `api-designer` | Design d'API | **OpenAPI 3.1**, REST/GraphQL, versioning, rate limiting |
-| `database-designer` | Design de BDD (NEW v3.0) | **ERD**, migrations, indexes, Prisma/Drizzle |
+| Skill               | Rôle                     | Fonctionnalités clés                                                                          |
+| ------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
+| `idea-brainstorm`   | Exploration créative     | Mode **Creative** ou **Research-first**, techniques SCAMPER/Five Whys, **auto-trigger UX/UI** |
+| `pm-prd`            | Product Requirements     | Mode **FULL** (complet) ou **LIGHT** (simplifié), auto-détection, **auto-trigger UX/UI**      |
+| `architect`         | Architecture technique   | Stack, structure, data model, APIs, ADRs                                                      |
+| `pm-stories`        | Epics + Stories          | INVEST, Given/When/Then, **Implementation Readiness Check** (score /15)                       |
+| `api-designer`      | Design d'API             | **OpenAPI 3.1**, REST/GraphQL, versioning, rate limiting                                      |
+| `database-designer` | Design de BDD (NEW v3.0) | **ERD**, migrations, indexes, Prisma/Drizzle                                                  |
 
 ### Phase Design (optionnelle, auto-triggered)
 
-| Skill | Rôle | Fonctionnalités clés |
-|-------|------|----------------------|
-| `ux-designer` | Expérience utilisateur | Personas, **user journeys**, wireframes textuels, heuristiques Nielsen |
-| `ui-designer` | Design system | **Tokens** (couleurs, typo, spacing), composants UI, guidelines accessibilité |
+| Skill         | Rôle                   | Fonctionnalités clés                                                          |
+| ------------- | ---------------------- | ----------------------------------------------------------------------------- |
+| `ux-designer` | Expérience utilisateur | Personas, **user journeys**, wireframes textuels, heuristiques Nielsen        |
+| `ui-designer` | Design system          | **Tokens** (couleurs, typo, spacing), composants UI, guidelines accessibilité |
 
 ### Phase Développement
 
-| Skill | Rôle | Fonctionnalités clés |
-|-------|------|----------------------|
-| `github-issue-reader` | Lecture d'issues | Catégorisation, **ambiguïtés classifiées** (🔴/🟡/🟢), Given/When/Then |
-| `codebase-explainer` | Analyse du code | **Impact mapping**, patterns, flux de données, risques |
-| `implementation-planner` | Planification | **Complexité S/M/L**, étapes atomiques, timeline, risques |
-| `code-implementer` | Implémentation | Validation **lint/types obligatoire** par étape, **hook auto-lint** |
-| `test-runner` | Tests | Mode **ATDD** (tests first) ou Standard, priorités P0-P3, **hook coverage** |
-| `code-reviewer` | Review (3 passes) | Correctness → Readability → Performance |
-| `security-auditor` | Audit sécurité | **OWASP Top 10**, dépendances, secrets, scoring |
-| `performance-auditor` | Audit performance (NEW v3.1) | **Core Web Vitals**, bundle size, Lighthouse |
+| Skill                    | Rôle                         | Fonctionnalités clés                                                        |
+| ------------------------ | ---------------------------- | --------------------------------------------------------------------------- |
+| `github-issue-reader`    | Lecture d'issues             | Catégorisation, **ambiguïtés classifiées** (🔴/🟡/🟢), Given/When/Then      |
+| `codebase-explainer`     | Analyse du code              | **Impact mapping**, patterns, flux de données, risques                      |
+| `implementation-planner` | Planification                | **Complexité S/M/L**, étapes atomiques, timeline, risques                   |
+| `code-implementer`       | Implémentation               | Validation **lint/types obligatoire** par étape, **hook auto-lint**         |
+| `test-runner`            | Tests                        | Mode **ATDD** (tests first) ou Standard, priorités P0-P3, **hook coverage** |
+| `code-reviewer`          | Review (3 passes)            | Correctness → Readability → Performance                                     |
+| `security-auditor`       | Audit sécurité               | **OWASP Top 10**, dépendances, secrets, scoring                             |
+| `performance-auditor`    | Audit performance (NEW v3.1) | **Core Web Vitals**, bundle size, Lighthouse                                |
 
 ---
 
@@ -141,12 +146,13 @@
 
 Templates de hooks Git dans `.claude/templates/git-hooks/` :
 
-| Hook | Description |
-|------|-------------|
+| Hook         | Description                                  |
+| ------------ | -------------------------------------------- |
 | `pre-commit` | ESLint, TypeScript, Prettier, Tests, Secrets |
-| `commit-msg` | Validation Conventional Commits |
+| `commit-msg` | Validation Conventional Commits              |
 
 **Installation** :
+
 ```bash
 cp .claude/templates/git-hooks/pre-commit .git/hooks/
 cp .claude/templates/git-hooks/commit-msg .git/hooks/
@@ -157,13 +163,14 @@ chmod +x .git/hooks/*
 
 Configuration Docker dev environment dans `.claude/templates/devcontainer/` :
 
-| Fichier | Description |
-|---------|-------------|
-| `devcontainer.json` | Config VS Code + extensions |
-| `Dockerfile` | Node.js 20 + outils |
-| `docker-compose.yml` | PostgreSQL, Redis |
+| Fichier              | Description                 |
+| -------------------- | --------------------------- |
+| `devcontainer.json`  | Config VS Code + extensions |
+| `Dockerfile`         | Node.js 20 + outils         |
+| `docker-compose.yml` | PostgreSQL, Redis           |
 
 **Installation** :
+
 ```bash
 mkdir -p .devcontainer
 cp .claude/templates/devcontainer/* .devcontainer/
@@ -179,6 +186,7 @@ Audit de performance avec Core Web Vitals et bundle analysis :
 ```
 
 **Analyses** :
+
 - **Core Web Vitals** : LCP, INP, CLS
 - **Bundle** : JS/CSS size, chunks, tree-shaking
 - **Lighthouse** : Score complet
@@ -198,6 +206,7 @@ Nouveau skill pour concevoir des schémas de base de données :
 ```
 
 **Fonctionnalités** :
+
 - **ERD** : Diagramme entité-relation en ASCII
 - **Migrations** : SQL, Prisma, ou Drizzle
 - **Indexes** : Stratégie d'indexation optimale
@@ -222,11 +231,11 @@ Scaffolding de projet avec templates :
 
 Templates pour les issues dans `.claude/templates/github/ISSUE_TEMPLATE/` :
 
-| Template | Description | Label |
-|----------|-------------|-------|
-| `bug_report.md` | Rapport de bug | `bug` |
+| Template             | Description        | Label         |
+| -------------------- | ------------------ | ------------- |
+| `bug_report.md`      | Rapport de bug     | `bug`         |
 | `feature_request.md` | Demande de feature | `enhancement` |
-| `config.yml` | Configuration | - |
+| `config.yml`         | Configuration      | -             |
 
 **Installation** : `cp -r .claude/templates/github/ISSUE_TEMPLATE .github/`
 
@@ -244,6 +253,7 @@ Nouveau skill pour concevoir des APIs REST/GraphQL :
 ```
 
 **Fonctionnalités** :
+
 - **OpenAPI 3.1** : Spec complète avec exemples
 - **REST Best Practices** : CRUD, pagination, filtres
 - **Error Handling** : Format standard, codes d'erreur
@@ -261,6 +271,7 @@ Dashboard des métriques projet :
 ```
 
 **Métriques affichées** :
+
 - **Codebase** : Files, lines, commits
 - **Tests** : Coverage, passing, skipped
 - **GitHub** : Issues, PRs, labels
@@ -276,10 +287,15 @@ Template standard pour les Pull Requests dans `.claude/templates/github/` :
 
 ```markdown
 ## Summary
+
 ## Changes
+
 ## Type of change
+
 ## Testing
+
 ## Screenshots
+
 Closes #
 ```
 
@@ -299,6 +315,7 @@ Nouveau skill pour auditer la sécurité du code :
 ```
 
 **Analyses effectuées** :
+
 - **OWASP Top 10** : Injection, Auth, XSS, SSRF, etc.
 - **Dépendances** : CVE connus, versions obsolètes
 - **Secrets** : API keys, passwords, tokens exposés
@@ -310,13 +327,13 @@ Nouveau skill pour auditer la sécurité du code :
 
 Templates CI/CD prêts à l'emploi dans `.claude/templates/github-actions/` :
 
-| Template | Description |
-|----------|-------------|
-| `ci.yml` | Lint, Typecheck, Test, Build |
-| `release.yml` | Changelog + GitHub Release |
-| `security.yml` | npm audit, CodeQL, Secret scanning |
-| `deploy.yml` | Vercel, Netlify, AWS, Kubernetes |
-| `dependabot.yml` | Mises à jour automatiques |
+| Template         | Description                        |
+| ---------------- | ---------------------------------- |
+| `ci.yml`         | Lint, Typecheck, Test, Build       |
+| `release.yml`    | Changelog + GitHub Release         |
+| `security.yml`   | npm audit, CodeQL, Secret scanning |
+| `deploy.yml`     | Vercel, Netlify, AWS, Kubernetes   |
+| `dependabot.yml` | Mises à jour automatiques          |
 
 ### Commande /changelog
 
@@ -350,18 +367,18 @@ Chaque skill propose automatiquement le skill suivant après validation de son o
 **[Y] Oui, continuer** | **[N] Non, je choisis** | **[P] Pause**
 ```
 
-| Skill actuel | Propositions (selon contexte) |
-|--------------|------------------------------|
-| `idea-brainstorm` | `/ux-designer` (si UI) ou `/pm-prd` |
-| `pm-prd` | `/ui-designer` (si design) ou `/architect` |
-| `architect` | `/pm-stories` |
-| `pm-stories` | `/feature` ou `/auto-feature` |
-| `github-issue-reader` | `/codebase-explainer` |
-| `codebase-explainer` | `/implementation-planner` |
-| `implementation-planner` | `/code-implementer` |
-| `code-implementer` | `/test-runner` |
-| `test-runner` | `/code-reviewer` |
-| `code-reviewer` | Commit/PR (fin du cycle) |
+| Skill actuel             | Propositions (selon contexte)              |
+| ------------------------ | ------------------------------------------ |
+| `idea-brainstorm`        | `/ux-designer` (si UI) ou `/pm-prd`        |
+| `pm-prd`                 | `/ui-designer` (si design) ou `/architect` |
+| `architect`              | `/pm-stories`                              |
+| `pm-stories`             | `/feature` ou `/auto-feature`              |
+| `github-issue-reader`    | `/codebase-explainer`                      |
+| `codebase-explainer`     | `/implementation-planner`                  |
+| `implementation-planner` | `/code-implementer`                        |
+| `code-implementer`       | `/test-runner`                             |
+| `test-runner`            | `/code-reviewer`                           |
+| `code-reviewer`          | Commit/PR (fin du cycle)                   |
 
 ### Output Validation
 
@@ -370,25 +387,25 @@ Chaque skill valide son output avant de proposer la transition :
 ```markdown
 ### ✅ Checklist Output [Skill]
 
-| Critère | Status |
-|---------|--------|
-| [Critère 1] | ✅/❌ |
-| [Critère 2] | ✅/❌ |
-| [Critère 3] | ✅/❌ |
+| Critère     | Status |
+| ----------- | ------ |
+| [Critère 1] | ✅/❌  |
+| [Critère 2] | ✅/❌  |
+| [Critère 3] | ✅/❌  |
 
 **Score : X/N** → Si < seuil, compléter avant transition
 ```
 
-| Skill | Seuil minimum |
-|-------|--------------|
-| `idea-brainstorm` | 4/5 |
-| `pm-prd` | 6/7 |
-| `architect` | 5/6 |
-| `pm-stories` | 13/15 (Readiness Check) |
-| `implementation-planner` | 5/6 |
-| `code-implementer` | 4/5 |
-| `test-runner` | 4/5 |
-| `code-reviewer` | Toutes passes OK |
+| Skill                    | Seuil minimum           |
+| ------------------------ | ----------------------- |
+| `idea-brainstorm`        | 4/5                     |
+| `pm-prd`                 | 6/7                     |
+| `architect`              | 5/6                     |
+| `pm-stories`             | 13/15 (Readiness Check) |
+| `implementation-planner` | 5/6                     |
+| `code-implementer`       | 4/5                     |
+| `test-runner`            | 4/5                     |
+| `code-reviewer`          | Toutes passes OK        |
 
 ### RALPH Metrics
 
@@ -397,24 +414,26 @@ Les commandes RALPH trackent automatiquement les métriques :
 ```markdown
 ## 📊 Métriques RALPH
 
-| Métrique | Valeur |
-|----------|--------|
-| **Durée totale** | [X]m [Y]s |
-| **Itérations** | [N] / [Max] |
+| Métrique         | Valeur      |
+| ---------------- | ----------- |
+| **Durée totale** | [X]m [Y]s   |
+| **Itérations**   | [N] / [Max] |
 
 ### Temps par phase
-| Phase | Durée | Status |
-|-------|-------|--------|
-| [Phase 1] | [X]m | ✅ |
-| [Phase 2] | [X]m | ✅ |
+
+| Phase     | Durée | Status |
+| --------- | ----- | ------ |
+| [Phase 1] | [X]m  | ✅     |
+| [Phase 2] | [X]m  | ✅     |
 
 ### Auto-corrections
-| Type | Count |
-|------|-------|
-| Lint errors corrigés | [X] |
-| Type errors corrigés | [X] |
-| Tests fixés | [X] |
-| Retours arrière | [X] |
+
+| Type                 | Count |
+| -------------------- | ----- |
+| Lint errors corrigés | [X]   |
+| Type errors corrigés | [X]   |
+| Tests fixés          | [X]   |
+| Retours arrière      | [X]   |
 ```
 
 ### Commande /resume-ralph
@@ -427,6 +446,7 @@ Reprendre une session RALPH interrompue :
 ```
 
 Options disponibles :
+
 - **Continue** : Reprendre où on s'est arrêté
 - **Restart** : Recommencer la phase en cours
 - **Modify** : Changer les paramètres (max iter, timeout)
@@ -440,30 +460,30 @@ Options disponibles :
 
 Tous les skills chargent automatiquement le contexte pertinent au démarrage :
 
-| Skill | Contexte auto-chargé |
-|-------|---------------------|
-| `github-issue-reader` | Issue GitHub, PRs liées |
-| `codebase-explainer` | Structure projet, package.json, CLAUDE.md |
-| `idea-brainstorm` | Brainstorms existants, PRDs |
-| `implementation-planner` | PRD, architecture, stories, analyse codebase |
-| `test-runner` | Config test, tests existants, scripts npm |
-| `code-implementer` | CLAUDE.md, ESLint, tsconfig, plan actif |
-| `pm-prd` | Brainstorms, PRDs existants, UX design |
-| `architect` | PRD actif, stack existant, structure projet |
-| `pm-stories` | PRD, architecture, stories existantes, GitHub repo |
-| `code-reviewer` | Fichiers modifiés, diff git, erreurs lint |
-| `ux-designer` | PRD, brainstorm, UX existant |
-| `ui-designer` | UX design, tokens existants, framework détecté |
+| Skill                    | Contexte auto-chargé                               |
+| ------------------------ | -------------------------------------------------- |
+| `github-issue-reader`    | Issue GitHub, PRs liées                            |
+| `codebase-explainer`     | Structure projet, package.json, CLAUDE.md          |
+| `idea-brainstorm`        | Brainstorms existants, PRDs                        |
+| `implementation-planner` | PRD, architecture, stories, analyse codebase       |
+| `test-runner`            | Config test, tests existants, scripts npm          |
+| `code-implementer`       | CLAUDE.md, ESLint, tsconfig, plan actif            |
+| `pm-prd`                 | Brainstorms, PRDs existants, UX design             |
+| `architect`              | PRD actif, stack existant, structure projet        |
+| `pm-stories`             | PRD, architecture, stories existantes, GitHub repo |
+| `code-reviewer`          | Fichiers modifiés, diff git, erreurs lint          |
+| `ux-designer`            | PRD, brainstorm, UX existant                       |
+| `ui-designer`            | UX design, tokens existants, framework détecté     |
 
 ### Hooks automatiques
 
-| Skill | Type | Trigger | Action |
-|-------|------|---------|--------|
-| `code-implementer` | post | Edit/Write | Auto-lint |
-| `test-runner` | post | npm test | Affiche coverage |
-| `pm-stories` | pre | create_issue | Vérifie GitHub auth |
-| `code-reviewer` | pre | Read (code files) | Exécute tests |
-| `architect` | pre | Write (architecture) | Vérifie PRD existe |
+| Skill              | Type | Trigger              | Action              |
+| ------------------ | ---- | -------------------- | ------------------- |
+| `code-implementer` | post | Edit/Write           | Auto-lint           |
+| `test-runner`      | post | npm test             | Affiche coverage    |
+| `pm-stories`       | pre  | create_issue         | Vérifie GitHub auth |
+| `code-reviewer`    | pre  | Read (code files)    | Exécute tests       |
+| `architect`        | pre  | Write (architecture) | Vérifie PRD existe  |
 
 ### Model Opus
 
@@ -492,12 +512,12 @@ Chaque skill suit une structure standardisée :
 name: skill-name
 description: Description + triggers
 model: opus
-context: fork                    # Exécution isolée
-agent: Plan | Explore           # Type d'agent
-allowed-tools: [tools]          # Outils autorisés
-argument-hint: <hint>           # Guide pour l'utilisateur
-user-invocable: true | false    # Appelable directement
-hooks:                          # Hooks automatiques
+context: fork # Exécution isolée
+agent: Plan | Explore # Type d'agent
+allowed-tools: [tools] # Outils autorisés
+argument-hint: <hint> # Guide pour l'utilisateur
+user-invocable: true | false # Appelable directement
+hooks: # Hooks automatiques
   pre_tool_call: [...]
   post_tool_call: [...]
 knowledge:
@@ -509,31 +529,41 @@ knowledge:
 # Skill Name
 
 ## 📥 Contexte chargé automatiquement
+
 !`commande shell pour charger contexte`
 
 ## Activation
+
 > Checklist de démarrage obligatoire
 
 ## Rôle & Principes
+
 **Rôle** : Description du rôle
 **Principes** : Mindset et frameworks
 **Règles** : ⛔ Interdits + ✅ Obligations
 
 ## Process
+
 ### 1. Étape 1
+
 **⏸️ STOP** - Validation
+
 ### 2. Étape 2
+
 ...
 
 ## Output Template
 
 ## Output Validation (NEW v2.7)
+
 > Checklist de validation avant transition
 
 ## Auto-Chain (NEW v2.7)
+
 > Proposition automatique du skill suivant
 
 ## Transitions
+
 - **Vers [skill]** : "Question de transition"
 ```
 
@@ -570,11 +600,11 @@ knowledge:
 
 ### Chargement progressif
 
-| Niveau | Quand charger | Exemple |
-|--------|---------------|---------|
-| **core** | Automatiquement avec le skill | `test-levels-framework.md` |
-| **advanced** | Si situation complexe | `fixture-architecture.md` |
-| **debugging** | Si problème (flaky tests) | `test-healing-patterns.md` |
+| Niveau        | Quand charger                 | Exemple                    |
+| ------------- | ----------------------------- | -------------------------- |
+| **core**      | Automatiquement avec le skill | `test-levels-framework.md` |
+| **advanced**  | Si situation complexe         | `fixture-architecture.md`  |
+| **debugging** | Si problème (flaky tests)     | `test-healing-patterns.md` |
 
 ---
 
@@ -583,6 +613,7 @@ knowledge:
 ### Mode FULL (projet complexe)
 
 **Critères (score ≥ 3)** :
+
 - 3+ features distinctes (+1)
 - Architecture multi-composants (+1)
 - 3+ écrans/pages UI (+1)
@@ -590,6 +621,7 @@ knowledge:
 - Estimation > 1 jour (+1)
 
 **Workflow** :
+
 ```
 Brainstorm → [UX Design] → PRD complet → [UI Design] → Architecture → Stories → GitHub
               (auto/manual)              (auto/manual)
@@ -600,6 +632,7 @@ Brainstorm → [UX Design] → PRD complet → [UI Design] → Architecture → 
 **Critères** : Feature isolée, petit scope, < 1 jour
 
 **Workflow** :
+
 ```
 PRD simplifié → Stories → GitHub
 ```
@@ -612,18 +645,18 @@ Les skills `ux-designer` et `ui-designer` peuvent être déclenchés automatique
 
 ### Critères de déclenchement automatique
 
-| Skill | Critères (seuil de score) | Mots-clés détectés |
-|-------|--------------------------|-------------------|
-| `ux-designer` | Interface UI (3+ écrans), parcours multi-étapes, onboarding | "parcours", "navigation", "tunnel", "UX" |
-| `ui-designer` | 5+ composants UI, pas de design system existant, branding | "design", "composants", "couleurs", "style" |
+| Skill         | Critères (seuil de score)                                   | Mots-clés détectés                          |
+| ------------- | ----------------------------------------------------------- | ------------------------------------------- |
+| `ux-designer` | Interface UI (3+ écrans), parcours multi-étapes, onboarding | "parcours", "navigation", "tunnel", "UX"    |
+| `ui-designer` | 5+ composants UI, pas de design system existant, branding   | "design", "composants", "couleurs", "style" |
 
 ### Modes de déclenchement
 
-| Mode | Comportement |
-|------|--------------|
-| **auto** | Le PM évalue et recommande automatiquement si score ≥ seuil |
-| **manual** | L'utilisateur demande explicitement `/ux-designer` ou `/ui-designer` |
-| **skip** | L'utilisateur refuse la recommandation → passage direct à l'étape suivante |
+| Mode       | Comportement                                                               |
+| ---------- | -------------------------------------------------------------------------- |
+| **auto**   | Le PM évalue et recommande automatiquement si score ≥ seuil                |
+| **manual** | L'utilisateur demande explicitement `/ux-designer` ou `/ui-designer`       |
+| **skip**   | L'utilisateur refuse la recommandation → passage direct à l'étape suivante |
 
 ### Points de déclenchement
 
@@ -632,9 +665,9 @@ Les skills `ux-designer` et `ui-designer` peuvent être déclenchés automatique
 
 ### Output des skills UX/UI
 
-| Skill | Documents générés | Emplacement |
-|-------|------------------|-------------|
-| `ux-designer` | Personas, journeys, wireframes | `docs/planning/ux/UX-{slug}.md` |
+| Skill         | Documents générés              | Emplacement                                   |
+| ------------- | ------------------------------ | --------------------------------------------- |
+| `ux-designer` | Personas, journeys, wireframes | `docs/planning/ux/UX-{slug}.md`               |
 | `ui-designer` | Tokens, composants, guidelines | `docs/planning/ui/UI-{slug}.md`, `tokens.css` |
 
 ---
@@ -643,24 +676,24 @@ Les skills `ux-designer` et `ui-designer` peuvent être déclenchés automatique
 
 ### Planning
 
-| Checkpoint | Skill | Validation |
-|------------|-------|------------|
-| Brainstorm validé | `idea-brainstorm` | Synthèse acceptée |
-| *UX Design validé* | `ux-designer` | *(optionnel)* Personas et journeys approuvés |
-| PRD validé | `pm-prd` | Mode choisi, scope défini |
-| *UI Design validé* | `ui-designer` | *(optionnel)* Tokens et composants approuvés |
-| Architecture validée | `architect` | Stack et structure approuvés |
-| **Readiness Check** | `pm-stories` | Score ≥ 13/15 |
+| Checkpoint           | Skill             | Validation                                   |
+| -------------------- | ----------------- | -------------------------------------------- |
+| Brainstorm validé    | `idea-brainstorm` | Synthèse acceptée                            |
+| _UX Design validé_   | `ux-designer`     | _(optionnel)_ Personas et journeys approuvés |
+| PRD validé           | `pm-prd`          | Mode choisi, scope défini                    |
+| _UI Design validé_   | `ui-designer`     | _(optionnel)_ Tokens et composants approuvés |
+| Architecture validée | `architect`       | Stack et structure approuvés                 |
+| **Readiness Check**  | `pm-stories`      | Score ≥ 13/15                                |
 
 ### Développement
 
-| Checkpoint | Skill | Validation |
-|------------|-------|------------|
-| Code expliqué | `codebase-explainer` | Architecture comprise |
-| Plan validé | `implementation-planner` | Étapes approuvées |
-| Code implémenté | `code-implementer` | Lint ✅ Types ✅ |
-| Tests passent | `test-runner` | 100% pass, 3 runs |
-| Review OK | `code-reviewer` | 3 passes complètes |
+| Checkpoint      | Skill                    | Validation            |
+| --------------- | ------------------------ | --------------------- |
+| Code expliqué   | `codebase-explainer`     | Architecture comprise |
+| Plan validé     | `implementation-planner` | Étapes approuvées     |
+| Code implémenté | `code-implementer`       | Lint ✅ Types ✅      |
+| Tests passent   | `test-runner`            | 100% pass, 3 runs     |
+| Review OK       | `code-reviewer`          | 3 passes complètes    |
 
 ---
 
@@ -683,15 +716,15 @@ Les skills `ux-designer` et `ui-designer` peuvent être déclenchés automatique
 
 ### Documentation
 
-| Type | Emplacement |
-|------|-------------|
-| Brainstorms | `docs/planning/brainstorms/` |
-| UX Design | `docs/planning/ux/` |
-| PRD | `docs/planning/prd/` |
-| UI Design | `docs/planning/ui/` |
-| Architecture | `docs/planning/architecture/` |
-| Stories | `docs/stories/EPIC-{num}-{slug}/` |
-| Logs RALPH | `docs/ralph-logs/` |
+| Type         | Emplacement                       |
+| ------------ | --------------------------------- |
+| Brainstorms  | `docs/planning/brainstorms/`      |
+| UX Design    | `docs/planning/ux/`               |
+| PRD          | `docs/planning/prd/`              |
+| UI Design    | `docs/planning/ui/`               |
+| Architecture | `docs/planning/architecture/`     |
+| Stories      | `docs/stories/EPIC-{num}-{slug}/` |
+| Logs RALPH   | `docs/ralph-logs/`                |
 
 ---
 

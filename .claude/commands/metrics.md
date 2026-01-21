@@ -46,11 +46,11 @@ Je vais collecter et afficher les métriques clés du projet.
 
 ## Arguments
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--full` | false | Affiche toutes les métriques détaillées |
-| `--json` | false | Output en JSON |
-| `--compare <branch>` | - | Compare avec une autre branche |
+| Argument             | Default | Description                             |
+| -------------------- | ------- | --------------------------------------- |
+| `--full`             | false   | Affiche toutes les métriques détaillées |
+| `--json`             | false   | Output en JSON                          |
+| `--compare <branch>` | -       | Compare avec une autre branche          |
 
 ---
 
@@ -97,22 +97,22 @@ Je vais collecter et afficher les métriques clés du projet.
 
 ## Health Score Calculation
 
-| Composant | Poids | Calcul |
-|-----------|-------|--------|
-| **Coverage** | 20% | % coverage (cap 100) |
-| **Tests** | 20% | % tests passing |
-| **Documentation** | 20% | (PRD + Arch + Stories) / expected × 100 |
-| **Security** | 20% | 100 - (critical×25 + high×10 + medium×5) |
-| **Activity** | 20% | Commits last 30 days / 30 × 100 (cap 100) |
+| Composant         | Poids | Calcul                                    |
+| ----------------- | ----- | ----------------------------------------- |
+| **Coverage**      | 20%   | % coverage (cap 100)                      |
+| **Tests**         | 20%   | % tests passing                           |
+| **Documentation** | 20%   | (PRD + Arch + Stories) / expected × 100   |
+| **Security**      | 20%   | 100 - (critical×25 + high×10 + medium×5)  |
+| **Activity**      | 20%   | Commits last 30 days / 30 × 100 (cap 100) |
 
 ### Seuils
 
-| Score | Status | Signification |
-|-------|--------|---------------|
-| 80-100 | 🟢 Excellent | Projet en très bonne santé |
-| 60-79 | 🟡 Good | Quelques améliorations possibles |
-| 40-59 | 🟠 Fair | Attention requise |
-| 0-39 | 🔴 Poor | Actions urgentes nécessaires |
+| Score  | Status       | Signification                    |
+| ------ | ------------ | -------------------------------- |
+| 80-100 | 🟢 Excellent | Projet en très bonne santé       |
+| 60-79  | 🟡 Good      | Quelques améliorations possibles |
+| 40-59  | 🟠 Fair      | Attention requise                |
+| 0-39   | 🔴 Poor      | Actions urgentes nécessaires     |
 
 ---
 

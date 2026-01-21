@@ -57,19 +57,20 @@ Je vais travailler en **boucle autonome** jusqu'à complétion de ta tâche.
 ## Conditions d'arrêt
 
 Le loop s'arrête quand :
+
 1. ✅ **Completion promise** trouvée dans ma réponse
 2. 🔢 **Max iterations** atteint
 3. ⏱️ **Timeout** dépassé
 
 ## Arguments supportés
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--max N` | 20 | Nombre max d'itérations |
-| `--timeout Xh` | 1h | Timeout global (1h, 2h, 30m) |
-| `--promise "TEXT"` | "DONE" | Texte de complétion |
-| `--no-log` | false | Désactiver les logs |
-| `--verbose` | false | Mode debug avec logs détaillés |
+| Argument           | Default | Description                    |
+| ------------------ | ------- | ------------------------------ |
+| `--max N`          | 20      | Nombre max d'itérations        |
+| `--timeout Xh`     | 1h      | Timeout global (1h, 2h, 30m)   |
+| `--promise "TEXT"` | "DONE"  | Texte de complétion            |
+| `--no-log`         | false   | Désactiver les logs            |
+| `--verbose`        | false   | Mode debug avec logs détaillés |
 
 ## Exemples
 
@@ -94,33 +95,36 @@ Le log inclut automatiquement les métriques suivantes :
 ```markdown
 ## 📊 Métriques Session
 
-| Métrique | Valeur |
-|----------|--------|
-| **Durée totale** | [X]m [Y]s |
-| **Itérations** | [N] / [Max] |
-| **Phases** | [Liste des phases traversées] |
+| Métrique         | Valeur                        |
+| ---------------- | ----------------------------- |
+| **Durée totale** | [X]m [Y]s                     |
+| **Itérations**   | [N] / [Max]                   |
+| **Phases**       | [Liste des phases traversées] |
 
 ### Temps par phase
-| Phase | Durée | % Total |
-|-------|-------|---------|
-| [Phase 1] | [X]m | [Y]% |
-| [Phase 2] | [X]m | [Y]% |
+
+| Phase     | Durée | % Total |
+| --------- | ----- | ------- |
+| [Phase 1] | [X]m  | [Y]%    |
+| [Phase 2] | [X]m  | [Y]%    |
 
 ### Auto-corrections
-| Type | Count |
-|------|-------|
-| Lint errors corrigés | [X] |
-| Type errors corrigés | [X] |
-| Tests fixés | [X] |
-| Retours arrière | [X] |
+
+| Type                 | Count |
+| -------------------- | ----- |
+| Lint errors corrigés | [X]   |
+| Type errors corrigés | [X]   |
+| Tests fixés          | [X]   |
+| Retours arrière      | [X]   |
 
 ### Fichiers
-| Métrique | Valeur |
-|----------|--------|
-| Fichiers créés | [X] |
-| Fichiers modifiés | [X] |
-| Lignes ajoutées | +[X] |
-| Lignes supprimées | -[X] |
+
+| Métrique          | Valeur |
+| ----------------- | ------ |
+| Fichiers créés    | [X]    |
+| Fichiers modifiés | [X]    |
+| Lignes ajoutées   | +[X]   |
+| Lignes supprimées | -[X]   |
 ```
 
 ---
@@ -128,6 +132,7 @@ Le log inclut automatiquement les métriques suivantes :
 ## Initialisation
 
 Je vais maintenant :
+
 1. ✅ Créer le fichier de configuration `.claude/ralph-state.json`
 2. ✅ Activer le mode RALPH
 3. 📊 Initialiser le tracking des métriques

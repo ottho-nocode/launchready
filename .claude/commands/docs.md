@@ -9,18 +9,23 @@ description: Génère ou met à jour la documentation du projet. Crée README, A
 ## 📥 Contexte projet chargé automatiquement
 
 ### Structure du projet
+
 !`tree -L 2 -I 'node_modules|dist|build|.git|coverage|__pycache__|.venv|venv' 2>/dev/null | head -30 || find . -maxdepth 2 -type d | head -20`
 
 ### Package.json (nom, description, scripts)
+
 !`cat package.json 2>/dev/null | head -40 || echo "Pas de package.json"`
 
 ### README existant
+
 !`cat README.md 2>/dev/null | head -30 || echo "Pas de README.md existant"`
 
 ### Documentation existante
+
 !`ls -la docs/*.md docs/**/*.md 2>/dev/null | head -10 || echo "Pas de documentation existante"`
 
 ### Exports principaux (API)
+
 !`grep -r "export" src/index.ts src/main.ts lib/index.ts 2>/dev/null | head -20 || echo "Pas d'exports trouvés"`
 
 ---
@@ -48,19 +53,20 @@ description: Génère ou met à jour la documentation du projet. Crée README, A
 
 **Argument reçu :** `$ARGUMENTS`
 
-| Type | Action |
-|------|--------|
+| Type     | Action                        |
+| -------- | ----------------------------- |
 | `readme` | Créer/mettre à jour README.md |
-| `api` | Générer docs/API.md |
-| `guide` | Générer docs/GUIDE.md |
-| `all` | Générer tout |
-| *(vide)* | Demander quel type |
+| `api`    | Générer docs/API.md           |
+| `guide`  | Générer docs/GUIDE.md         |
+| `all`    | Générer tout                  |
+| _(vide)_ | Demander quel type            |
 
 ---
 
 ### 2. Templates
 
 #### README.md
+
 ```markdown
 # [Nom du projet]
 
@@ -75,7 +81,9 @@ description: Génère ou met à jour la documentation du projet. Crée README, A
 
 \`\`\`bash
 npm install [package]
+
 # ou
+
 git clone [repo]
 cd [repo]
 npm install
@@ -109,6 +117,7 @@ npm install
 ```
 
 #### API.md
+
 ```markdown
 # API Reference
 
@@ -139,6 +148,7 @@ const result = functionName('value');
 ```
 
 #### GUIDE.md
+
 ```markdown
 # User Guide
 
@@ -172,8 +182,8 @@ const result = functionName('value');
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
+| Issue      | Solution   |
+| ---------- | ---------- |
 | [Problème] | [Solution] |
 ```
 
@@ -182,6 +192,7 @@ const result = functionName('value');
 ### 3. Génération
 
 Je vais :
+
 1. Analyser le code source
 2. Extraire les exports et leurs types
 3. Générer la documentation appropriée
@@ -195,16 +206,19 @@ Je vais :
 ## Documentation générée
 
 ### Fichiers créés/modifiés
+
 - `README.md` - ✅ Créé/Mis à jour
 - `docs/API.md` - ✅ Créé
 - `docs/GUIDE.md` - ✅ Créé
 
 ### Statistiques
+
 - Fonctions documentées : X
 - Classes documentées : X
 - Exemples ajoutés : X
 
 ### Prochaines étapes
+
 - [ ] Relire et ajuster si nécessaire
 - [ ] Ajouter des exemples supplémentaires
 - [ ] Commiter les changements

@@ -25,41 +25,47 @@ Je vais exécuter **tout le workflow de planning en autonome** :
 
 ## Configuration RALPH
 
-| Paramètre | Valeur |
-|-----------|--------|
-| Session | `${CLAUDE_SESSION_ID}` |
-| Max iterations | **30** (planning = plus d'étapes) |
-| Timeout | **1h** |
-| Completion promise | **"DISCOVERY COMPLETE"** |
-| Logs | `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` |
-| Verbose | OFF (use `--verbose` to enable) |
+| Paramètre          | Valeur                                    |
+| ------------------ | ----------------------------------------- |
+| Session            | `${CLAUDE_SESSION_ID}`                    |
+| Max iterations     | **30** (planning = plus d'étapes)         |
+| Timeout            | **1h**                                    |
+| Completion promise | **"DISCOVERY COMPLETE"**                  |
+| Logs               | `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` |
+| Verbose            | OFF (use `--verbose` to enable)           |
 
 ## Ce que je vais faire automatiquement
 
 ### Phase 1: Analyse & Mode Detection
+
 - Analyser le scope de ton besoin
 - Détecter automatiquement FULL vs LIGHT
 
 ### Phase 2: Brainstorm (si FULL)
+
 - Explorer les directions possibles
 - Choisir la plus pertinente
 
 ### Phase 3: PRD
+
 - Poser les questions (et y répondre avec le contexte)
 - Rédiger le PRD complet
 - Sauvegarder dans `docs/planning/prd/`
 
 ### Phase 4: Architecture (si FULL)
+
 - Analyser le codebase existant
 - Proposer le stack technique
 - Sauvegarder dans `docs/planning/architecture/`
 
 ### Phase 5: Stories
+
 - Découper en Epics
 - Créer les User Stories
 - Sauvegarder dans `docs/stories/`
 
 ### Phase 6: Publication GitHub
+
 - Créer les issues Epic
 - Créer les issues Stories
 - Lier les issues entre elles
@@ -67,6 +73,7 @@ Je vais exécuter **tout le workflow de planning en autonome** :
 ## Output attendu
 
 À la fin du loop, tu auras :
+
 - 📄 `docs/planning/prd/PRD-xxx.md`
 - 📄 `docs/planning/architecture/ARCH-xxx.md` (si mode FULL)
 - 📁 `docs/stories/EPIC-xxx/` avec les stories
@@ -81,59 +88,64 @@ Le log inclut automatiquement les métriques suivantes :
 ```markdown
 ## 📊 Métriques Discovery
 
-| Métrique | Valeur |
-|----------|--------|
-| **Durée totale** | [X]m [Y]s |
-| **Itérations** | [N] / 30 |
+| Métrique         | Valeur       |
+| ---------------- | ------------ |
+| **Durée totale** | [X]m [Y]s    |
+| **Itérations**   | [N] / 30     |
 | **Mode détecté** | FULL / LIGHT |
 
 ### Temps par phase
-| Phase | Durée | Status |
-|-------|-------|--------|
-| Analyse initiale | [X]m | ✅ |
-| Brainstorm | [X]m | ✅/⏭️ |
-| UX Design | [X]m | ✅/⏭️ |
-| PRD | [X]m | ✅ |
-| UI Design | [X]m | ✅/⏭️ |
-| Architecture | [X]m | ✅/⏭️ |
-| Stories | [X]m | ✅ |
-| GitHub | [X]m | ✅ |
+
+| Phase            | Durée | Status |
+| ---------------- | ----- | ------ |
+| Analyse initiale | [X]m  | ✅     |
+| Brainstorm       | [X]m  | ✅/⏭️  |
+| UX Design        | [X]m  | ✅/⏭️  |
+| PRD              | [X]m  | ✅     |
+| UI Design        | [X]m  | ✅/⏭️  |
+| Architecture     | [X]m  | ✅/⏭️  |
+| Stories          | [X]m  | ✅     |
+| GitHub           | [X]m  | ✅     |
 
 ### Documents générés
-| Type | Fichier | Status |
-|------|---------|--------|
-| Brainstorm | `BRAINSTORM-xxx.md` | ✅/❌ |
-| UX Design | `UX-xxx.md` | ✅/⏭️ |
-| PRD | `PRD-xxx.md` | ✅ |
-| UI Design | `UI-xxx.md` | ✅/⏭️ |
-| Architecture | `ARCH-xxx.md` | ✅/⏭️ |
-| Stories | `EPIC-xxx/` | ✅ |
+
+| Type         | Fichier             | Status |
+| ------------ | ------------------- | ------ |
+| Brainstorm   | `BRAINSTORM-xxx.md` | ✅/❌  |
+| UX Design    | `UX-xxx.md`         | ✅/⏭️  |
+| PRD          | `PRD-xxx.md`        | ✅     |
+| UI Design    | `UI-xxx.md`         | ✅/⏭️  |
+| Architecture | `ARCH-xxx.md`       | ✅/⏭️  |
+| Stories      | `EPIC-xxx/`         | ✅     |
 
 ### Issues GitHub
-| Type | Count | Numéros |
-|------|-------|---------|
-| Epics | [X] | #[nums] |
-| Stories | [X] | #[nums] |
+
+| Type    | Count | Numéros |
+| ------- | ----- | ------- |
+| Epics   | [X]   | #[nums] |
+| Stories | [X]   | #[nums] |
 
 ### Auto-corrections
-| Type | Count |
-|------|-------|
-| Questions résolues auto | [X] |
-| Modes ajustés | [X] |
-| Retours phases | [X] |
+
+| Type                    | Count |
+| ----------------------- | ----- |
+| Questions résolues auto | [X]   |
+| Modes ajustés           | [X]   |
+| Retours phases          | [X]   |
 ```
 
 ## Arguments supportés
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--max N` | 30 | Nombre max d'itérations |
-| `--timeout Xh` | 1h | Timeout global |
-| `--verbose` | false | Mode debug avec logs détaillés |
+| Argument       | Default | Description                    |
+| -------------- | ------- | ------------------------------ |
+| `--max N`      | 30      | Nombre max d'itérations        |
+| `--timeout Xh` | 1h      | Timeout global                 |
+| `--verbose`    | false   | Mode debug avec logs détaillés |
 
 ## Mode Verbose
 
 Avec `--verbose`, chaque étape affiche :
+
 - État du contexte chargé
 - Décisions prises et pourquoi
 - Temps passé par phase

@@ -25,44 +25,50 @@ Je vais exécuter **tout le workflow de développement en autonome** :
 
 ## Configuration RALPH
 
-| Paramètre | Valeur |
-|-----------|--------|
-| Session | `${CLAUDE_SESSION_ID}` |
-| Max iterations | **50** (dev = beaucoup d'itérations possibles) |
-| Timeout | **2h** |
-| Completion promise | **"FEATURE COMPLETE"** |
-| Logs | `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` |
-| Verbose | OFF (use `--verbose` to enable) |
+| Paramètre          | Valeur                                         |
+| ------------------ | ---------------------------------------------- |
+| Session            | `${CLAUDE_SESSION_ID}`                         |
+| Max iterations     | **50** (dev = beaucoup d'itérations possibles) |
+| Timeout            | **2h**                                         |
+| Completion promise | **"FEATURE COMPLETE"**                         |
+| Logs               | `docs/ralph-logs/${CLAUDE_SESSION_ID}.md`      |
+| Verbose            | OFF (use `--verbose` to enable)                |
 
 ## Ce que je vais faire automatiquement
 
 ### Phase 1: EXPLAIN 🔍
+
 - Lire et parser l'issue GitHub
 - Analyser le codebase existant
 - Identifier les fichiers à modifier
 - Comprendre les patterns en place
 
 ### Phase 2: PLAN 📝
+
 - Décomposer en étapes atomiques
 - Définir l'ordre d'implémentation
 - Identifier les risques
 
 ### Phase 3: CODE 💻
+
 - Implémenter étape par étape
 - Respecter les conventions du projet
 - Commiter régulièrement
 
 ### Phase 4: TEST 🧪
+
 - Écrire les tests unitaires
 - Écrire les tests d'intégration
 - S'assurer que tout passe
 
 ### Phase 5: REVIEW ×3 🔄
+
 - **Pass 1**: Correctness - Bugs, logique, sécurité
 - **Pass 2**: Readability - Nommage, structure, DRY
 - **Pass 3**: Performance - Optimisations
 
 ### Phase 6: Finalisation
+
 - Vérifier que tous les tests passent
 - Créer un résumé des changements
 - Préparer pour PR
@@ -70,6 +76,7 @@ Je vais exécuter **tout le workflow de développement en autonome** :
 ## Critères de succès automatiques
 
 Le loop considère la feature "COMPLETE" quand :
+
 - ✅ Code implémenté selon le plan
 - ✅ Tous les tests passent
 - ✅ 3 passes de review effectuées
@@ -84,56 +91,61 @@ Le log inclut automatiquement les métriques suivantes :
 ```markdown
 ## 📊 Métriques Feature
 
-| Métrique | Valeur |
-|----------|--------|
+| Métrique         | Valeur    |
+| ---------------- | --------- |
 | **Durée totale** | [X]m [Y]s |
-| **Itérations** | [N] / 50 |
-| **Issue** | #[NUM] |
+| **Itérations**   | [N] / 50  |
+| **Issue**        | #[NUM]    |
 
 ### Temps par phase
-| Phase | Durée | Status |
-|-------|-------|--------|
-| Explain | [X]m | ✅ |
-| Plan | [X]m | ✅ |
-| Code | [X]m | ✅ |
-| Test | [X]m | ✅ |
-| Review Pass 1 | [X]m | ✅ |
-| Review Pass 2 | [X]m | ✅ |
-| Review Pass 3 | [X]m | ✅ |
+
+| Phase         | Durée | Status |
+| ------------- | ----- | ------ |
+| Explain       | [X]m  | ✅     |
+| Plan          | [X]m  | ✅     |
+| Code          | [X]m  | ✅     |
+| Test          | [X]m  | ✅     |
+| Review Pass 1 | [X]m  | ✅     |
+| Review Pass 2 | [X]m  | ✅     |
+| Review Pass 3 | [X]m  | ✅     |
 
 ### Code Metrics
-| Métrique | Valeur |
-|----------|--------|
-| Fichiers créés | [X] |
-| Fichiers modifiés | [X] |
-| Lignes ajoutées | +[X] |
-| Lignes supprimées | -[X] |
-| Fonctions ajoutées | [X] |
+
+| Métrique           | Valeur |
+| ------------------ | ------ |
+| Fichiers créés     | [X]    |
+| Fichiers modifiés  | [X]    |
+| Lignes ajoutées    | +[X]   |
+| Lignes supprimées  | -[X]   |
+| Fonctions ajoutées | [X]    |
 
 ### Tests
-| Métrique | Valeur |
-|----------|--------|
-| Tests écrits | [X] |
-| Tests P0 | [X] |
-| Tests P1 | [X] |
-| Coverage | [X]% |
-| Flaky runs | [X] |
+
+| Métrique     | Valeur |
+| ------------ | ------ |
+| Tests écrits | [X]    |
+| Tests P0     | [X]    |
+| Tests P1     | [X]    |
+| Coverage     | [X]%   |
+| Flaky runs   | [X]    |
 
 ### Auto-corrections
-| Type | Count |
-|------|-------|
-| Lint errors corrigés | [X] |
-| Type errors corrigés | [X] |
-| Tests fixés | [X] |
-| Review issues résolues | [X] |
-| Retours arrière | [X] |
+
+| Type                   | Count |
+| ---------------------- | ----- |
+| Lint errors corrigés   | [X]   |
+| Type errors corrigés   | [X]   |
+| Tests fixés            | [X]   |
+| Review issues résolues | [X]   |
+| Retours arrière        | [X]   |
 
 ### Review Summary
-| Pass | Issues trouvées | Issues résolues |
-|------|-----------------|-----------------|
-| Correctness | [X] | [X] |
-| Readability | [X] | [X] |
-| Performance | [X] | [X] |
+
+| Pass        | Issues trouvées | Issues résolues |
+| ----------- | --------------- | --------------- |
+| Correctness | [X]             | [X]             |
+| Readability | [X]             | [X]             |
+| Performance | [X]             | [X]             |
 ```
 
 ## Arrêt manuel
@@ -144,13 +156,13 @@ Le log inclut automatiquement les métriques suivantes :
 
 ## Arguments supportés
 
-| Argument | Description |
-|----------|-------------|
-| `#123` | Numéro d'issue GitHub |
-| `URL` | URL complète de l'issue |
-| `--max N` | Override max iterations (default: 50) |
-| `--timeout Xh` | Override timeout (default: 2h) |
-| `--verbose` | Mode debug avec logs détaillés |
+| Argument       | Description                           |
+| -------------- | ------------------------------------- |
+| `#123`         | Numéro d'issue GitHub                 |
+| `URL`          | URL complète de l'issue               |
+| `--max N`      | Override max iterations (default: 50) |
+| `--timeout Xh` | Override timeout (default: 2h)        |
+| `--verbose`    | Mode debug avec logs détaillés        |
 
 ## Exemples
 
