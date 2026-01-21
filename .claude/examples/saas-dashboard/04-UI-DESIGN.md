@@ -13,62 +13,65 @@
 ### Couleurs
 
 #### Palette principale
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--color-primary` | #6366F1 | CTA, liens, accents (Indigo) |
-| `--color-primary-hover` | #4F46E5 | États hover |
-| `--color-primary-light` | #EEF2FF | Backgrounds légers |
+
+| Token                   | Valeur  | Usage                        |
+| ----------------------- | ------- | ---------------------------- |
+| `--color-primary`       | #6366F1 | CTA, liens, accents (Indigo) |
+| `--color-primary-hover` | #4F46E5 | États hover                  |
+| `--color-primary-light` | #EEF2FF | Backgrounds légers           |
 
 #### Palette sémantique
-| Token | Valeur | Usage |
-|-------|--------|-------|
+
+| Token             | Valeur  | Usage                         |
+| ----------------- | ------- | ----------------------------- |
 | `--color-success` | #22C55E | Projets on-track, validations |
-| `--color-warning` | #F59E0B | Projets à risque, alertes |
-| `--color-error` | #EF4444 | Projets en retard, erreurs |
-| `--color-info` | #3B82F6 | Informations, liens |
+| `--color-warning` | #F59E0B | Projets à risque, alertes     |
+| `--color-error`   | #EF4444 | Projets en retard, erreurs    |
+| `--color-info`    | #3B82F6 | Informations, liens           |
 
 #### Neutres
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--color-gray-900` | #111827 | Texte principal |
+
+| Token              | Valeur  | Usage            |
+| ------------------ | ------- | ---------------- |
+| `--color-gray-900` | #111827 | Texte principal  |
 | `--color-gray-600` | #4B5563 | Texte secondaire |
-| `--color-gray-400` | #9CA3AF | Placeholders |
-| `--color-gray-200` | #E5E7EB | Bordures |
-| `--color-gray-50` | #F9FAFB | Backgrounds |
+| `--color-gray-400` | #9CA3AF | Placeholders     |
+| `--color-gray-200` | #E5E7EB | Bordures         |
+| `--color-gray-50`  | #F9FAFB | Backgrounds      |
 
 ### Typographie
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--font-sans` | 'Inter', system-ui | Corps de texte |
-| `--font-mono` | 'JetBrains Mono' | Code, IDs |
-| `--text-xs` | 12px / 16px | Labels, captions |
-| `--text-sm` | 14px / 20px | Body small, sidebar |
-| `--text-base` | 16px / 24px | Body |
-| `--text-lg` | 18px / 28px | Subtitles |
-| `--text-xl` | 20px / 28px | Card titles |
-| `--text-2xl` | 24px / 32px | Page titles |
-| `--text-3xl` | 30px / 36px | Dashboard KPIs |
+| Token         | Valeur             | Usage               |
+| ------------- | ------------------ | ------------------- |
+| `--font-sans` | 'Inter', system-ui | Corps de texte      |
+| `--font-mono` | 'JetBrains Mono'   | Code, IDs           |
+| `--text-xs`   | 12px / 16px        | Labels, captions    |
+| `--text-sm`   | 14px / 20px        | Body small, sidebar |
+| `--text-base` | 16px / 24px        | Body                |
+| `--text-lg`   | 18px / 28px        | Subtitles           |
+| `--text-xl`   | 20px / 28px        | Card titles         |
+| `--text-2xl`  | 24px / 32px        | Page titles         |
+| `--text-3xl`  | 30px / 36px        | Dashboard KPIs      |
 
 ### Spacing
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--space-1` | 4px | Micro |
-| `--space-2` | 8px | Tight |
-| `--space-3` | 12px | Compact |
-| `--space-4` | 16px | Default |
-| `--space-6` | 24px | Section |
-| `--space-8` | 32px | Large |
+| Token       | Valeur | Usage   |
+| ----------- | ------ | ------- |
+| `--space-1` | 4px    | Micro   |
+| `--space-2` | 8px    | Tight   |
+| `--space-3` | 12px   | Compact |
+| `--space-4` | 16px   | Default |
+| `--space-6` | 24px   | Section |
+| `--space-8` | 32px   | Large   |
 
 ### Shadows & Radius
 
-| Token | Valeur |
-|-------|--------|
+| Token         | Valeur                     |
+| ------------- | -------------------------- |
 | `--shadow-sm` | 0 1px 2px rgba(0,0,0,0.05) |
-| `--shadow-md` | 0 4px 6px rgba(0,0,0,0.1) |
-| `--radius-md` | 8px |
-| `--radius-lg` | 12px |
+| `--shadow-md` | 0 4px 6px rgba(0,0,0,0.1)  |
+| `--radius-md` | 8px                        |
+| `--radius-lg` | 12px                       |
 
 ---
 
@@ -93,6 +96,7 @@
 ```
 
 **États:**
+
 - Default: text-gray-600
 - Hover: bg-gray-100
 - Active: bg-primary-light, text-primary, font-medium
@@ -114,12 +118,12 @@
 
 ### 3. Project Status Badge
 
-| Status | Couleur | Label |
-|--------|---------|-------|
-| On Track | `bg-success/10 text-success` | 🟢 On track |
-| At Risk | `bg-warning/10 text-warning` | 🟡 À risque |
-| Delayed | `bg-error/10 text-error` | 🔴 En retard |
-| Completed | `bg-gray-100 text-gray-600` | ✓ Terminé |
+| Status    | Couleur                      | Label        |
+| --------- | ---------------------------- | ------------ |
+| On Track  | `bg-success/10 text-success` | 🟢 On track  |
+| At Risk   | `bg-warning/10 text-warning` | 🟡 À risque  |
+| Delayed   | `bg-error/10 text-error`     | 🔴 En retard |
+| Completed | `bg-gray-100 text-gray-600`  | ✓ Terminé    |
 
 ### 4. Task Card (Kanban)
 
@@ -169,11 +173,11 @@
 ### 7. Avatar
 
 | Size | Dimension | Font |
-|------|-----------|------|
-| xs | 24px | 10px |
-| sm | 32px | 12px |
-| md | 40px | 14px |
-| lg | 56px | 18px |
+| ---- | --------- | ---- |
+| xs   | 24px      | 10px |
+| sm   | 32px      | 12px |
+| md   | 40px      | 14px |
+| lg   | 56px      | 18px |
 
 **Style:** rounded-full, bg-primary-light, text-primary
 
@@ -196,12 +200,12 @@
 
 ### 9. Toast Notification
 
-| Type | Icon | Color |
-|------|------|-------|
-| Success | ✓ | success |
-| Error | ✕ | error |
-| Warning | ⚠ | warning |
-| Info | ℹ | info |
+| Type    | Icon | Color   |
+| ------- | ---- | ------- |
+| Success | ✓    | success |
+| Error   | ✕    | error   |
+| Warning | ⚠    | warning |
+| Info    | ℹ    | info    |
 
 **Position:** top-right
 **Auto-dismiss:** 5s
@@ -258,23 +262,23 @@
 ```css
 :root {
   /* Colors - Primary */
-  --color-primary: #6366F1;
-  --color-primary-hover: #4F46E5;
-  --color-primary-light: #EEF2FF;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #eef2ff;
 
   /* Colors - Semantic */
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 
   /* Colors - Neutral */
   --color-gray-900: #111827;
-  --color-gray-600: #4B5563;
-  --color-gray-400: #9CA3AF;
-  --color-gray-200: #E5E7EB;
-  --color-gray-50: #F9FAFB;
-  --color-white: #FFFFFF;
+  --color-gray-600: #4b5563;
+  --color-gray-400: #9ca3af;
+  --color-gray-200: #e5e7eb;
+  --color-gray-50: #f9fafb;
+  --color-white: #ffffff;
 
   /* Typography */
   --font-sans: 'Inter', system-ui, sans-serif;

@@ -5,6 +5,7 @@
 ## Contexte
 
 Un blog personnel avec Next.js, MDX pour le contenu, et un système de tags.
+
 - **Complexité** : FULL (3-5 jours)
 - **Stack** : Next.js 14 + MDX + Tailwind CSS + Vercel
 
@@ -32,6 +33,7 @@ blog-nextjs/
 ```
 
 Mode FULL détecté automatiquement (score 4/5) :
+
 - 3+ features distinctes ✅
 - Architecture multi-composants ✅
 - 3+ pages UI ✅
@@ -39,12 +41,12 @@ Mode FULL détecté automatiquement (score 4/5) :
 
 ## Fonctionnalités v2.6 utilisées
 
-| Feature | Usage dans cet exemple |
-|---------|------------------------|
-| **UX Designer** | Personas lecteur/auteur, journey de lecture |
+| Feature             | Usage dans cet exemple                      |
+| ------------------- | ------------------------------------------- |
+| **UX Designer**     | Personas lecteur/auteur, journey de lecture |
 | **Dynamic Context** | PRD et Architecture chargés automatiquement |
-| **Hook coverage** | Coverage affichée après chaque test |
-| **Argument hints** | `/test-runner src/` guidé par le hint |
+| **Hook coverage**   | Coverage affichée après chaque test         |
+| **Argument hints**  | `/test-runner src/` guidé par le hint       |
 
 ## Commandes utiles v2.6
 
@@ -290,8 +292,9 @@ describe('Posts Library', () => {
       const posts = await getAllPosts();
 
       for (let i = 1; i < posts.length; i++) {
-        expect(new Date(posts[i - 1].date).getTime())
-          .toBeGreaterThanOrEqual(new Date(posts[i].date).getTime());
+        expect(new Date(posts[i - 1].date).getTime()).toBeGreaterThanOrEqual(
+          new Date(posts[i].date).getTime()
+        );
       }
     });
   });

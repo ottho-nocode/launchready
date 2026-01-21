@@ -31,7 +31,7 @@ jobs:
   vercel:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
-    if: false  # Set to true to enable
+    if: false # Set to true to enable
     environment:
       name: ${{ github.event.inputs.environment || 'production' }}
       url: ${{ steps.deploy.outputs.url }}
@@ -65,7 +65,7 @@ jobs:
   netlify:
     name: Deploy to Netlify
     runs-on: ubuntu-latest
-    if: false  # Set to true to enable
+    if: false # Set to true to enable
     environment:
       name: ${{ github.event.inputs.environment || 'production' }}
       url: ${{ steps.deploy.outputs.deploy-url }}
@@ -92,7 +92,7 @@ jobs:
           production-branch: main
           production-deploy: ${{ github.event.inputs.environment == 'production' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: 'Deploy from GitHub Actions'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -103,7 +103,7 @@ jobs:
   aws:
     name: Deploy to AWS
     runs-on: ubuntu-latest
-    if: false  # Set to true to enable
+    if: false # Set to true to enable
     environment:
       name: ${{ github.event.inputs.environment || 'production' }}
     steps:
@@ -145,7 +145,7 @@ jobs:
   docker-k8s:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
-    if: false  # Set to true to enable
+    if: false # Set to true to enable
     environment:
       name: ${{ github.event.inputs.environment || 'production' }}
     steps:
@@ -192,7 +192,7 @@ jobs:
   railway:
     name: Deploy to Railway
     runs-on: ubuntu-latest
-    if: false  # Set to true to enable
+    if: false # Set to true to enable
     environment:
       name: ${{ github.event.inputs.environment || 'production' }}
     steps:

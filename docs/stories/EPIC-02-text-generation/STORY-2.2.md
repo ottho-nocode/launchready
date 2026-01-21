@@ -55,6 +55,7 @@ Then je reçois une erreur 400 avec message explicite
 ## Notes techniques
 
 Prompts à créer dans `lib/prompts/` :
+
 - `system-prompt.ts` - Instructions générales
 - `app-name.ts` - Génération nom
 - `description.ts` - Génération description longue

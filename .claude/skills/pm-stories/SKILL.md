@@ -8,7 +8,7 @@ allowed-tools: Read, Grep, Glob, Write, mcp__github__create_issue, mcp__github__
 argument-hint: <prd-or-architecture-file>
 hooks:
   pre_tool_call:
-    - matcher: "mcp__github__create_issue"
+    - matcher: 'mcp__github__create_issue'
       command: "gh auth status 2>/dev/null || echo '⚠️ GitHub CLI non authentifié - les issues seront créées via MCP'"
 ---
 
@@ -17,15 +17,19 @@ hooks:
 ## 📥 Contexte projet chargé automatiquement
 
 ### PRD actif
+
 !`ls -t docs/planning/prd/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -60 || echo "Aucun PRD trouvé - REQUIS"`
 
 ### Architecture (si mode FULL)
+
 !`ls -t docs/planning/architecture/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -40 || echo "Pas d'architecture trouvée"`
 
 ### Stories existantes (pour éviter doublons)
+
 !`ls -la docs/stories/*/STORY-*.md 2>/dev/null | tail -10 || echo "Aucune story existante"`
 
 ### GitHub repo info
+
 !`gh repo view --json name,owner,url 2>/dev/null || echo "⚠️ GitHub CLI non configuré - MCP GitHub sera utilisé"`
 
 ---
@@ -33,6 +37,7 @@ hooks:
 ## Activation
 
 > **Avant de créer des stories :**
+>
 > 1. Vérifier qu'un PRD existe (`docs/planning/prd/`)
 > 2. Vérifier si Architecture existe (`docs/planning/architecture/`)
 > 3. Si Architecture manquante en mode FULL → suggérer de la créer d'abord
@@ -43,6 +48,7 @@ hooks:
 **Rôle** : Product Owner qui transforme PRD + Architecture en stories actionnables.
 
 **Principes** :
+
 - **INVEST** : Independent, Negotiable, Valuable, Estimable, Small, Testable
 - **1 Story = 1 valeur utilisateur** - Pas de stories purement techniques sans valeur visible
 - **Critères d'acceptance = contrat** - Given/When/Then, testables automatiquement
@@ -50,6 +56,7 @@ hooks:
 - **Definition of Done claire** - Pas d'ambiguïté sur "terminé"
 
 **Règles** :
+
 - ⛔ Ne JAMAIS publier sur GitHub sans Implementation Readiness Check
 - ⛔ Ne JAMAIS créer de stories sans PRD validé
 - ✅ Toujours sauvegarder localement avant GitHub
@@ -67,11 +74,13 @@ hooks:
 Je charge le contexte du projet...
 
 **Documents trouvés :**
+
 - PRD : `docs/planning/prd/PRD-{slug}.md` ✅/❌
 - Architecture : `docs/planning/architecture/ARCH-{slug}.md` ✅/❌
 
 [Si pas d'architecture et mode FULL suggéré]
 ⚠️ Pas d'architecture trouvée. Tu veux :
+
 - [A] Créer l'architecture d'abord (recommandé)
 - [S] Continuer sans architecture
 
@@ -92,17 +101,18 @@ Analyser le PRD pour identifier les Epics (groupes fonctionnels) :
 
 Basé sur le PRD, je propose le découpage suivant :
 
-| # | Epic | Description | Stories estimées |
-|---|------|-------------|------------------|
-| E1 | [Nom] | [Description] | ~X stories |
-| E2 | [Nom] | [Description] | ~X stories |
-| E3 | [Nom] | [Description] | ~X stories |
+| #   | Epic  | Description   | Stories estimées |
+| --- | ----- | ------------- | ---------------- |
+| E1  | [Nom] | [Description] | ~X stories       |
+| E2  | [Nom] | [Description] | ~X stories       |
+| E3  | [Nom] | [Description] | ~X stories       |
 
 **Ordre suggéré** : E1 → E2 → E3 (selon dépendances)
 
 ---
 
 Tu valides ce découpage ?
+
 - [V] Valider et continuer
 - [M] Modifier (dis-moi quoi changer)
 ```
@@ -172,22 +182,25 @@ status: draft
 ```markdown
 ## 📋 Stories créées pour Epic: [Nom]
 
-| ID | Story | Priorité | Estimation |
-|----|-------|----------|------------|
-| STORY-001 | [Titre] | P0 | M |
-| STORY-002 | [Titre] | P0 | S |
-| STORY-003 | [Titre] | P1 | L |
+| ID        | Story   | Priorité | Estimation |
+| --------- | ------- | -------- | ---------- |
+| STORY-001 | [Titre] | P0       | M          |
+| STORY-002 | [Titre] | P0       | S          |
+| STORY-003 | [Titre] | P1       | L          |
 
 ### Détail STORY-001: [Titre]
+
 [Résumé de la story]
 
 **Critères d'acceptance clés :**
+
 - [AC1 résumé]
 - [AC2 résumé]
 
 ---
 
 **Actions ?**
+
 - [N] Voir la story suivante
 - [D] Voir le détail complet
 - [M] Modifier cette story
@@ -209,33 +222,37 @@ status: draft
 Je vérifie que tout est prêt pour le développement...
 
 ### PRD Completeness
-| Critère | Status |
-|---------|--------|
-| Problème clairement défini | ✅/❌ |
-| Utilisateurs identifiés | ✅/❌ |
-| Features MVP listées | ✅/❌ |
-| Hors scope défini | ✅/❌ |
-| Métriques de succès | ✅/❌ |
+
+| Critère                    | Status |
+| -------------------------- | ------ |
+| Problème clairement défini | ✅/❌  |
+| Utilisateurs identifiés    | ✅/❌  |
+| Features MVP listées       | ✅/❌  |
+| Hors scope défini          | ✅/❌  |
+| Métriques de succès        | ✅/❌  |
 
 ### Architecture Alignment (si applicable)
-| Critère | Status |
-|---------|--------|
-| Stack technique défini | ✅/❌ |
-| Structure projet claire | ✅/❌ |
-| Data model documenté | ✅/❌ |
-| APIs spécifiées | ✅/❌ |
-| Décisions ADR documentées | ✅/❌ |
+
+| Critère                   | Status |
+| ------------------------- | ------ |
+| Stack technique défini    | ✅/❌  |
+| Structure projet claire   | ✅/❌  |
+| Data model documenté      | ✅/❌  |
+| APIs spécifiées           | ✅/❌  |
+| Décisions ADR documentées | ✅/❌  |
 
 ### Stories Quality
-| Critère | Status |
-|---------|--------|
-| Toutes stories INVEST-compliant | ✅/❌ |
-| AC en Given/When/Then | ✅/❌ |
-| Estimations cohérentes | ✅/❌ |
-| Dépendances identifiées | ✅/❌ |
-| Pas de story > L (2j) | ✅/❌ |
+
+| Critère                         | Status |
+| ------------------------------- | ------ |
+| Toutes stories INVEST-compliant | ✅/❌  |
+| AC en Given/When/Then           | ✅/❌  |
+| Estimations cohérentes          | ✅/❌  |
+| Dépendances identifiées         | ✅/❌  |
+| Pas de story > L (2j)           | ✅/❌  |
 
 ### Questions ouvertes
+
 - [ ] [Question non résolue 1]
 - [ ] [Question non résolue 2]
 
@@ -243,13 +260,14 @@ Je vérifie que tout est prêt pour le développement...
 
 **Readiness Score: X/15**
 
-| Score | Status | Action |
-|-------|--------|--------|
-| 13-15 | ✅ Ready | Publier sur GitHub |
+| Score | Status        | Action                |
+| ----- | ------------- | --------------------- |
+| 13-15 | ✅ Ready      | Publier sur GitHub    |
 | 10-12 | ⚠️ Minor gaps | Corriger puis publier |
-| <10 | ❌ Not ready | Résoudre les blockers |
+| <10   | ❌ Not ready  | Résoudre les blockers |
 
 **Blockers à résoudre :**
+
 - [Blocker 1]
 - [Blocker 2]
 ```
@@ -270,10 +288,12 @@ Quand Readiness Check passé :
 Je vais créer sur GitHub :
 
 **Epic (Issue parent):**
+
 - `[EPIC] [Nom de l'epic]`
   - Labels: `epic`, `feature`
 
 **Stories (Issues liées):**
+
 - `[STORY-001] [Titre]` → linked to Epic
 - `[STORY-002] [Titre]` → linked to Epic
 - ...
@@ -283,6 +303,7 @@ Je vais créer sur GitHub :
 ---
 
 Confirmer la publication ?
+
 - [P] Publier toutes les issues
 - [S] Publier seulement l'Epic [num]
 - [R] Réviser avant
@@ -311,23 +332,27 @@ gh issue create --title "[STORY-001] Titre" --body "..." --label "story"
 ## ✅ Stories publiées
 
 ### Epic: [Nom] → Issue #XX
-| Story | GitHub Issue | Priorité |
-|-------|--------------|----------|
-| STORY-001 | #YY | P0 |
-| STORY-002 | #ZZ | P0 |
+
+| Story     | GitHub Issue | Priorité |
+| --------- | ------------ | -------- |
+| STORY-001 | #YY          | P0       |
+| STORY-002 | #ZZ          | P0       |
 
 ### Fichiers créés
+
 - `docs/stories/EPIC-001-{slug}/`
   - `STORY-001-{slug}.md`
   - `STORY-002-{slug}.md`
 
 ### Implementation Readiness
+
 - Score: X/15 ✅
 - Blockers résolus: X
 
 ---
 
 **Prochaine étape ?**
+
 - [F] Lancer `/feature #YY` pour implémenter la première story
 - [V] Voir les issues sur GitHub
 - [C] Créer les stories de l'Epic suivante
@@ -337,13 +362,13 @@ gh issue create --title "[STORY-001] Titre" --body "..." --label "story"
 
 ## Estimations
 
-| Taille | Durée | Quand utiliser |
-|--------|-------|----------------|
-| **XS** | <2h | Typo, config, petit fix |
-| **S** | 2-4h | Feature simple, 1-2 fichiers |
-| **M** | 4-8h | Feature standard |
-| **L** | 1-2j | Feature complexe (limite max) |
-| **XL** | >2j | ⚠️ À découper obligatoirement |
+| Taille | Durée | Quand utiliser                |
+| ------ | ----- | ----------------------------- |
+| **XS** | <2h   | Typo, config, petit fix       |
+| **S**  | 2-4h  | Feature simple, 1-2 fichiers  |
+| **M**  | 4-8h  | Feature standard              |
+| **L**  | 1-2j  | Feature complexe (limite max) |
+| **XL** | >2j   | ⚠️ À découper obligatoirement |
 
 ---
 
@@ -354,16 +379,16 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Stories
 
-| Critère | Status |
-|---------|--------|
-| Fichiers créés dans `docs/stories/EPIC-*/` | ✅/❌ |
-| Epics identifiées et documentées | ✅/❌ |
-| Stories INVEST-compliant | ✅/❌ |
-| Critères d'acceptance en Given/When/Then | ✅/❌ |
-| Estimations (XS/S/M/L) présentes | ✅/❌ |
-| Readiness Check score ≥ 13/15 | ✅/❌ |
-| Issues GitHub créées | ✅/❌ |
-| Liens Epic ↔ Stories établis | ✅/❌ |
+| Critère                                    | Status |
+| ------------------------------------------ | ------ |
+| Fichiers créés dans `docs/stories/EPIC-*/` | ✅/❌  |
+| Epics identifiées et documentées           | ✅/❌  |
+| Stories INVEST-compliant                   | ✅/❌  |
+| Critères d'acceptance en Given/When/Then   | ✅/❌  |
+| Estimations (XS/S/M/L) présentes           | ✅/❌  |
+| Readiness Check score ≥ 13/15              | ✅/❌  |
+| Issues GitHub créées                       | ✅/❌  |
+| Liens Epic ↔ Stories établis               | ✅/❌  |
 
 **Score : X/8** → Si < 6, compléter avant transition
 ```
@@ -380,6 +405,7 @@ Après publication sur GitHub, proposer automatiquement :
 ✅ Stories publiées sur GitHub.
 
 **Issues créées :**
+
 - Epic #XX : [Nom]
 - Story #YY : [Titre] (P0)
 - Story #ZZ : [Titre] (P0)

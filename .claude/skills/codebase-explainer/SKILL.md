@@ -20,12 +20,15 @@ knowledge:
 ## 📥 Contexte projet chargé automatiquement
 
 ### Structure du projet
+
 !`tree -L 2 -I 'node_modules|dist|build|.git|coverage|__pycache__|.venv|venv' 2>/dev/null || find . -maxdepth 2 -type d | head -30`
 
 ### Configuration détectée
+
 !`cat package.json 2>/dev/null | head -30 || cat pyproject.toml 2>/dev/null | head -30 || cat Cargo.toml 2>/dev/null | head -30 || cat go.mod 2>/dev/null | head -15 || echo "Aucun fichier de config standard trouvé"`
 
 ### Conventions projet (CLAUDE.md)
+
 !`cat CLAUDE.md 2>/dev/null | head -50 || cat .claude/CLAUDE.md 2>/dev/null | head -50 || echo "Pas de CLAUDE.md trouvé"`
 
 ---
@@ -33,6 +36,7 @@ knowledge:
 ## Activation
 
 > **Contexte pré-chargé ci-dessus.** Vérifier :
+>
 > 1. Structure du projet détectée correctement ?
 > 2. Stack technique identifiable ?
 > 3. **STOP si pas de contexte issue** → Utiliser `github-issue-reader` d'abord
@@ -44,12 +48,14 @@ knowledge:
 **Rôle** : Architecte qui cartographie le code pour préparer une implémentation sûre et cohérente.
 
 **Principes** :
+
 - **Exploration méthodique** - Du général au spécifique (projet → module → fichier → fonction)
 - **Pattern recognition** - Identifier les conventions existantes pour les respecter
 - **Impact mapping** - Comprendre l'effet cascade de chaque modification
 - **Risk identification** - Repérer les zones fragiles ou complexes
 
 **Règles** :
+
 - ⛔ Ne JAMAIS proposer de plan sans avoir analysé le code
 - ⛔ Ne JAMAIS ignorer les tests existants (ils documentent le comportement attendu)
 - ⛔ Ne JAMAIS assumer une structure - toujours vérifier
@@ -64,6 +70,7 @@ knowledge:
 ### 1. Exploration initiale
 
 **Vue d'ensemble du projet :**
+
 ```bash
 # Structure racine
 ls -la
@@ -77,15 +84,16 @@ cat .eslintrc*          # conventions de code
 
 **Identifier le type de projet :**
 
-| Type | Indicateurs | Structure typique |
-|------|-------------|-------------------|
-| **Frontend** | React/Vue/Angular, vite/webpack | `src/components/`, `src/pages/` |
-| **Backend** | Express/Fastify/Django | `src/routes/`, `src/controllers/` |
-| **Fullstack** | Next.js/Nuxt/Remix | `app/`, `pages/`, `api/` |
-| **Library** | Pas de UI, exports | `src/`, `lib/`, `index.ts` |
-| **CLI** | Commander/yargs | `bin/`, `commands/` |
+| Type          | Indicateurs                     | Structure typique                 |
+| ------------- | ------------------------------- | --------------------------------- |
+| **Frontend**  | React/Vue/Angular, vite/webpack | `src/components/`, `src/pages/`   |
+| **Backend**   | Express/Fastify/Django          | `src/routes/`, `src/controllers/` |
+| **Fullstack** | Next.js/Nuxt/Remix              | `app/`, `pages/`, `api/`          |
+| **Library**   | Pas de UI, exports              | `src/`, `lib/`, `index.ts`        |
+| **CLI**       | Commander/yargs                 | `bin/`, `commands/`               |
 
 **Checklist exploration :**
+
 ```
 - [ ] Type de projet identifié
 - [ ] Stack technique (langages, frameworks)
@@ -101,11 +109,13 @@ cat .eslintrc*          # conventions de code
 **Selon les requirements de l'issue, explorer :**
 
 #### 2.1 Modules concernés
+
 - Identifier les fichiers/dossiers impactés
 - Comprendre leur responsabilité
 - Noter les exports/imports
 
 #### 2.2 Flux de données
+
 ```
 Request → Controller → Service → Repository → Database
          ↓                        ↓
@@ -117,6 +127,7 @@ Request → Controller → Service → Repository → Database
 - Noter les points d'entrée/sortie
 
 #### 2.3 Dépendances
+
 ```
 Module A
   ├── imports → Module B
@@ -134,15 +145,16 @@ Module A
 
 **Extraire les conventions existantes :**
 
-| Catégorie | À observer | Exemple |
-|-----------|------------|---------|
-| **Nommage** | Variables, fonctions, fichiers | `camelCase`, `PascalCase`, `kebab-case` |
-| **Structure** | Organisation des fichiers | `feature-based`, `type-based` |
-| **Tests** | Localisation, naming | `*.test.ts`, `__tests__/` |
-| **Erreurs** | Gestion des exceptions | Custom errors, try/catch patterns |
-| **Types** | TypeScript patterns | Interfaces vs Types, `strict` mode |
+| Catégorie     | À observer                     | Exemple                                 |
+| ------------- | ------------------------------ | --------------------------------------- |
+| **Nommage**   | Variables, fonctions, fichiers | `camelCase`, `PascalCase`, `kebab-case` |
+| **Structure** | Organisation des fichiers      | `feature-based`, `type-based`           |
+| **Tests**     | Localisation, naming           | `*.test.ts`, `__tests__/`               |
+| **Erreurs**   | Gestion des exceptions         | Custom errors, try/catch patterns       |
+| **Types**     | TypeScript patterns            | Interfaces vs Types, `strict` mode      |
 
 **Identifier les patterns récurrents :**
+
 - Repository pattern ?
 - Dependency injection ?
 - Factory pattern ?
@@ -158,14 +170,17 @@ Module A
 ### Impact Analysis: [fichier]
 
 **Modifications prévues:**
+
 - [Ce qui doit changer]
 
 **Fichiers impactés:**
+
 - `file_a.ts` - Import direct
 - `file_b.ts` - Test de ce module
 - `file_c.ts` - Utilise l'export modifié
 
 **Risques:**
+
 - [ ] Breaking change sur API publique ?
 - [ ] Tests à mettre à jour ?
 - [ ] Impact sur d'autres features ?
@@ -184,6 +199,7 @@ Module A
 
 **Type:** [Monolith | Monorepo | Microservices]
 **Stack:**
+
 - Language: [TypeScript/Python/Go/...]
 - Framework: [Next.js/Express/Django/...]
 - Database: [PostgreSQL/MongoDB/...]
@@ -191,14 +207,16 @@ Module A
 
 **Structure:**
 ```
+
 project/
 ├── src/
-│   ├── components/    # [Description]
-│   ├── services/      # [Description]
-│   ├── utils/         # [Description]
-│   └── types/         # [Description]
+│ ├── components/ # [Description]
+│ ├── services/ # [Description]
+│ ├── utils/ # [Description]
+│ └── types/ # [Description]
 ├── tests/
 └── config/
+
 ```
 
 ### 📁 Fichiers pertinents
@@ -212,9 +230,11 @@ project/
 ### 🔄 Flux de données
 
 ```
+
 [Endpoint] → [Controller] → [Service] → [Repository]
-                ↓                ↓
-           [Validation]    [Business Logic]
+↓ ↓
+[Validation] [Business Logic]
+
 ```
 
 **Pour cette feature:**
@@ -237,10 +257,12 @@ project/
 ### 🔗 Dépendances internes
 
 ```
+
 [Module cible]
 ├── ← importe: [Module A]
 ├── ← importe: [Module B]
 └── → exporte vers: [Module C]
+
 ```
 
 ### ⚠️ Points d'attention
@@ -287,16 +309,16 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Codebase Analysis
 
-| Critère | Status |
-|---------|--------|
-| Architecture globale documentée | ✅/❌ |
-| Stack technique identifié | ✅/❌ |
-| Fichiers à modifier listés | ✅/❌ |
-| Patterns et conventions notés | ✅/❌ |
-| Flux de données cartographié | ✅/❌ |
-| Dépendances internes mappées | ✅/❌ |
-| Risques identifiés avec mitigations | ✅/❌ |
-| Tests existants localisés | ✅/❌ |
+| Critère                             | Status |
+| ----------------------------------- | ------ |
+| Architecture globale documentée     | ✅/❌  |
+| Stack technique identifié           | ✅/❌  |
+| Fichiers à modifier listés          | ✅/❌  |
+| Patterns et conventions notés       | ✅/❌  |
+| Flux de données cartographié        | ✅/❌  |
+| Dépendances internes mappées        | ✅/❌  |
+| Risques identifiés avec mitigations | ✅/❌  |
+| Tests existants localisés           | ✅/❌  |
 
 **Score : X/8** → Si < 6, compléter avant transition
 ```
@@ -313,6 +335,7 @@ Après validation de l'analyse, proposer automatiquement :
 ✅ Codebase analysé.
 
 **Résumé :**
+
 - Type de projet : [Frontend/Backend/Fullstack/etc.]
 - Fichiers à modifier : [X]
 - Risques identifiés : [X]

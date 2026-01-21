@@ -27,6 +27,7 @@
 ## Logs RALPH
 
 Les logs complets sont dans `docs/ralph-logs/`:
+
 - `2025-01-20-discovery-saas.md`
 - `2025-01-21-epic-1-auth.md`
 - `2025-01-22-epic-2-core.md`
@@ -34,14 +35,14 @@ Les logs complets sont dans `docs/ralph-logs/`:
 
 ## Temps réel vs estimé
 
-| Phase | Estimé | Réel | Notes |
-|-------|--------|------|-------|
-| Discovery | 4h | 3h | RALPH efficace |
-| Epic 1: Auth | 2j | 1.5j | Supabase simple |
-| Epic 2: Core | 4j | 5j | Kanban complexe |
-| Epic 3: Billing | 2j | 2j | Stripe docs good |
-| Polish | 2j | 2j | |
-| **Total** | **12j** | **12j** | |
+| Phase           | Estimé  | Réel    | Notes            |
+| --------------- | ------- | ------- | ---------------- |
+| Discovery       | 4h      | 3h      | RALPH efficace   |
+| Epic 1: Auth    | 2j      | 1.5j    | Supabase simple  |
+| Epic 2: Core    | 4j      | 5j      | Kanban complexe  |
+| Epic 3: Billing | 2j      | 2j      | Stripe docs good |
+| Polish          | 2j      | 2j      |                  |
+| **Total**       | **12j** | **12j** |                  |
 
 ## Défis rencontrés
 
@@ -50,6 +51,7 @@ Les logs complets sont dans `docs/ralph-logs/`:
 **Problème** : Policies RLS complexes pour team_members.
 
 **Solution** :
+
 ```sql
 -- Fonction helper pour vérifier membership
 CREATE OR REPLACE FUNCTION is_team_member(team_id UUID)
@@ -76,15 +78,13 @@ CREATE POLICY "Team members can view tasks"
 **Problème** : Lag sur boards avec 100+ tâches.
 
 **Solution** :
+
 ```typescript
 // Virtualisation des colonnes
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 // Debounce des updates serveur
-const debouncedUpdate = useDebouncedCallback(
-  (taskId, updates) => updateTask(taskId, updates),
-  300
-);
+const debouncedUpdate = useDebouncedCallback((taskId, updates) => updateTask(taskId, updates), 300);
 
 // Optimistic updates immédiats
 const moveTask = (taskId, newStatus, newPosition) => {
@@ -101,6 +101,7 @@ const moveTask = (taskId, newStatus, newPosition) => {
 **Problème** : Tester webhooks en local.
 
 **Solution** :
+
 ```bash
 # Stripe CLI forward
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
@@ -114,6 +115,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxx
 **Problème** : Réordonner sans recalculer toutes les positions.
 
 **Solution** : Lexorank-like ordering
+
 ```typescript
 // Positions comme strings: "aaa", "aab", "aac"
 function getPositionBetween(before: string, after: string): string {
@@ -129,30 +131,30 @@ if (newPosition === existingPosition) {
 
 ## Stack finale
 
-| Catégorie | Technologie | Version |
-|-----------|-------------|---------|
-| Framework | Next.js | 14.1.0 |
-| UI | shadcn/ui | latest |
-| Styling | Tailwind CSS | 3.4.1 |
-| State | Zustand | 4.5.0 |
-| Server State | TanStack Query | 5.17.0 |
-| Drag & Drop | @dnd-kit | 6.1.0 |
-| Backend | Supabase | latest |
-| Auth | Supabase Auth | - |
-| Billing | Stripe | 14.12.0 |
-| Validation | Zod | 3.22.4 |
-| Testing | Vitest + Playwright | - |
+| Catégorie    | Technologie         | Version |
+| ------------ | ------------------- | ------- |
+| Framework    | Next.js             | 14.1.0  |
+| UI           | shadcn/ui           | latest  |
+| Styling      | Tailwind CSS        | 3.4.1   |
+| State        | Zustand             | 4.5.0   |
+| Server State | TanStack Query      | 5.17.0  |
+| Drag & Drop  | @dnd-kit            | 6.1.0   |
+| Backend      | Supabase            | latest  |
+| Auth         | Supabase Auth       | -       |
+| Billing      | Stripe              | 14.12.0 |
+| Validation   | Zod                 | 3.22.4  |
+| Testing      | Vitest + Playwright | -       |
 
 ## Métriques finales
 
-| Métrique | Cible | Réel |
-|----------|-------|------|
-| Lighthouse Performance | > 90 | 94 |
-| Time to Interactive | < 2s | 1.4s |
-| API p95 latency | < 200ms | 120ms |
-| Drag latency | < 100ms | 60ms |
-| Test coverage | > 80% | 85% |
-| Bundle size (gzip) | < 200kb | 180kb |
+| Métrique               | Cible   | Réel  |
+| ---------------------- | ------- | ----- |
+| Lighthouse Performance | > 90    | 94    |
+| Time to Interactive    | < 2s    | 1.4s  |
+| API p95 latency        | < 200ms | 120ms |
+| Drag latency           | < 100ms | 60ms  |
+| Test coverage          | > 80%   | 85%   |
+| Bundle size (gzip)     | < 200kb | 180kb |
 
 ## Checklist finale
 

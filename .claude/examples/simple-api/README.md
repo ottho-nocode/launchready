@@ -5,6 +5,7 @@
 ## Contexte
 
 Une API REST simple pour gérer une liste de tâches (Todo List).
+
 - **Complexité** : LIGHT (< 1 jour)
 - **Stack** : Node.js + Express + SQLite
 
@@ -32,12 +33,12 @@ Pas besoin de `/discovery` complet pour un projet aussi simple.
 
 ## Fonctionnalités v2.6 utilisées
 
-| Feature | Usage dans cet exemple |
-|---------|------------------------|
-| **Mode LIGHT** | PRD simplifié, pas de brainstorm |
-| `/quick-fix` | Pour ajouter des endpoints rapidement |
-| **Dynamic Context** | Le skill charge automatiquement le PRD |
-| **Hook auto-lint** | Lint automatique après chaque modification |
+| Feature             | Usage dans cet exemple                     |
+| ------------------- | ------------------------------------------ |
+| **Mode LIGHT**      | PRD simplifié, pas de brainstorm           |
+| `/quick-fix`        | Pour ajouter des endpoints rapidement      |
+| **Dynamic Context** | Le skill charge automatiquement le PRD     |
+| **Hook auto-lint**  | Lint automatique après chaque modification |
 
 ## Commandes utiles v2.6
 
@@ -166,23 +167,21 @@ const todoService = {
   },
 
   async create(title) {
-    const result = db.prepare(
-      'INSERT INTO todos (title) VALUES (?) RETURNING *'
-    ).get(title);
+    const result = db.prepare('INSERT INTO todos (title) VALUES (?) RETURNING *').get(title);
     return result;
   },
 
   async update(id, { completed }) {
-    const result = db.prepare(
-      'UPDATE todos SET completed = ? WHERE id = ? RETURNING *'
-    ).get(completed, id);
+    const result = db
+      .prepare('UPDATE todos SET completed = ? WHERE id = ? RETURNING *')
+      .get(completed, id);
     return result;
   },
 
   async delete(id) {
     const result = db.prepare('DELETE FROM todos WHERE id = ?').run(id);
     return result.changes > 0;
-  }
+  },
 };
 
 module.exports = todoService;
@@ -205,9 +204,7 @@ describe('Todos API', () => {
 
   describe('POST /api/todos', () => {
     it('should_create_todo_when_title_provided', async () => {
-      const res = await request(app)
-        .post('/api/todos')
-        .send({ title: 'Test todo' });
+      const res = await request(app).post('/api/todos').send({ title: 'Test todo' });
 
       expect(res.status).toBe(201);
       expect(res.body.title).toBe('Test todo');
@@ -215,9 +212,7 @@ describe('Todos API', () => {
     });
 
     it('should_return_400_when_title_missing', async () => {
-      const res = await request(app)
-        .post('/api/todos')
-        .send({});
+      const res = await request(app).post('/api/todos').send({});
 
       expect(res.status).toBe(400);
     });

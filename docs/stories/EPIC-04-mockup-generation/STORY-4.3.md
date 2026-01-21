@@ -27,11 +27,11 @@ And le preview se met à jour
 
 ### Templates
 
-| Template | Description | Preview |
-|----------|-------------|---------|
+| Template     | Description                  | Preview     |
+| ------------ | ---------------------------- | ----------- |
 | Device Frame | Screenshot dans cadre iPhone | Simple, pro |
-| Gradient BG | Device sur fond dégradé | Moderne |
-| Text Overlay | Device + titre au-dessus | Marketing |
+| Gradient BG  | Device sur fond dégradé      | Moderne     |
+| Text Overlay | Device + titre au-dessus     | Marketing   |
 
 ### Checklist technique
 

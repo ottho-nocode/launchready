@@ -8,7 +8,7 @@ allowed-tools: Read, Grep, Glob, Write
 argument-hint: <prd-filename>
 hooks:
   pre_tool_call:
-    - matcher: "Write.*architecture"
+    - matcher: 'Write.*architecture'
       command: "ls docs/planning/prd/*.md 2>/dev/null | head -1 || echo '⚠️ Aucun PRD trouvé - architecture sans PRD peut manquer de contexte'"
 ---
 
@@ -17,15 +17,19 @@ hooks:
 ## 📥 Contexte projet chargé automatiquement
 
 ### PRD actif
+
 !`ls -t docs/planning/prd/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -50 || echo "Aucun PRD trouvé"`
 
 ### Stack technique existant (si brownfield)
+
 !`cat package.json 2>/dev/null | head -25 || cat pyproject.toml 2>/dev/null | head -25 || cat Cargo.toml 2>/dev/null | head -20 || cat go.mod 2>/dev/null | head -15 || echo "Pas de config projet détectée"`
 
 ### Architecture existante
+
 !`ls -la docs/planning/architecture/*.md 2>/dev/null | tail -3 || echo "Pas d'architecture existante"`
 
 ### Structure actuelle du projet
+
 !`tree -L 2 -I 'node_modules|dist|build|.git|coverage|__pycache__|.venv|venv' 2>/dev/null | head -30 || find . -maxdepth 2 -type d | head -20`
 
 ---
@@ -53,6 +57,7 @@ Je vais analyser le PRD pour créer l'architecture.
 PRD trouvé : `docs/planning/prd/PRD-{slug}.md`
 
 **Résumé du PRD :**
+
 - Problème : [extrait]
 - Features principales : [liste]
 - Contraintes : [extraites]
@@ -79,6 +84,7 @@ Analyser le projet existant (si brownfield) :
 
 ```markdown
 **Contexte détecté :**
+
 - Type : [Greenfield / Brownfield]
 - Stack existant : [si applicable]
 - Patterns existants : [si applicable]
@@ -107,14 +113,17 @@ version: 1.0
 ## 1. Overview
 
 ### 1.1 Contexte
+
 - **Type** : Greenfield | Brownfield
 - **PRD** : [Lien vers PRD]
 
 ### 1.2 Objectifs techniques
+
 - [Objectif 1]
 - [Objectif 2]
 
 ### 1.3 Contraintes techniques
+
 - [Contrainte du PRD traduite en tech]
 
 ---
@@ -123,32 +132,34 @@ version: 1.0
 
 ### 2.1 Technologies choisies
 
-| Couche | Technologie | Justification |
-|--------|-------------|---------------|
-| Frontend | [Tech] | [Pourquoi] |
-| Backend | [Tech] | [Pourquoi] |
-| Database | [Tech] | [Pourquoi] |
-| Infra | [Tech] | [Pourquoi] |
+| Couche   | Technologie | Justification |
+| -------- | ----------- | ------------- |
+| Frontend | [Tech]      | [Pourquoi]    |
+| Backend  | [Tech]      | [Pourquoi]    |
+| Database | [Tech]      | [Pourquoi]    |
+| Infra    | [Tech]      | [Pourquoi]    |
 
 ### 2.2 Alternatives considérées
-| Option | Pour | Contre | Décision |
-|--------|------|--------|----------|
-| [Option A] | [+] | [-] | ✅ Retenue |
-| [Option B] | [+] | [-] | ❌ Écartée |
+
+| Option     | Pour | Contre | Décision   |
+| ---------- | ---- | ------ | ---------- |
+| [Option A] | [+]  | [-]    | ✅ Retenue |
+| [Option B] | [+]  | [-]    | ❌ Écartée |
 
 ---
 
 ## 3. Structure du projet
-
 ```
+
 project/
 ├── src/
-│   ├── [module1]/
-│   ├── [module2]/
-│   └── ...
+│ ├── [module1]/
+│ ├── [module2]/
+│ └── ...
 ├── tests/
 ├── docs/
 └── ...
+
 ```
 
 ### 3.1 Modules principaux
@@ -162,9 +173,11 @@ project/
 
 ### 4.1 Diagramme de composants
 ```
+
 [Composant A] → [Composant B] → [Database]
-      ↓
+↓
 [Composant C]
+
 ```
 
 ### 4.2 Description des composants
@@ -178,6 +191,7 @@ project/
 
 ### 5.1 Entités principales
 ```
+
 [Entity A]
 ├── id: UUID
 ├── field1: string
@@ -186,6 +200,7 @@ project/
 [Entity B]
 ├── id: UUID
 └── entityA_id: FK → Entity A
+
 ```
 
 ### 5.2 Relations
@@ -277,17 +292,20 @@ project/
 Document : `docs/planning/architecture/ARCH-{slug}.md`
 
 ### Résumé
+
 - **Stack** : [Frontend] + [Backend] + [DB]
 - **Composants** : [nombre]
 - **Risques identifiés** : [nombre]
 
 ### Points clés
+
 - [Décision importante 1]
 - [Décision importante 2]
 
 ---
 
 **Prochaine étape ?**
+
 - [S] Créer les User Stories (recommandé)
 - [R] Réviser l'architecture
 - [Q] J'ai des questions
@@ -312,16 +330,16 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Architecture
 
-| Critère | Status |
-|---------|--------|
-| Fichier créé dans `docs/planning/architecture/` | ✅/❌ |
-| Stack technique défini avec justifications | ✅/❌ |
-| Structure du projet documentée | ✅/❌ |
-| Data model spécifié | ✅/❌ |
-| APIs/Endpoints listés | ✅/❌ |
-| Sécurité adressée | ✅/❌ |
-| Risques techniques identifiés | ✅/❌ |
-| Référence au PRD présente | ✅/❌ |
+| Critère                                         | Status |
+| ----------------------------------------------- | ------ |
+| Fichier créé dans `docs/planning/architecture/` | ✅/❌  |
+| Stack technique défini avec justifications      | ✅/❌  |
+| Structure du projet documentée                  | ✅/❌  |
+| Data model spécifié                             | ✅/❌  |
+| APIs/Endpoints listés                           | ✅/❌  |
+| Sécurité adressée                               | ✅/❌  |
+| Risques techniques identifiés                   | ✅/❌  |
+| Référence au PRD présente                       | ✅/❌  |
 
 **Score : X/8** → Si < 6, compléter avant transition
 ```

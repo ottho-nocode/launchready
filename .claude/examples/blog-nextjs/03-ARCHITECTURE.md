@@ -32,22 +32,22 @@
 
 ## 2. Stack technique
 
-| Couche | Technologie | Justification |
-|--------|-------------|---------------|
-| Framework | Next.js 14 (App Router) | SSG, excellent DX, écosystème riche |
-| Contenu | MDX + Contentlayer | Type-safe, composants React dans MD |
-| Style | Tailwind CSS | Utility-first, purge automatique |
-| Thème | next-themes | Dark mode simple et robuste |
-| Deploy | Vercel | Gratuit, preview branches, analytics |
-| Icons | Lucide React | Léger, tree-shakable |
+| Couche    | Technologie             | Justification                        |
+| --------- | ----------------------- | ------------------------------------ |
+| Framework | Next.js 14 (App Router) | SSG, excellent DX, écosystème riche  |
+| Contenu   | MDX + Contentlayer      | Type-safe, composants React dans MD  |
+| Style     | Tailwind CSS            | Utility-first, purge automatique     |
+| Thème     | next-themes             | Dark mode simple et robuste          |
+| Deploy    | Vercel                  | Gratuit, preview branches, analytics |
+| Icons     | Lucide React            | Léger, tree-shakable                 |
 
 ### Alternatives considérées
 
-| Choix | Alternative | Raison du rejet |
-|-------|-------------|-----------------|
-| Next.js | Astro | Moins de flexibilité pour interactivité |
-| Contentlayer | next-mdx-remote | Moins type-safe |
-| Tailwind | CSS Modules | Plus de code à maintenir |
+| Choix        | Alternative     | Raison du rejet                         |
+| ------------ | --------------- | --------------------------------------- |
+| Next.js      | Astro           | Moins de flexibilité pour interactivité |
+| Contentlayer | next-mdx-remote | Moins type-safe                         |
+| Tailwind     | CSS Modules     | Plus de code à maintenir                |
 
 ---
 
@@ -109,15 +109,15 @@ blog/
 interface Article {
   // Required
   title: string;
-  slug: string;           // Auto-généré depuis filename
-  date: string;           // ISO 8601
-  description: string;    // Meta description
+  slug: string; // Auto-généré depuis filename
+  date: string; // ISO 8601
+  description: string; // Meta description
 
   // Optional
   tags?: string[];
-  image?: string;         // OG image
-  draft?: boolean;        // Non publié si true
-  readingTime?: string;   // Auto-calculé
+  image?: string; // OG image
+  draft?: boolean; // Non publié si true
+  readingTime?: string; // Auto-calculé
 }
 ```
 
@@ -125,40 +125,39 @@ interface Article {
 
 ```mdx
 ---
-title: "Introduction à Next.js 14"
-date: "2025-01-15"
-description: "Découvrez les nouvelles fonctionnalités de Next.js 14"
-tags: ["nextjs", "react", "tutorial"]
+title: 'Introduction à Next.js 14'
+date: '2025-01-15'
+description: 'Découvrez les nouvelles fonctionnalités de Next.js 14'
+tags: ['nextjs', 'react', 'tutorial']
 ---
 
 # Introduction
 
 Contenu de l'article...
 
-<Callout type="info">
-  Ceci est une note importante !
-</Callout>
+<Callout type="info">Ceci est une note importante !</Callout>
 ```
 
 ---
 
 ## 5. Routes et Pages
 
-| Route | Type | Description |
-|-------|------|-------------|
-| `/` | SSG | Liste des derniers articles |
-| `/blog/[slug]` | SSG | Article individuel |
-| `/tags` | SSG | Liste de tous les tags |
-| `/tags/[tag]` | SSG | Articles filtrés par tag |
-| `/about` | SSG | Page à propos |
-| `/feed.xml` | Route Handler | RSS feed |
-| `/sitemap.xml` | Auto | Généré par Next.js |
+| Route          | Type          | Description                 |
+| -------------- | ------------- | --------------------------- |
+| `/`            | SSG           | Liste des derniers articles |
+| `/blog/[slug]` | SSG           | Article individuel          |
+| `/tags`        | SSG           | Liste de tous les tags      |
+| `/tags/[tag]`  | SSG           | Articles filtrés par tag    |
+| `/about`       | SSG           | Page à propos               |
+| `/feed.xml`    | Route Handler | RSS feed                    |
+| `/sitemap.xml` | Auto          | Généré par Next.js          |
 
 ---
 
 ## 6. Composants clés
 
 ### ThemeToggle
+
 ```typescript
 // Gestion dark/light mode avec next-themes
 // Persiste en localStorage
@@ -166,6 +165,7 @@ Contenu de l'article...
 ```
 
 ### ArticleCard
+
 ```typescript
 // Carte article avec :
 // - Titre (lien)
@@ -176,6 +176,7 @@ Contenu de l'article...
 ```
 
 ### MDX Components
+
 ```typescript
 // Remplacement des éléments MD par défaut :
 // - Code blocks avec syntax highlighting (shiki)
@@ -189,6 +190,7 @@ Contenu de l'article...
 ## 7. SEO Strategy
 
 ### Metadata dynamique
+
 ```typescript
 export function generateMetadata({ params }): Metadata {
   const article = getArticle(params.slug);
@@ -205,11 +207,13 @@ export function generateMetadata({ params }): Metadata {
 ```
 
 ### Sitemap
+
 - Généré automatiquement par Next.js
 - Inclut toutes les pages statiques
 - Mis à jour à chaque build
 
 ### RSS
+
 - Route handler `/feed.xml`
 - Inclut titre, description, lien, date
 - Valide W3C
@@ -218,13 +222,13 @@ export function generateMetadata({ params }): Metadata {
 
 ## 8. Performance
 
-| Optimisation | Implementation |
-|--------------|----------------|
-| Images | `next/image` avec lazy loading |
-| Fonts | `next/font` avec subset |
-| CSS | Tailwind purge en production |
-| JS | Tree-shaking automatique |
-| Caching | Headers Cache-Control |
+| Optimisation | Implementation                 |
+| ------------ | ------------------------------ |
+| Images       | `next/image` avec lazy loading |
+| Fonts        | `next/font` avec subset        |
+| CSS          | Tailwind purge en production   |
+| JS           | Tree-shaking automatique       |
+| Caching      | Headers Cache-Control          |
 
 ---
 
@@ -237,12 +241,14 @@ export function generateMetadata({ params }): Metadata {
 **Décision** : Contentlayer
 
 **Raisons** :
+
 - Type-safety automatique
 - Hot reload du contenu
 - Validation du frontmatter
 - Meilleur DX
 
 **Conséquences** :
+
 - Dépendance supplémentaire
 - Config initiale plus complexe
 
@@ -255,12 +261,14 @@ export function generateMetadata({ params }): Metadata {
 **Décision** : App Router
 
 **Raisons** :
+
 - Server Components par défaut
 - Layouts imbriqués
 - Meilleur streaming
 - Future-proof
 
 **Conséquences** :
+
 - Certaines libs pas encore compatibles
 - Learning curve
 
@@ -268,8 +276,8 @@ export function generateMetadata({ params }): Metadata {
 
 ## 10. Risques techniques
 
-| Risque | Mitigation |
-|--------|------------|
-| Contentlayer en beta | Fallback vers next-mdx-remote si abandon |
-| Build time avec beaucoup d'articles | ISR si > 100 articles |
-| Changements breaking Next.js | Pin version, tester avant upgrade |
+| Risque                              | Mitigation                               |
+| ----------------------------------- | ---------------------------------------- |
+| Contentlayer en beta                | Fallback vers next-mdx-remote si abandon |
+| Build time avec beaucoup d'articles | ISR si > 100 articles                    |
+| Changements breaking Next.js        | Pin version, tester avant upgrade        |

@@ -19,7 +19,7 @@ user-invocable: true
 hooks:
   post_tool_call:
     - tool: Bash
-      match: "lighthouse"
+      match: 'lighthouse'
       run: "echo '📊 Lighthouse report generated'"
 knowledge:
   core:
@@ -97,12 +97,12 @@ Avant de commencer, je vérifie :
 
 Je détermine :
 
-| Aspect | Questions |
-|--------|-----------|
-| **Type** | SPA, SSR, SSG, Hybrid ? |
-| **Framework** | Next.js, React, Vue ? |
-| **Hosting** | Vercel, Netlify, AWS ? |
-| **Cible** | Mobile, Desktop, Both ? |
+| Aspect        | Questions               |
+| ------------- | ----------------------- |
+| **Type**      | SPA, SSR, SSG, Hybrid ? |
+| **Framework** | Next.js, React, Vue ?   |
+| **Hosting**   | Vercel, Netlify, AWS ?  |
+| **Cible**     | Mobile, Desktop, Both ? |
 
 **⏸️ STOP** - Valider le contexte avant l'audit
 
@@ -112,11 +112,11 @@ Je détermine :
 
 Les 3 métriques essentielles :
 
-| Métrique | Description | Bon | Moyen | Mauvais |
-|----------|-------------|-----|-------|---------|
-| **LCP** | Largest Contentful Paint | < 2.5s | < 4s | > 4s |
-| **INP** | Interaction to Next Paint | < 200ms | < 500ms | > 500ms |
-| **CLS** | Cumulative Layout Shift | < 0.1 | < 0.25 | > 0.25 |
+| Métrique | Description               | Bon     | Moyen   | Mauvais |
+| -------- | ------------------------- | ------- | ------- | ------- |
+| **LCP**  | Largest Contentful Paint  | < 2.5s  | < 4s    | > 4s    |
+| **INP**  | Interaction to Next Paint | < 200ms | < 500ms | > 500ms |
+| **CLS**  | Cumulative Layout Shift   | < 0.1   | < 0.25  | > 0.25  |
 
 #### Commande Lighthouse
 
@@ -157,12 +157,12 @@ npx source-map-explorer dist/**/*.js
 
 #### Métriques clés
 
-| Métrique | Budget recommandé |
-|----------|------------------|
-| **JS total** | < 200 KB (gzip) |
-| **CSS total** | < 50 KB (gzip) |
-| **Largest chunk** | < 100 KB (gzip) |
-| **Initial load** | < 150 KB (gzip) |
+| Métrique          | Budget recommandé |
+| ----------------- | ----------------- |
+| **JS total**      | < 200 KB (gzip)   |
+| **CSS total**     | < 50 KB (gzip)    |
+| **Largest chunk** | < 100 KB (gzip)   |
+| **Initial load**  | < 150 KB (gzip)   |
 
 ---
 
@@ -232,13 +232,13 @@ npx depcheck --json | jq '.dependencies'
 
 #### Remplacements suggérés
 
-| Package lourd | Alternative légère | Économie |
-|---------------|-------------------|----------|
-| `moment` | `date-fns` ou `dayjs` | ~95% |
-| `lodash` | `lodash-es` (tree-shake) | ~80% |
-| `axios` | `ky` ou `fetch` | ~90% |
-| `uuid` | `nanoid` | ~70% |
-| `validator` | Native regex | ~99% |
+| Package lourd | Alternative légère       | Économie |
+| ------------- | ------------------------ | -------- |
+| `moment`      | `date-fns` ou `dayjs`    | ~95%     |
+| `lodash`      | `lodash-es` (tree-shake) | ~80%     |
+| `axios`       | `ky` ou `fetch`          | ~90%     |
+| `uuid`        | `nanoid`                 | ~70%     |
+| `validator`   | Native regex             | ~99%     |
 
 ---
 
@@ -328,37 +328,43 @@ Je définis un budget :
 
 ## Summary
 
-| Métrique | Actuel | Cible | Status |
-|----------|--------|-------|--------|
-| **LCP** | [X]s | < 2.5s | 🟢/🟡/🔴 |
-| **INP** | [X]ms | < 200ms | 🟢/🟡/🔴 |
-| **CLS** | [X] | < 0.1 | 🟢/🟡/🔴 |
-| **Bundle JS** | [X] KB | < 200 KB | 🟢/🟡/🔴 |
-| **Bundle CSS** | [X] KB | < 50 KB | 🟢/🟡/🔴 |
+| Métrique       | Actuel | Cible    | Status   |
+| -------------- | ------ | -------- | -------- |
+| **LCP**        | [X]s   | < 2.5s   | 🟢/🟡/🔴 |
+| **INP**        | [X]ms  | < 200ms  | 🟢/🟡/🔴 |
+| **CLS**        | [X]    | < 0.1    | 🟢/🟡/🔴 |
+| **Bundle JS**  | [X] KB | < 200 KB | 🟢/🟡/🔴 |
+| **Bundle CSS** | [X] KB | < 50 KB  | 🟢/🟡/🔴 |
 
 ## Score: [XX]/100
 
 ## Issues trouvées
 
 ### 🔴 Critiques (P0)
+
 1. [Issue avec impact et recommandation]
 
 ### 🟡 Importants (P1)
+
 1. [Issue avec impact et recommandation]
 
 ### 🟢 Mineurs (P2)
+
 1. [Issue avec impact et recommandation]
 
 ## Recommandations
 
 ### Quick Wins (< 1h)
+
 - [ ] [Action 1] - Impact: [X]% amélioration
 - [ ] [Action 2] - Impact: [X]% amélioration
 
 ### Medium Effort (1-4h)
+
 - [ ] [Action 3] - Impact: [X]% amélioration
 
 ### Major Changes (> 4h)
+
 - [ ] [Action 4] - Impact: [X]% amélioration
 
 ## Bundle Analysis
@@ -379,14 +385,14 @@ Je définis un budget :
 
 ### ✅ Checklist Output Performance Auditor
 
-| Critère | Status |
-|---------|--------|
-| Core Web Vitals mesurés | ✅/❌ |
-| Bundle size analysé | ✅/❌ |
-| Issues priorisées (P0/P1/P2) | ✅/❌ |
-| Recommandations avec impact | ✅/❌ |
-| Quick wins identifiés | ✅/❌ |
-| Budget défini | ✅/❌ |
+| Critère                      | Status |
+| ---------------------------- | ------ |
+| Core Web Vitals mesurés      | ✅/❌  |
+| Bundle size analysé          | ✅/❌  |
+| Issues priorisées (P0/P1/P2) | ✅/❌  |
+| Recommandations avec impact  | ✅/❌  |
+| Quick wins identifiés        | ✅/❌  |
+| Budget défini                | ✅/❌  |
 
 **Score minimum : 5/6**
 
@@ -451,6 +457,7 @@ Je définis un budget :
 **Arguments reçus :** $ARGUMENTS
 
 Je vais maintenant :
+
 1. Analyser le contexte (framework, build)
 2. Mesurer les Core Web Vitals
 3. Analyser le bundle

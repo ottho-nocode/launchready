@@ -36,14 +36,14 @@ cp .claude/templates/git-hooks/commit-msg .husky/
 
 Vérifie avant chaque commit :
 
-| Check | Action | Bloquant |
-|-------|--------|----------|
-| ESLint | Lint du code | ✅ Oui |
-| TypeScript | Vérification types | ✅ Oui |
-| Prettier | Formatage | ✅ Oui |
-| Tests | Tests des fichiers modifiés | ✅ Oui |
-| Secrets | Détection de secrets | ✅ Oui |
-| Debug | console.log, debugger | ⚠️ Warning |
+| Check      | Action                      | Bloquant   |
+| ---------- | --------------------------- | ---------- |
+| ESLint     | Lint du code                | ✅ Oui     |
+| TypeScript | Vérification types          | ✅ Oui     |
+| Prettier   | Formatage                   | ✅ Oui     |
+| Tests      | Tests des fichiers modifiés | ✅ Oui     |
+| Secrets    | Détection de secrets        | ✅ Oui     |
+| Debug      | console.log, debugger       | ⚠️ Warning |
 
 ### commit-msg
 

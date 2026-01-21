@@ -28,12 +28,12 @@ And la police et couleur correspondent à mes choix
 
 ### Options text-overlay
 
-| Option | Values |
-|--------|--------|
-| Headline | string (max 50 chars) |
-| Font family | Inter, SF Pro, Poppins |
-| Text color | hex color |
-| Text position | top, bottom |
+| Option        | Values                 |
+| ------------- | ---------------------- |
+| Headline      | string (max 50 chars)  |
+| Font family   | Inter, SF Pro, Poppins |
+| Text color    | hex color              |
+| Text position | top, bottom            |
 
 ### Checklist technique
 
@@ -60,6 +60,7 @@ And la police et couleur correspondent à mes choix
 ## Notes techniques
 
 Pour les fonts côté serveur, utiliser :
+
 - @fontsource/inter
 - Fonts embarquées dans canvas
 

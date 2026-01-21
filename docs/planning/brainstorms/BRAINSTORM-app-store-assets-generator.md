@@ -32,11 +32,13 @@ asgen "App de méditation pour débutants" --screenshots ./screens/
 ```
 
 **Avantages :**
+
 - Rapide à développer
 - Intégrable dans CI/CD
 - Pas de UI à maintenir
 
 **Inconvénients :**
+
 - Moins accessible aux non-devs
 - Pas de preview en temps réel
 - UX limitée
@@ -44,17 +46,20 @@ asgen "App de méditation pour débutants" --screenshots ./screens/
 ### Direction B : Web App (Recommandée) ✅
 
 Interface web intuitive avec :
+
 - Formulaire de description
 - Upload drag & drop des screenshots
 - Preview en temps réel des mockups
 - Export ZIP avec tous les assets
 
 **Avantages :**
+
 - Accessible à tous
 - Preview immédiat
 - Expérience utilisateur riche
 
 **Inconvénients :**
+
 - Plus complexe à développer
 - Hébergement nécessaire
 
@@ -63,9 +68,11 @@ Interface web intuitive avec :
 Plugin Xcode qui remplit App Store Connect directement.
 
 **Avantages :**
+
 - Intégré au workflow existant
 
 **Inconvénients :**
+
 - Très complexe (API Apple)
 - Maintenance difficile
 - Audience limitée
@@ -73,10 +80,12 @@ Plugin Xcode qui remplit App Store Connect directement.
 ### Direction D : App macOS native
 
 **Avantages :**
+
 - Offline possible
 - Performance native
 
 **Inconvénients :**
+
 - Distribution limitée
 - Plus long à développer
 
@@ -97,25 +106,25 @@ Plugin Xcode qui remplit App Store Connect directement.
 
 ### Core Features (MVP)
 
-| Feature | Priorité | Complexité |
-|---------|----------|------------|
-| Génération titre/sous-titre | P0 | Faible |
-| Génération description | P0 | Faible |
-| Génération mots-clés | P0 | Moyenne |
-| Upload screenshots | P0 | Faible |
-| Génération mockups basiques | P0 | Moyenne |
-| Export assets | P0 | Faible |
+| Feature                     | Priorité | Complexité |
+| --------------------------- | -------- | ---------- |
+| Génération titre/sous-titre | P0       | Faible     |
+| Génération description      | P0       | Faible     |
+| Génération mots-clés        | P0       | Moyenne    |
+| Upload screenshots          | P0       | Faible     |
+| Génération mockups basiques | P0       | Moyenne    |
+| Export assets               | P0       | Faible     |
 
 ### Features avancées (v2)
 
-| Feature | Priorité | Complexité |
-|---------|----------|------------|
-| Templates mockups variés | P1 | Moyenne |
-| Multi-localisation | P1 | Haute |
-| Historique/projets sauvegardés | P1 | Moyenne |
-| A/B testing descriptions | P2 | Haute |
-| Analyse concurrence keywords | P2 | Haute |
-| Intégration App Store Connect API | P2 | Très haute |
+| Feature                           | Priorité | Complexité |
+| --------------------------------- | -------- | ---------- |
+| Templates mockups variés          | P1       | Moyenne    |
+| Multi-localisation                | P1       | Haute      |
+| Historique/projets sauvegardés    | P1       | Moyenne    |
+| A/B testing descriptions          | P2       | Haute      |
+| Analyse concurrence keywords      | P2       | Haute      |
+| Intégration App Store Connect API | P2       | Très haute |
 
 ---
 
@@ -124,17 +133,20 @@ Plugin Xcode qui remplit App Store Connect directement.
 ### Stack envisagé
 
 **Frontend :**
+
 - Next.js 14+ (App Router)
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
 
 **Backend :**
+
 - Next.js API Routes (serverless)
 - OpenAI/Claude API pour génération texte
 - Sharp/Canvas pour manipulation images
 
 **Infra :**
+
 - Vercel (deploy)
 - Pas de BDD pour MVP (stateless)
 
@@ -169,12 +181,12 @@ Output: mockup.png (1242x2688)
 
 ## 6. Risques identifiés
 
-| Risque | Impact | Mitigation |
-|--------|--------|------------|
-| Qualité génération IA | Haut | Prompts optimisés, review humain |
-| Coûts API OpenAI | Moyen | Caching, limites usage |
-| Templates mockups limités | Moyen | Commencer simple, itérer |
-| Concurrence (AppLaunchpad, etc.) | Moyen | Focus UX, pricing agressif |
+| Risque                           | Impact | Mitigation                       |
+| -------------------------------- | ------ | -------------------------------- |
+| Qualité génération IA            | Haut   | Prompts optimisés, review humain |
+| Coûts API OpenAI                 | Moyen  | Caching, limites usage           |
+| Templates mockups limités        | Moyen  | Commencer simple, itérer         |
+| Concurrence (AppLaunchpad, etc.) | Moyen  | Focus UX, pricing agressif       |
 
 ---
 
@@ -219,16 +231,16 @@ Output: mockup.png (1242x2688)
 
 ## Checklist Brainstorm
 
-| Critère | Status |
-|---------|--------|
-| Problème clairement identifié | ✅ |
-| Plusieurs directions explorées | ✅ |
-| Direction choisie justifiée | ✅ |
-| Features priorisées | ✅ |
-| Risques identifiés | ✅ |
+| Critère                        | Status |
+| ------------------------------ | ------ |
+| Problème clairement identifié  | ✅     |
+| Plusieurs directions explorées | ✅     |
+| Direction choisie justifiée    | ✅     |
+| Features priorisées            | ✅     |
+| Risques identifiés             | ✅     |
 
 **Score : 5/5** → Prêt pour PRD
 
 ---
 
-*Généré automatiquement - RALPH Mode*
+_Généré automatiquement - RALPH Mode_

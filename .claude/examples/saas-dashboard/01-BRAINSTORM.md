@@ -10,12 +10,12 @@
 
 ### Analyse de la concurrence
 
-| Produit | Forces | Faiblesses | Prix |
-|---------|--------|------------|------|
-| Linear | UX excellent, rapide | Cher, complexe | $8/user |
-| Notion | Flexible, tout-en-un | Lent, learning curve | $8/user |
-| Asana | Complet, intégrations | UI chargée | $10/user |
-| Trello | Simple, visuel | Limité, basique | $5/user |
+| Produit | Forces                | Faiblesses           | Prix     |
+| ------- | --------------------- | -------------------- | -------- |
+| Linear  | UX excellent, rapide  | Cher, complexe       | $8/user  |
+| Notion  | Flexible, tout-en-un  | Lent, learning curve | $8/user  |
+| Asana   | Complet, intégrations | UI chargée           | $10/user |
+| Trello  | Simple, visuel        | Limité, basique      | $5/user  |
 
 ### Tendances identifiées
 
@@ -27,12 +27,12 @@
 
 ### Hypothèses à valider
 
-| Hypothèse | Validation | Statut |
-|-----------|------------|--------|
-| PME veulent un outil simple | 5 interviews | ✅ Validé |
-| Prix < $5/user attire | Survey 50 réponses | ✅ Validé |
-| Intégration GitHub critique | 80% demandent | ✅ Validé |
-| AI est un nice-to-have | 60% indifférents | ⚠️ Partiel |
+| Hypothèse                   | Validation         | Statut     |
+| --------------------------- | ------------------ | ---------- |
+| PME veulent un outil simple | 5 interviews       | ✅ Validé  |
+| Prix < $5/user attire       | Survey 50 réponses | ✅ Validé  |
+| Intégration GitHub critique | 80% demandent      | ✅ Validé  |
+| AI est un nice-to-have      | 60% indifférents   | ⚠️ Partiel |
 
 ---
 
@@ -60,13 +60,13 @@
 
 ### Features prioritaires (MoSCoW)
 
-| Must Have | Should Have | Could Have | Won't Have |
-|-----------|-------------|------------|------------|
-| Auth (email + OAuth) | Notifications | AI summaries | Gantt charts |
-| Projects CRUD | File attachments | Time tracking | Resource planning |
-| Tasks + Kanban | GitHub sync | Mobile app | Custom workflows |
-| Team invite | Search | API public | |
-| Billing (Stripe) | Activity feed | | |
+| Must Have            | Should Have      | Could Have    | Won't Have        |
+| -------------------- | ---------------- | ------------- | ----------------- |
+| Auth (email + OAuth) | Notifications    | AI summaries  | Gantt charts      |
+| Projects CRUD        | File attachments | Time tracking | Resource planning |
+| Tasks + Kanban       | GitHub sync      | Mobile app    | Custom workflows  |
+| Team invite          | Search           | API public    |                   |
+| Billing (Stripe)     | Activity feed    |               |                   |
 
 ### Différenciateurs
 
@@ -107,18 +107,19 @@
 
 ### Risques identifiés
 
-| Risque | Impact | Mitigation |
-|--------|--------|------------|
-| Supabase limites free tier | Medium | Monitor usage, upgrade early |
-| Stripe complexité | Medium | Utiliser Stripe Checkout (simple) |
-| Real-time coûteux | Low | Commencer sans, ajouter après |
-| Multi-tenant sécurité | High | RLS strict, tests de sécurité |
+| Risque                     | Impact | Mitigation                        |
+| -------------------------- | ------ | --------------------------------- |
+| Supabase limites free tier | Medium | Monitor usage, upgrade early      |
+| Stripe complexité          | Medium | Utiliser Stripe Checkout (simple) |
+| Real-time coûteux          | Low    | Commencer sans, ajouter après     |
+| Multi-tenant sécurité      | High   | RLS strict, tests de sécurité     |
 
 ---
 
 ## Prochaine étape
 
 **PRD détaillé** avec :
+
 - User personas
 - User journeys
 - Wireframes low-fi

@@ -17,25 +17,27 @@ API CRUD minimaliste pour gérer des tâches (todos).
 ## 3. Scope
 
 ### In Scope
+
 - CRUD complet (Create, Read, Update, Delete)
 - Persistance SQLite
 - Validation des inputs
 - Gestion d'erreurs basique
 
 ### Out of Scope
+
 - Authentification
 - Multi-utilisateurs
 - Interface web
 
 ## 4. Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/todos` | Liste toutes les tâches |
-| GET | `/todos/:id` | Récupère une tâche |
-| POST | `/todos` | Crée une tâche |
-| PUT | `/todos/:id` | Met à jour une tâche |
-| DELETE | `/todos/:id` | Supprime une tâche |
+| Method | Endpoint     | Description             |
+| ------ | ------------ | ----------------------- |
+| GET    | `/todos`     | Liste toutes les tâches |
+| GET    | `/todos/:id` | Récupère une tâche      |
+| POST   | `/todos`     | Crée une tâche          |
+| PUT    | `/todos/:id` | Met à jour une tâche    |
+| DELETE | `/todos/:id` | Supprime une tâche      |
 
 ## 5. Data Model
 

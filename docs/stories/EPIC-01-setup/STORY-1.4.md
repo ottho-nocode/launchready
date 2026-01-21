@@ -43,6 +43,7 @@ And sur mobile, le layout s'adapte correctement
 ## Notes techniques
 
 Structure des composants :
+
 ```
 components/
 └── layout/

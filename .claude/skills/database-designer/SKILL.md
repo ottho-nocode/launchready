@@ -20,8 +20,8 @@ user-invocable: true
 hooks:
   post_tool_call:
     - tool: Write
-      match: "*.sql"
-      run: "npx sql-formatter --check $file 2>/dev/null || true"
+      match: '*.sql'
+      run: 'npx sql-formatter --check $file 2>/dev/null || true'
 knowledge:
   core:
     - .claude/knowledge/workflows/database-template.md
@@ -102,12 +102,12 @@ Avant de commencer, je vérifie :
 
 Je détermine :
 
-| Aspect | Questions |
-|--------|-----------|
-| **Entités** | Quels objets métier ? |
-| **Relations** | 1:1, 1:N, N:M ? |
-| **Volume** | Rows attendus par table ? |
-| **Accès** | Lecture vs Écriture ? |
+| Aspect        | Questions                 |
+| ------------- | ------------------------- |
+| **Entités**   | Quels objets métier ?     |
+| **Relations** | 1:1, 1:N, N:M ?           |
+| **Volume**    | Rows attendus par table ? |
+| **Accès**     | Lecture vs Écriture ?     |
 
 **⏸️ STOP** - Valider les entités avant de continuer
 
@@ -142,19 +142,19 @@ Entity: User
 
 #### Types de données recommandés
 
-| Type | PostgreSQL | MySQL | SQLite |
-|------|------------|-------|--------|
-| ID | `uuid` | `char(36)` | `text` |
-| String | `varchar(n)` | `varchar(n)` | `text` |
-| Long text | `text` | `text` | `text` |
-| Integer | `integer` | `int` | `integer` |
-| Big int | `bigint` | `bigint` | `integer` |
-| Decimal | `numeric(p,s)` | `decimal(p,s)` | `real` |
-| Boolean | `boolean` | `tinyint(1)` | `integer` |
-| Date | `date` | `date` | `text` |
-| Datetime | `timestamp` | `datetime` | `text` |
-| JSON | `jsonb` | `json` | `text` |
-| Enum | `enum type` | `enum` | `text` |
+| Type      | PostgreSQL     | MySQL          | SQLite    |
+| --------- | -------------- | -------------- | --------- |
+| ID        | `uuid`         | `char(36)`     | `text`    |
+| String    | `varchar(n)`   | `varchar(n)`   | `text`    |
+| Long text | `text`         | `text`         | `text`    |
+| Integer   | `integer`      | `int`          | `integer` |
+| Big int   | `bigint`       | `bigint`       | `integer` |
+| Decimal   | `numeric(p,s)` | `decimal(p,s)` | `real`    |
+| Boolean   | `boolean`      | `tinyint(1)`   | `integer` |
+| Date      | `date`         | `date`         | `text`    |
+| Datetime  | `timestamp`    | `datetime`     | `text`    |
+| JSON      | `jsonb`        | `json`         | `text`    |
+| Enum      | `enum type`    | `enum`         | `text`    |
 
 **⏸️ STOP** - Valider les colonnes avant les relations
 
@@ -175,11 +175,11 @@ Entity: User
 
 #### Types de relations
 
-| Relation | Implémentation | Exemple |
-|----------|---------------|---------|
-| **1:1** | FK + UNIQUE | User → Profile |
-| **1:N** | FK sur le "N" | User → Posts |
-| **N:M** | Table de jonction | Posts ↔ Tags |
+| Relation | Implémentation    | Exemple        |
+| -------- | ----------------- | -------------- |
+| **1:1**  | FK + UNIQUE       | User → Profile |
+| **1:N**  | FK sur le "N"     | User → Posts   |
+| **N:M**  | Table de jonction | Posts ↔ Tags   |
 
 #### Table de jonction (N:M)
 
@@ -244,14 +244,14 @@ Legend: * = NOT NULL, [PK] = Primary Key, [FK] = Foreign Key, [U] = Unique
 
 #### Index Strategy
 
-| Type | Quand utiliser |
-|------|----------------|
-| **Primary Key** | Automatique |
-| **Foreign Key** | Toujours sur les FK |
-| **Unique** | Contraintes business (email, slug) |
-| **Composite** | Requêtes multi-colonnes |
-| **Partial** | Sous-ensemble de données |
-| **GIN/GiST** | JSON, full-text, arrays |
+| Type            | Quand utiliser                     |
+| --------------- | ---------------------------------- |
+| **Primary Key** | Automatique                        |
+| **Foreign Key** | Toujours sur les FK                |
+| **Unique**      | Contraintes business (email, slug) |
+| **Composite**   | Requêtes multi-colonnes            |
+| **Partial**     | Sous-ensemble de données           |
+| **GIN/GiST**    | JSON, full-text, arrays            |
 
 #### Checklist indexes
 
@@ -345,18 +345,22 @@ import { pgTable, uuid, varchar, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('role', ['user', 'admin']);
 
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: varchar('email', { length: 255 }).unique().notNull(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
-  name: varchar('name', { length: 100 }),
-  role: roleEnum('role').default('user'),
-  emailVerifiedAt: timestamp('email_verified_at'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-}, (table) => ({
-  roleIdx: index('idx_users_role').on(table.role),
-}));
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: varchar('email', { length: 255 }).unique().notNull(),
+    passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+    name: varchar('name', { length: 100 }),
+    role: roleEnum('role').default('user'),
+    emailVerifiedAt: timestamp('email_verified_at'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  (table) => ({
+    roleIdx: index('idx_users_role').on(table.role),
+  })
+);
 ```
 
 ---
@@ -390,12 +394,12 @@ export const seedUsers = [
 
 ## Overview
 
-| Aspect | Value |
-|--------|-------|
-| **Database** | PostgreSQL / MySQL / SQLite |
-| **ORM** | Prisma / Drizzle / TypeORM |
-| **Tables** | [X] |
-| **Relations** | [X] |
+| Aspect        | Value                       |
+| ------------- | --------------------------- |
+| **Database**  | PostgreSQL / MySQL / SQLite |
+| **ORM**       | Prisma / Drizzle / TypeORM  |
+| **Tables**    | [X]                         |
+| **Relations** | [X]                         |
 
 ## ERD
 
@@ -404,9 +408,11 @@ export const seedUsers = [
 ## Tables
 
 ### [Table 1]
+
 [Columns, types, constraints]
 
 ### [Table 2]
+
 ...
 
 ## Indexes
@@ -436,15 +442,15 @@ See: `seeds/`
 
 ### ✅ Checklist Output Database Designer
 
-| Critère | Status |
-|---------|--------|
-| Entités identifiées et documentées | ✅/❌ |
-| Relations définies (1:1, 1:N, N:M) | ✅/❌ |
-| ERD généré | ✅/❌ |
-| Indexes définis pour FK et requêtes | ✅/❌ |
-| Migrations générées | ✅/❌ |
-| Seed data créé | ✅/❌ |
-| Format ORM correct (si applicable) | ✅/❌ |
+| Critère                             | Status |
+| ----------------------------------- | ------ |
+| Entités identifiées et documentées  | ✅/❌  |
+| Relations définies (1:1, 1:N, N:M)  | ✅/❌  |
+| ERD généré                          | ✅/❌  |
+| Indexes définis pour FK et requêtes | ✅/❌  |
+| Migrations générées                 | ✅/❌  |
+| Seed data créé                      | ✅/❌  |
+| Format ORM correct (si applicable)  | ✅/❌  |
 
 **Score minimum : 6/7**
 
@@ -503,6 +509,7 @@ See: `seeds/`
 **Arguments reçus :** $ARGUMENTS
 
 Je vais maintenant :
+
 1. Analyser les besoins (PRD, description)
 2. Identifier les entités et relations
 3. Générer l'ERD

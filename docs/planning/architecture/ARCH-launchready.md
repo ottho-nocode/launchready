@@ -62,42 +62,42 @@
 
 ### Frontend
 
-| Technologie | Version | Justification |
-|-------------|---------|---------------|
-| **Next.js** | 14.x | App Router, Server Components, API Routes |
-| **React** | 18.x | UI library standard |
-| **TypeScript** | 5.x | Type safety, meilleure DX |
-| **Tailwind CSS** | 3.x | Styling rapide, design system |
-| **shadcn/ui** | latest | Composants accessibles, customisables |
-| **Zustand** | 4.x | State management léger |
-| **react-dropzone** | latest | Upload drag & drop |
-| **Framer Motion** | latest | Animations fluides |
+| Technologie        | Version | Justification                             |
+| ------------------ | ------- | ----------------------------------------- |
+| **Next.js**        | 14.x    | App Router, Server Components, API Routes |
+| **React**          | 18.x    | UI library standard                       |
+| **TypeScript**     | 5.x     | Type safety, meilleure DX                 |
+| **Tailwind CSS**   | 3.x     | Styling rapide, design system             |
+| **shadcn/ui**      | latest  | Composants accessibles, customisables     |
+| **Zustand**        | 4.x     | State management léger                    |
+| **react-dropzone** | latest  | Upload drag & drop                        |
+| **Framer Motion**  | latest  | Animations fluides                        |
 
 ### Backend
 
-| Technologie | Usage |
-|-------------|-------|
-| **Next.js API Routes** | Endpoints serverless |
-| **OpenAI SDK** | Génération de textes |
-| **Sharp** | Manipulation d'images |
-| **node-canvas** | Rendu mockups |
-| **Archiver** | Génération ZIP |
+| Technologie            | Usage                 |
+| ---------------------- | --------------------- |
+| **Next.js API Routes** | Endpoints serverless  |
+| **OpenAI SDK**         | Génération de textes  |
+| **Sharp**              | Manipulation d'images |
+| **node-canvas**        | Rendu mockups         |
+| **Archiver**           | Génération ZIP        |
 
 ### Infrastructure
 
-| Service | Usage |
-|---------|-------|
-| **Vercel** | Hosting, CI/CD, Edge Functions |
-| **Vercel Blob** | Stockage temporaire images |
+| Service         | Usage                          |
+| --------------- | ------------------------------ |
+| **Vercel**      | Hosting, CI/CD, Edge Functions |
+| **Vercel Blob** | Stockage temporaire images     |
 
 ### Dev Tools
 
-| Outil | Usage |
-|-------|-------|
-| **ESLint** | Linting |
-| **Prettier** | Formatting |
-| **Vitest** | Unit tests |
-| **Playwright** | E2E tests |
+| Outil          | Usage      |
+| -------------- | ---------- |
+| **ESLint**     | Linting    |
+| **Prettier**   | Formatting |
+| **Vitest**     | Unit tests |
+| **Playwright** | E2E tests  |
 
 ---
 
@@ -215,6 +215,7 @@ launchready/
 ```
 
 **Payload request:**
+
 ```typescript
 interface GenerateTextsRequest {
   description: string;
@@ -224,13 +225,14 @@ interface GenerateTextsRequest {
 ```
 
 **Payload response:**
+
 ```typescript
 interface GenerateTextsResponse {
-  appName: string;        // max 30 chars
-  subtitle: string;       // max 30 chars
-  promoText: string;      // max 170 chars
-  description: string;    // max 4000 chars
-  keywords: string;       // max 100 chars
+  appName: string; // max 30 chars
+  subtitle: string; // max 30 chars
+  promoText: string; // max 170 chars
+  description: string; // max 4000 chars
+  keywords: string; // max 100 chars
 }
 ```
 
@@ -257,9 +259,10 @@ interface GenerateTextsResponse {
 ```
 
 **Payload request:**
+
 ```typescript
 interface GenerateMockupRequest {
-  screenshot: string;     // Base64 image
+  screenshot: string; // Base64 image
   template: 'frame' | 'gradient' | 'text-overlay';
   options: {
     deviceColor: 'black' | 'white' | 'gold';
@@ -369,9 +372,9 @@ export async function POST(request: Request) {
     model: 'gpt-4-turbo',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: buildUserPrompt(description, language, category) }
+      { role: 'user', content: buildUserPrompt(description, language, category) },
     ],
-    response_format: { type: 'json_object' }
+    response_format: { type: 'json_object' },
   });
 
   return Response.json(JSON.parse(completion.choices[0].message.content));
@@ -388,7 +391,7 @@ export async function POST(request: Request) {
   const mockup = await renderMockup(buffer, template, options);
 
   return new Response(mockup, {
-    headers: { 'Content-Type': 'image/png' }
+    headers: { 'Content-Type': 'image/png' },
   });
 }
 ```
@@ -434,14 +437,14 @@ export async function renderMockup(
 
 ### Mesures implémentées
 
-| Mesure | Implémentation |
-|--------|----------------|
-| Rate limiting | Vercel Edge config (10 req/min/IP) |
-| Input validation | Zod schemas sur toutes les routes |
-| File validation | Type MIME + magic bytes check |
-| Max file size | 10MB par image |
-| CORS | Origine restreinte en prod |
-| API key protection | Env vars côté serveur uniquement |
+| Mesure             | Implémentation                     |
+| ------------------ | ---------------------------------- |
+| Rate limiting      | Vercel Edge config (10 req/min/IP) |
+| Input validation   | Zod schemas sur toutes les routes  |
+| File validation    | Type MIME + magic bytes check      |
+| Max file size      | 10MB par image                     |
+| CORS               | Origine restreinte en prod         |
+| API key protection | Env vars côté serveur uniquement   |
 
 ### Validation des uploads
 
@@ -462,13 +465,13 @@ function validateFile(file: File): boolean {
 
 ### Optimisations
 
-| Technique | Bénéfice |
-|-----------|----------|
+| Technique                | Bénéfice              |
+| ------------------------ | --------------------- |
 | Image compression client | Réduit payload upload |
-| Lazy loading composants | Faster initial load |
-| Server Components | Moins de JS client |
-| Edge Functions | Latence réduite |
-| Response streaming | UX génération texte |
+| Lazy loading composants  | Faster initial load   |
+| Server Components        | Moins de JS client    |
+| Edge Functions           | Latence réduite       |
+| Response streaming       | UX génération texte   |
 
 ### Caching
 
@@ -482,11 +485,11 @@ function validateFile(file: File): boolean {
 
 ### Services
 
-| Service | Usage |
-|---------|-------|
-| Vercel Analytics | Trafic, performances |
-| Sentry | Error tracking |
-| OpenAI usage dashboard | Coûts API |
+| Service                | Usage                |
+| ---------------------- | -------------------- |
+| Vercel Analytics       | Trafic, performances |
+| Sentry                 | Error tracking       |
+| OpenAI usage dashboard | Coûts API            |
 
 ### Métriques clés
 
@@ -501,11 +504,11 @@ function validateFile(file: File): boolean {
 
 ### Environnements
 
-| Env | URL | Usage |
-|-----|-----|-------|
-| Development | localhost:3000 | Dev local |
-| Preview | *.vercel.app | PR previews |
-| Production | launchready.app | Prod |
+| Env         | URL             | Usage       |
+| ----------- | --------------- | ----------- |
+| Development | localhost:3000  | Dev local   |
+| Preview     | \*.vercel.app   | PR previews |
+| Production  | launchready.app | Prod        |
 
 ### Variables d'environnement
 
@@ -548,6 +551,7 @@ Pre-deploy checks:
 **Décision:** Next.js 14 avec App Router.
 
 **Raisons:**
+
 - Écosystème mature et documentation
 - Server Components pour optimisation
 - Intégration native Vercel
@@ -560,6 +564,7 @@ Pre-deploy checks:
 **Décision:** Zustand.
 
 **Raisons:**
+
 - API simple et légère
 - Pas de boilerplate
 - TypeScript-first
@@ -572,6 +577,7 @@ Pre-deploy checks:
 **Décision:** Sharp pour processing, node-canvas pour rendering.
 
 **Raisons:**
+
 - Sharp: Performance native (libvips)
 - node-canvas: API Canvas familière
 - Alternatives (Jimp, Konva) moins performantes
@@ -583,6 +589,7 @@ Pre-deploy checks:
 **Décision:** API Routes serverless (Vercel Functions).
 
 **Raisons:**
+
 - Pas d'état à maintenir
 - Scale automatique
 - Coût optimisé (pay-per-use)
@@ -592,17 +599,17 @@ Pre-deploy checks:
 
 ## Checklist Architecture
 
-| Critère | Status |
-|---------|--------|
-| Stack défini et justifié | ✅ |
-| Structure projet claire | ✅ |
-| Flux de données documentés | ✅ |
-| Composants clés spécifiés | ✅ |
-| Sécurité adressée | ✅ |
-| Performance considérée | ✅ |
+| Critère                    | Status |
+| -------------------------- | ------ |
+| Stack défini et justifié   | ✅     |
+| Structure projet claire    | ✅     |
+| Flux de données documentés | ✅     |
+| Composants clés spécifiés  | ✅     |
+| Sécurité adressée          | ✅     |
+| Performance considérée     | ✅     |
 
 **Score : 6/6** → Prêt pour Stories
 
 ---
 
-*Généré automatiquement - RALPH Mode*
+_Généré automatiquement - RALPH Mode_

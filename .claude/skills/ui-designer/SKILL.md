@@ -9,9 +9,9 @@ argument-hint: <ux-design-file>
 trigger:
   auto_criteria:
     - has_design_system: false
-    - components_count: ">= 5"
+    - components_count: '>= 5'
     - brand_consistency_needed: true
-    - keywords: ["design", "composants", "couleurs", "style", "branding"]
+    - keywords: ['design', 'composants', 'couleurs', 'style', 'branding']
   mode: auto | manual | skip
 ---
 
@@ -20,15 +20,19 @@ trigger:
 ## 📥 Contexte UI chargé automatiquement
 
 ### UX Design source
+
 !`ls -t docs/planning/ux/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -50 || echo "Pas d'UX design trouvé"`
 
 ### Design tokens existants
+
 !`cat docs/planning/ui/tokens.css src/styles/tokens.css src/theme/tokens.* 2>/dev/null | head -40 || echo "Pas de tokens existants"`
 
 ### UI existant (pour cohérence)
+
 !`ls -la docs/planning/ui/*.md 2>/dev/null | tail -5 || echo "Pas d'UI design existant"`
 
 ### Framework frontend détecté
+
 !`cat package.json 2>/dev/null | grep -E '"(react|vue|angular|svelte|next|nuxt)"' || echo "Framework non détecté"`
 
 ---
@@ -36,6 +40,7 @@ trigger:
 ## Activation
 
 > **Au démarrage :**
+>
 > 1. Identifier si déclenché automatiquement ou manuellement
 > 2. Analyser le contexte (UX docs / PRD existant)
 > 3. Détecter si design system existant (brownfield)
@@ -45,12 +50,14 @@ trigger:
 **Rôle** : UI Designer focalisé sur le design system et la cohérence visuelle. Transformer l'UX en spécifications visuelles implémentables.
 
 **Principes** :
+
 - **Consistency** - Un système cohérent, pas des pages isolées
 - **Scalability** - Des tokens et composants réutilisables
 - **Accessibility** - Contraste, tailles, lisibilité
 - **Developer-friendly** - Specs claires et implémentables
 
 **Règles** :
+
 - ⛔ Ne JAMAIS créer de styles inline sans les documenter comme tokens
 - ⛔ Ne JAMAIS ignorer les ratios de contraste
 - ✅ Toujours définir les tokens avant les composants
@@ -66,10 +73,12 @@ trigger:
 🎨 **UI Design Phase** (auto-triggered)
 
 Déclenché car :
+
 - [Raison 1 : composants UI identifiés]
 - [Raison 2 : besoin de cohérence visuelle]
 
 **Contexte :**
+
 - Design system existant : [Oui/Non]
 - UX Design : [Lien si existe]
 - Framework UI prévu : [si détecté dans archi]
@@ -91,12 +100,14 @@ Si design system existant détecté, s'aligner dessus plutôt que créer nouveau
 🎨 **UI Design**
 
 **Contexte détecté :**
+
 - Source : [UX Design / PRD / Direct]
 - Documents liés : [paths]
 - Framework frontend : [React/Vue/etc. si détecté]
 - Design system existant : [Oui/Non - path si oui]
 
 **Scope UI estimé :**
+
 - [ ] Light (5-10 composants) → Design tokens + composants de base
 - [ ] Standard (10-20 composants) → Design system complet
 - [ ] Full (20+ composants) → Design system + documentation Storybook
@@ -110,106 +121,113 @@ Je recommande le **Mode [X]**. On continue ?
 
 ### 2. Design Tokens
 
-```markdown
+````markdown
 ## 🎨 Design Tokens
 
 ### Couleurs
 
 #### Palette principale
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--color-primary` | #[hex] | Actions principales, liens |
-| `--color-primary-hover` | #[hex] | Hover sur primary |
-| `--color-secondary` | #[hex] | Actions secondaires |
-| `--color-accent` | #[hex] | Mise en avant |
+
+| Token                   | Valeur | Usage                      |
+| ----------------------- | ------ | -------------------------- |
+| `--color-primary`       | #[hex] | Actions principales, liens |
+| `--color-primary-hover` | #[hex] | Hover sur primary          |
+| `--color-secondary`     | #[hex] | Actions secondaires        |
+| `--color-accent`        | #[hex] | Mise en avant              |
 
 #### Sémantique
-| Token | Valeur | Usage |
-|-------|--------|-------|
+
+| Token             | Valeur | Usage               |
+| ----------------- | ------ | ------------------- |
 | `--color-success` | #[hex] | Validations, succès |
-| `--color-warning` | #[hex] | Alertes, attention |
-| `--color-error` | #[hex] | Erreurs, danger |
-| `--color-info` | #[hex] | Informations |
+| `--color-warning` | #[hex] | Alertes, attention  |
+| `--color-error`   | #[hex] | Erreurs, danger     |
+| `--color-info`    | #[hex] | Informations        |
 
 #### Neutres
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--color-background` | #[hex] | Fond principal |
-| `--color-surface` | #[hex] | Cards, modales |
-| `--color-text-primary` | #[hex] | Texte principal |
+
+| Token                    | Valeur | Usage            |
+| ------------------------ | ------ | ---------------- |
+| `--color-background`     | #[hex] | Fond principal   |
+| `--color-surface`        | #[hex] | Cards, modales   |
+| `--color-text-primary`   | #[hex] | Texte principal  |
 | `--color-text-secondary` | #[hex] | Texte secondaire |
-| `--color-border` | #[hex] | Bordures |
+| `--color-border`         | #[hex] | Bordures         |
 
 #### Contraste validé ✅
-| Combinaison | Ratio | WCAG |
-|-------------|-------|------|
+
+| Combinaison               | Ratio | WCAG  |
+| ------------------------- | ----- | ----- |
 | text-primary / background | [X]:1 | AA ✅ |
-| primary / background | [X]:1 | AA ✅ |
+| primary / background      | [X]:1 | AA ✅ |
 
 ---
 
 ### Typographie
 
-| Token | Font | Size | Weight | Line-height | Usage |
-|-------|------|------|--------|-------------|-------|
-| `--font-heading-1` | [Font] | 32px | 700 | 1.2 | H1 |
-| `--font-heading-2` | [Font] | 24px | 600 | 1.3 | H2 |
-| `--font-heading-3` | [Font] | 20px | 600 | 1.3 | H3 |
-| `--font-body` | [Font] | 16px | 400 | 1.5 | Texte courant |
-| `--font-body-small` | [Font] | 14px | 400 | 1.4 | Texte secondaire |
-| `--font-caption` | [Font] | 12px | 400 | 1.4 | Labels, hints |
+| Token               | Font   | Size | Weight | Line-height | Usage            |
+| ------------------- | ------ | ---- | ------ | ----------- | ---------------- |
+| `--font-heading-1`  | [Font] | 32px | 700    | 1.2         | H1               |
+| `--font-heading-2`  | [Font] | 24px | 600    | 1.3         | H2               |
+| `--font-heading-3`  | [Font] | 20px | 600    | 1.3         | H3               |
+| `--font-body`       | [Font] | 16px | 400    | 1.5         | Texte courant    |
+| `--font-body-small` | [Font] | 14px | 400    | 1.4         | Texte secondaire |
+| `--font-caption`    | [Font] | 12px | 400    | 1.4         | Labels, hints    |
 
 **Font stack :**
+
 ```css
 --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 ```
+````
 
 ---
 
 ### Espacements
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--space-xs` | 4px | Micro-espacements |
-| `--space-sm` | 8px | Espacements serrés |
-| `--space-md` | 16px | Espacement standard |
-| `--space-lg` | 24px | Espacement large |
-| `--space-xl` | 32px | Sections |
-| `--space-2xl` | 48px | Grandes sections |
+| Token         | Valeur | Usage               |
+| ------------- | ------ | ------------------- |
+| `--space-xs`  | 4px    | Micro-espacements   |
+| `--space-sm`  | 8px    | Espacements serrés  |
+| `--space-md`  | 16px   | Espacement standard |
+| `--space-lg`  | 24px   | Espacement large    |
+| `--space-xl`  | 32px   | Sections            |
+| `--space-2xl` | 48px   | Grandes sections    |
 
 ---
 
 ### Bordures & Ombres
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--radius-sm` | 4px | Boutons, inputs |
-| `--radius-md` | 8px | Cards |
-| `--radius-lg` | 16px | Modales |
-| `--radius-full` | 9999px | Pills, avatars |
+| Token           | Valeur | Usage           |
+| --------------- | ------ | --------------- |
+| `--radius-sm`   | 4px    | Boutons, inputs |
+| `--radius-md`   | 8px    | Cards           |
+| `--radius-lg`   | 16px   | Modales         |
+| `--radius-full` | 9999px | Pills, avatars  |
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--shadow-sm` | 0 1px 2px rgba(0,0,0,0.05) | Hover léger |
-| `--shadow-md` | 0 4px 6px rgba(0,0,0,0.1) | Cards |
+| Token         | Valeur                      | Usage              |
+| ------------- | --------------------------- | ------------------ |
+| `--shadow-sm` | 0 1px 2px rgba(0,0,0,0.05)  | Hover léger        |
+| `--shadow-md` | 0 4px 6px rgba(0,0,0,0.1)   | Cards              |
 | `--shadow-lg` | 0 10px 15px rgba(0,0,0,0.1) | Modales, dropdowns |
 
 ---
 
 ### Breakpoints
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--breakpoint-sm` | 640px | Mobile landscape |
-| `--breakpoint-md` | 768px | Tablette |
-| `--breakpoint-lg` | 1024px | Desktop |
-| `--breakpoint-xl` | 1280px | Large desktop |
+| Token             | Valeur | Usage            |
+| ----------------- | ------ | ---------------- |
+| `--breakpoint-sm` | 640px  | Mobile landscape |
+| `--breakpoint-md` | 768px  | Tablette         |
+| `--breakpoint-lg` | 1024px | Desktop          |
+| `--breakpoint-xl` | 1280px | Large desktop    |
 
 ---
 
 Ces tokens te conviennent ?
-```
+
+````
 
 **⏸️ STOP** - Validation tokens
 
@@ -258,7 +276,7 @@ interface ButtonProps {
   rightIcon?: ReactNode;
   fullWidth?: boolean;
 }
-```
+````
 
 ---
 
@@ -282,6 +300,7 @@ interface ButtonProps {
 | Disabled | border/50% | background-muted | - |
 
 **Anatomie :**
+
 ```
 ┌─────────────────────────────────────┐
 │ Label *                             │  ← Label (optionnel, * si required)
@@ -304,6 +323,7 @@ interface ButtonProps {
 | `filled` | Card discrète | none | none, bg-surface |
 
 **Structure :**
+
 ```
 ┌─────────────────────────────────────┐
 │ [Image / Media]           (opt.)    │
@@ -320,7 +340,8 @@ interface ButtonProps {
 ---
 
 [Répéter pour autres composants selon le scope]
-```
+
+````
 
 **⏸️ STOP** - Validation composants
 
@@ -355,7 +376,7 @@ interface ButtonProps {
 | Micro-interaction | 150ms | ease-out |
 | Transition page | 300ms | ease-in-out |
 | Modal open | 200ms | ease-out |
-```
+````
 
 ---
 
@@ -375,18 +396,23 @@ source: ux-design | prd | direct
 # UI Design System: [Nom]
 
 ## 1. Design Tokens
+
 [Export complet des tokens]
 
 ## 2. Composants
+
 [Liste et specs de chaque composant]
 
 ## 3. Patterns
+
 [Guidelines d'usage]
 
 ## 4. Accessibilité
+
 [Checklist couleurs, contrastes, tailles]
 
 ## 5. Implementation Notes
+
 - Framework cible : [X]
 - CSS approach : [CSS Modules / Tailwind / Styled-components]
 - Suggestion : [Recommandations pour le dev]
@@ -420,25 +446,29 @@ source: ux-design | prd | direct
 ## 🎨 UI Design Terminé
 
 Documents créés :
+
 - `docs/planning/ui/UI-{slug}.md`
 - `docs/planning/ui/tokens.css` (optionnel)
 
 ### Résumé
+
 - **Tokens définis** : [nombre par catégorie]
 - **Composants spécifiés** : [nombre]
 - **Contraste WCAG** : [AA/AAA]
 
 ### Points clés
+
 - [Choix design important 1]
 - [Choix design important 2]
 
 ---
 
 **Prochaine étape ?**
+
 - [A] Passer à l'Architecture (intégrer les specs UI)
 - [S] Passer aux Stories (avec specs UI)
 - [R] Réviser l'UI
-- [X] Exporter les tokens en CSS
+- [x] Exporter les tokens en CSS
 ```
 
 **⏸️ STOP** - Attendre le choix
@@ -460,16 +490,16 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output UI Design
 
-| Critère | Status |
-|---------|--------|
-| Fichier créé dans `docs/planning/ui/` | ✅/❌ |
-| Tokens couleurs définis | ✅/❌ |
-| Tokens typographie définis | ✅/❌ |
-| Tokens spacing définis | ✅/❌ |
-| Composants principaux spécifiés | ✅/❌ |
-| États des composants documentés | ✅/❌ |
-| Contraste WCAG AA validé | ✅/❌ |
-| tokens.css exporté (optionnel) | ✅/❌/- |
+| Critère                               | Status  |
+| ------------------------------------- | ------- |
+| Fichier créé dans `docs/planning/ui/` | ✅/❌   |
+| Tokens couleurs définis               | ✅/❌   |
+| Tokens typographie définis            | ✅/❌   |
+| Tokens spacing définis                | ✅/❌   |
+| Composants principaux spécifiés       | ✅/❌   |
+| États des composants documentés       | ✅/❌   |
+| Contraste WCAG AA validé              | ✅/❌   |
+| tokens.css exporté (optionnel)        | ✅/❌/- |
 
 **Score : X/7** → Si < 5, compléter avant transition
 ```

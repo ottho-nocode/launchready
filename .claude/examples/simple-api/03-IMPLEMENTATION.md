@@ -47,11 +47,11 @@ npm test  # 12 tests, 100% pass
 
 ## Temps réel
 
-| Phase | Estimé | Réel |
-|-------|--------|------|
-| PRD | 15min | 10min |
-| Stories | 30min | 25min |
-| Code | 2h | 2h30 |
-| Tests | 1h | 45min |
-| Review | 30min | 20min |
+| Phase     | Estimé   | Réel     |
+| --------- | -------- | -------- |
+| PRD       | 15min    | 10min    |
+| Stories   | 30min    | 25min    |
+| Code      | 2h       | 2h30     |
+| Tests     | 1h       | 45min    |
+| Review    | 30min    | 20min    |
 | **Total** | **4h15** | **4h10** |

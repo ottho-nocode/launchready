@@ -14,6 +14,7 @@
 **Nom provisoire:** App Store Assets Generator
 
 **Description:** Application pour automatiser la création des éléments de soumission App Store Connect :
+
 1. Génération automatique des textes (titre, description, mots-clés, etc.) à partir d'une description
 2. Génération de mockups à partir de screenshots uploadés avec templates prédéfinis
 
@@ -29,13 +30,13 @@
 
 **Analyse FULL vs LIGHT:**
 
-| Critère | Score | Justification |
-|---------|-------|---------------|
-| 3+ features distinctes | +1 | Génération textes, génération mockups, gestion templates |
-| Architecture multi-composants | +1 | Frontend, Backend API, Service IA, Service Image |
-| 3+ écrans/pages UI | +1 | Home, Upload, Preview, Export, Settings |
-| Intégrations externes | +1 | OpenAI/Claude API, Image processing |
-| Estimation > 1 jour | +1 | Complexité significative |
+| Critère                       | Score | Justification                                            |
+| ----------------------------- | ----- | -------------------------------------------------------- |
+| 3+ features distinctes        | +1    | Génération textes, génération mockups, gestion templates |
+| Architecture multi-composants | +1    | Frontend, Backend API, Service IA, Service Image         |
+| 3+ écrans/pages UI            | +1    | Home, Upload, Preview, Export, Settings                  |
+| Intégrations externes         | +1    | OpenAI/Claude API, Image processing                      |
+| Estimation > 1 jour           | +1    | Complexité significative                                 |
 
 **Score total: 5/5 → Mode FULL**
 
@@ -49,12 +50,14 @@
 **Timestamp:** 2026-01-21 23:55
 
 **Directions explorées:**
+
 1. CLI Tool - Simple mais UX limitée
 2. Web App - Accessible, preview temps réel ✅ CHOISI
 3. Extension Xcode - Trop complexe
 4. App macOS - Distribution limitée
 
 **Décisions:**
+
 - Nom: **LaunchReady** (ou StorePrep)
 - Stack: Next.js + TypeScript + Tailwind
 - MVP: Génération textes + mockups basiques
@@ -73,6 +76,7 @@
 **Mode:** FULL (PRD complet)
 
 **Sections rédigées:**
+
 - Executive Summary & Vision
 - Contexte & Problème
 - Solution (workflow 3 étapes)
@@ -94,6 +98,7 @@
 **Timestamp:** 2026-01-21 23:58
 
 **Décisions techniques:**
+
 - **Frontend:** Next.js 14 + TypeScript + Tailwind + shadcn/ui
 - **State:** Zustand
 - **Backend:** Next.js API Routes (serverless)
@@ -102,6 +107,7 @@
 - **Deploy:** Vercel
 
 **Structure:**
+
 - `app/` - Pages et API routes
 - `components/` - UI components (forms, upload, mockup, preview, export)
 - `lib/` - Services (OpenAI, image processing, archive)
@@ -122,6 +128,7 @@
 **Timestamp:** 2026-01-22 00:00
 
 **Epics créés: 6**
+
 1. EPIC-01: Setup & Infrastructure (4 stories, 10 pts)
 2. EPIC-02: Génération de textes (4 stories, 16 pts)
 3. EPIC-03: Upload de screenshots (3 stories, 9 pts)
@@ -134,6 +141,7 @@
 **Readiness Check: 13/15** ✅
 
 **Documents:**
+
 - `docs/stories/STORIES-launchready.md` (index)
 - `docs/stories/EPIC-01-setup/` (4 stories)
 - `docs/stories/EPIC-02-text-generation/` (4 stories)
@@ -157,11 +165,11 @@
 
 **Issues créées:**
 
-| Type | Count | Numbers |
-|------|-------|---------|
-| Epics | 6 | #1, #2, #3, #4, #5, #6 |
-| Stories | 22 | #7-#28 |
-| **Total** | **28** | |
+| Type      | Count  | Numbers                |
+| --------- | ------ | ---------------------- |
+| Epics     | 6      | #1, #2, #3, #4, #5, #6 |
+| Stories   | 22     | #7-#28                 |
+| **Total** | **28** |                        |
 
 **Status:** ✅ GitHub Issues créées
 
@@ -169,35 +177,38 @@
 
 ## 📊 Métriques Discovery
 
-| Métrique | Valeur |
-|----------|--------|
+| Métrique         | Valeur  |
+| ---------------- | ------- |
 | **Durée totale** | ~12 min |
-| **Itérations** | 6 / 30 |
-| **Mode détecté** | FULL |
+| **Itérations**   | 6 / 30  |
+| **Mode détecté** | FULL    |
 
 ### Temps par phase
-| Phase | Status |
-|-------|--------|
-| Analyse initiale | ✅ |
-| Brainstorm | ✅ |
-| PRD | ✅ |
-| Architecture | ✅ |
-| Stories | ✅ |
-| GitHub Issues | ✅ |
+
+| Phase            | Status |
+| ---------------- | ------ |
+| Analyse initiale | ✅     |
+| Brainstorm       | ✅     |
+| PRD              | ✅     |
+| Architecture     | ✅     |
+| Stories          | ✅     |
+| GitHub Issues    | ✅     |
 
 ### Documents générés
-| Type | Fichier | Status |
-|------|---------|--------|
-| Brainstorm | `BRAINSTORM-app-store-assets-generator.md` | ✅ |
-| PRD | `PRD-launchready.md` | ✅ |
-| Architecture | `ARCH-launchready.md` | ✅ |
-| Stories | `STORIES-launchready.md` + 22 fichiers | ✅ |
+
+| Type         | Fichier                                    | Status |
+| ------------ | ------------------------------------------ | ------ |
+| Brainstorm   | `BRAINSTORM-app-store-assets-generator.md` | ✅     |
+| PRD          | `PRD-launchready.md`                       | ✅     |
+| Architecture | `ARCH-launchready.md`                      | ✅     |
+| Stories      | `STORIES-launchready.md` + 22 fichiers     | ✅     |
 
 ### Issues GitHub
-| Type | Count | Numéros |
-|------|-------|---------|
-| Epics | 6 | #1-#6 |
-| Stories | 22 | #7-#28 |
+
+| Type    | Count | Numéros |
+| ------- | ----- | ------- |
+| Epics   | 6     | #1-#6   |
+| Stories | 22    | #7-#28  |
 
 ---
 

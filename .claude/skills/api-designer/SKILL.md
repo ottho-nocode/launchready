@@ -20,8 +20,8 @@ user-invocable: true
 hooks:
   post_tool_call:
     - tool: Write
-      match: "openapi*.yaml"
-      run: "npx @redocly/cli lint $file 2>/dev/null || true"
+      match: 'openapi*.yaml'
+      run: 'npx @redocly/cli lint $file 2>/dev/null || true'
 knowledge:
   core:
     - .claude/knowledge/workflows/api-design-template.md
@@ -99,12 +99,12 @@ Avant de commencer, je vérifie :
 
 Je détermine :
 
-| Aspect | Questions |
-|--------|-----------|
+| Aspect            | Questions                     |
+| ----------------- | ----------------------------- |
 | **Consommateurs** | Web app? Mobile? Third-party? |
-| **Volume** | Requests/sec attendus? |
-| **Auth** | Public? API Key? OAuth? JWT? |
-| **Format** | JSON? XML? Multipart? |
+| **Volume**        | Requests/sec attendus?        |
+| **Auth**          | Public? API Key? OAuth? JWT?  |
+| **Format**        | JSON? XML? Multipart?         |
 
 **⏸️ STOP** - Valider les besoins avant de continuer
 
@@ -128,12 +128,12 @@ Resource: [Name]
 
 #### Conventions de nommage
 
-| Type | Convention | Exemple |
-|------|------------|---------|
-| Resources | Pluriel, kebab-case | `/api/v1/user-profiles` |
-| Query params | snake_case | `?page_size=20` |
-| Body fields | camelCase | `{ "firstName": "John" }` |
-| Headers | Title-Case | `X-Request-Id` |
+| Type         | Convention          | Exemple                   |
+| ------------ | ------------------- | ------------------------- |
+| Resources    | Pluriel, kebab-case | `/api/v1/user-profiles`   |
+| Query params | snake_case          | `?page_size=20`           |
+| Body fields  | camelCase           | `{ "firstName": "John" }` |
+| Headers      | Title-Case          | `X-Request-Id`            |
 
 **⏸️ STOP** - Valider les ressources avant les endpoints
 
@@ -162,14 +162,14 @@ Endpoint: GET /api/v1/resources
 
 #### Matrice CRUD standard
 
-| Action | Method | Endpoint | Success | Errors |
-|--------|--------|----------|---------|--------|
-| List | GET | /resources | 200 | 401, 403 |
-| Create | POST | /resources | 201 | 400, 401, 403, 422 |
-| Read | GET | /resources/:id | 200 | 401, 403, 404 |
-| Update | PATCH | /resources/:id | 200 | 400, 401, 403, 404, 422 |
-| Replace | PUT | /resources/:id | 200 | 400, 401, 403, 404, 422 |
-| Delete | DELETE | /resources/:id | 204 | 401, 403, 404 |
+| Action  | Method | Endpoint       | Success | Errors                  |
+| ------- | ------ | -------------- | ------- | ----------------------- |
+| List    | GET    | /resources     | 200     | 401, 403                |
+| Create  | POST   | /resources     | 201     | 400, 401, 403, 422      |
+| Read    | GET    | /resources/:id | 200     | 401, 403, 404           |
+| Update  | PATCH  | /resources/:id | 200     | 400, 401, 403, 404, 422 |
+| Replace | PUT    | /resources/:id | 200     | 400, 401, 403, 404, 422 |
+| Delete  | DELETE | /resources/:id | 204     | 401, 403, 404           |
 
 **⏸️ STOP** - Valider les endpoints avant la spec OpenAPI
 
@@ -213,8 +213,8 @@ paths:
                 $ref: '#/components/schemas/ResourceList'
               example:
                 data:
-                  - id: "123e4567-e89b-12d3-a456-426614174000"
-                    name: "Example"
+                  - id: '123e4567-e89b-12d3-a456-426614174000'
+                    name: 'Example'
                 meta:
                   total: 100
                   page: 1
@@ -275,26 +275,26 @@ components:
 
 #### Codes d'erreur standards
 
-| HTTP | Code | Usage |
-|------|------|-------|
-| 400 | BAD_REQUEST | Requête malformée |
-| 401 | UNAUTHORIZED | Auth manquante/invalide |
-| 403 | FORBIDDEN | Pas les permissions |
-| 404 | NOT_FOUND | Ressource inexistante |
-| 409 | CONFLICT | Conflit (duplicate) |
-| 422 | VALIDATION_ERROR | Validation échouée |
-| 429 | RATE_LIMITED | Trop de requêtes |
-| 500 | INTERNAL_ERROR | Erreur serveur |
+| HTTP | Code             | Usage                   |
+| ---- | ---------------- | ----------------------- |
+| 400  | BAD_REQUEST      | Requête malformée       |
+| 401  | UNAUTHORIZED     | Auth manquante/invalide |
+| 403  | FORBIDDEN        | Pas les permissions     |
+| 404  | NOT_FOUND        | Ressource inexistante   |
+| 409  | CONFLICT         | Conflit (duplicate)     |
+| 422  | VALIDATION_ERROR | Validation échouée      |
+| 429  | RATE_LIMITED     | Trop de requêtes        |
+| 500  | INTERNAL_ERROR   | Erreur serveur          |
 
 ---
 
 ### 6. Versioning strategy
 
-| Stratégie | Exemple | Quand utiliser |
-|-----------|---------|----------------|
-| **URL Path** | `/api/v1/users` | API publique, breaking changes fréquents |
-| **Header** | `X-API-Version: 2` | API interne, flexibilité |
-| **Query** | `?version=2` | Transition temporaire |
+| Stratégie    | Exemple            | Quand utiliser                           |
+| ------------ | ------------------ | ---------------------------------------- |
+| **URL Path** | `/api/v1/users`    | API publique, breaking changes fréquents |
+| **Header**   | `X-API-Version: 2` | API interne, flexibilité                 |
+| **Query**    | `?version=2`       | Transition temporaire                    |
 
 **Recommandation** : URL Path pour la clarté
 
@@ -347,27 +347,29 @@ Je génère aussi :
 
 ## Overview
 
-| Aspect | Value |
-|--------|-------|
-| **Type** | REST / GraphQL |
+| Aspect       | Value                        |
+| ------------ | ---------------------------- |
+| **Type**     | REST / GraphQL               |
 | **Base URL** | `https://api.example.com/v1` |
-| **Auth** | Bearer JWT |
-| **Format** | JSON |
+| **Auth**     | Bearer JWT                   |
+| **Format**   | JSON                         |
 
 ## Resources
 
 ### [Resource 1]
+
 [Description]
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| id | uuid | read-only | Unique identifier |
+| Field | Type | Required  | Description       |
+| ----- | ---- | --------- | ----------------- |
+| id    | uuid | read-only | Unique identifier |
 
 ## Endpoints
 
 ### [Resource 1]
 
 #### List [Resources]
+
 `GET /api/v1/resources`
 
 [Details...]
@@ -386,9 +388,9 @@ See: `docs/api/openapi.yaml`
 
 ## Changelog
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | YYYY-MM-DD | Initial release |
+| Version | Date       | Changes         |
+| ------- | ---------- | --------------- |
+| 1.0.0   | YYYY-MM-DD | Initial release |
 ```
 
 **Fichier** : `docs/api/API-{slug}.md`
@@ -400,15 +402,15 @@ See: `docs/api/openapi.yaml`
 
 ### ✅ Checklist Output API Designer
 
-| Critère | Status |
-|---------|--------|
-| Ressources identifiées et documentées | ✅/❌ |
-| Endpoints CRUD complets | ✅/❌ |
-| OpenAPI spec valide (lint pass) | ✅/❌ |
-| Erreurs documentées | ✅/❌ |
-| Auth/Security définis | ✅/❌ |
-| Exemples inclus | ✅/❌ |
-| Versioning strategy définie | ✅/❌ |
+| Critère                               | Status |
+| ------------------------------------- | ------ |
+| Ressources identifiées et documentées | ✅/❌  |
+| Endpoints CRUD complets               | ✅/❌  |
+| OpenAPI spec valide (lint pass)       | ✅/❌  |
+| Erreurs documentées                   | ✅/❌  |
+| Auth/Security définis                 | ✅/❌  |
+| Exemples inclus                       | ✅/❌  |
+| Versioning strategy définie           | ✅/❌  |
 
 **Score minimum : 6/7**
 
@@ -467,6 +469,7 @@ See: `docs/api/openapi.yaml`
 **Arguments reçus :** $ARGUMENTS
 
 Je vais maintenant :
+
 1. Analyser les besoins (PRD, description)
 2. Identifier les ressources
 3. Designer les endpoints

@@ -17,15 +17,17 @@ lastStep: 0
 ## 1. Executive Summary
 
 ### Vision
+
 > Une phrase décrivant la vision du produit.
 
 ### Proposition de valeur
+
 > "Pour [persona], qui [problème], notre produit [solution] contrairement à [alternatives]."
 
 ### Objectifs
 
-| Objectif | Métrique | Cible |
-|----------|----------|-------|
+| Objectif   | Métrique           | Cible        |
+| ---------- | ------------------ | ------------ |
 | Objectif 1 | Métrique mesurable | Valeur cible |
 | Objectif 2 | Métrique mesurable | Valeur cible |
 
@@ -34,11 +36,13 @@ lastStep: 0
 ## 2. Problème
 
 ### Contexte
+
 Décrire le contexte et pourquoi ce problème existe.
 
 ### Personas
 
 #### Persona 1: [Nom]
+
 - **Rôle:**
 - **Pain points:**
   - Point 1
@@ -46,6 +50,7 @@ Décrire le contexte et pourquoi ce problème existe.
 - **Quote:** "Citation représentative"
 
 ### Jobs to be Done
+
 1. **Quand** [situation], **je veux** [action], **pour** [bénéfice]
 2. ...
 
@@ -54,29 +59,33 @@ Décrire le contexte et pourquoi ce problème existe.
 ## 3. Solution
 
 ### Description
+
 Description de la solution proposée.
 
 ### Différenciateurs
 
-| Feature | Nous | Concurrent A | Concurrent B |
-|---------|------|--------------|--------------|
-| Feature 1 | ✅ | ❌ | ⚠️ |
-| Feature 2 | ✅ | ✅ | ❌ |
+| Feature   | Nous | Concurrent A | Concurrent B |
+| --------- | ---- | ------------ | ------------ |
+| Feature 1 | ✅   | ❌           | ⚠️           |
+| Feature 2 | ✅   | ✅           | ❌           |
 
 ---
 
 ## 4. Scope
 
 ### In Scope (MVP)
+
 - [ ] Feature 1
 - [ ] Feature 2
 - [ ] Feature 3
 
 ### Out of Scope (v1)
+
 - [ ] Feature future 1
 - [ ] Feature future 2
 
 ### Future (v2+)
+
 - Feature envisagée 1
 - Feature envisagée 2
 
@@ -86,12 +95,13 @@ Description de la solution proposée.
 
 ### Epic 1: [Nom de l'Epic]
 
-| Story | Priorité | Taille | Description |
-|-------|----------|--------|-------------|
-| Story 1.1 | P0 | M | Description courte |
-| Story 1.2 | P1 | S | Description courte |
+| Story     | Priorité | Taille | Description        |
+| --------- | -------- | ------ | ------------------ |
+| Story 1.1 | P0       | M      | Description courte |
+| Story 1.2 | P1       | S      | Description courte |
 
 ### Epic 2: [Nom de l'Epic]
+
 ...
 
 ---
@@ -111,30 +121,30 @@ interface Entity {
 
 ## 7. Exigences non-fonctionnelles
 
-| Catégorie | Exigence | Cible |
-|-----------|----------|-------|
-| Performance | Temps de chargement | < Xs |
-| Sécurité | Authentification | Standard |
-| Accessibilité | WCAG | AA |
-| Disponibilité | Uptime | 99.X% |
+| Catégorie     | Exigence            | Cible    |
+| ------------- | ------------------- | -------- |
+| Performance   | Temps de chargement | < Xs     |
+| Sécurité      | Authentification    | Standard |
+| Accessibilité | WCAG                | AA       |
+| Disponibilité | Uptime              | 99.X%    |
 
 ---
 
 ## 8. Risques
 
-| Risque | Probabilité | Impact | Mitigation |
-|--------|-------------|--------|------------|
+| Risque   | Probabilité     | Impact          | Mitigation           |
+| -------- | --------------- | --------------- | -------------------- |
 | Risque 1 | Low/Medium/High | Low/Medium/High | Action de mitigation |
 
 ---
 
 ## 9. Timeline
 
-| Phase | Durée | Livrables |
-|-------|-------|-----------|
-| Phase 1 | Xj | Livrable 1 |
-| Phase 2 | Xj | Livrable 2 |
-| **Total** | **Xj** | |
+| Phase     | Durée  | Livrables  |
+| --------- | ------ | ---------- |
+| Phase 1   | Xj     | Livrable 1 |
+| Phase 2   | Xj     | Livrable 2 |
+| **Total** | **Xj** |            |
 
 ---
 
@@ -149,10 +159,12 @@ interface Entity {
 ## Annexes
 
 ### A. Références
+
 - Lien vers brainstorm
 - Lien vers research
 
 ### B. Glossaire
-| Terme | Définition |
-|-------|------------|
+
+| Terme   | Définition |
+| ------- | ---------- |
 | Terme 1 | Définition |

@@ -10,20 +10,22 @@
 ## 1. Executive Summary
 
 ### Vision
+
 Créer le dashboard de gestion de projets le plus simple et rapide du marché,
 ciblant les petites équipes tech (2-15 personnes) avec un prix imbattable.
 
 ### Proposition de valeur
+
 > "Gérez vos projets en équipe sans la complexité - setup en 2 min, $3/user/mois"
 
 ### Objectifs business
 
-| Objectif | Métrique | Cible M6 | Cible M12 |
-|----------|----------|----------|-----------|
-| Acquisition | Users inscrits | 1,000 | 10,000 |
-| Activation | Teams créées | 200 | 2,000 |
-| Revenue | MRR | $500 | $5,000 |
-| Retention | Churn mensuel | < 5% | < 3% |
+| Objectif    | Métrique       | Cible M6 | Cible M12 |
+| ----------- | -------------- | -------- | --------- |
+| Acquisition | Users inscrits | 1,000    | 10,000    |
+| Activation  | Teams créées   | 200      | 2,000     |
+| Revenue     | MRR            | $500     | $5,000    |
+| Retention   | Churn mensuel  | < 5%     | < 3%      |
 
 ---
 
@@ -32,6 +34,7 @@ ciblant les petites équipes tech (2-15 personnes) avec un prix imbattable.
 ### Personas
 
 #### Persona 1: Sarah - Tech Lead
+
 - **Âge:** 32 ans
 - **Équipe:** 5 développeurs
 - **Pain points:**
@@ -41,6 +44,7 @@ ciblant les petites équipes tech (2-15 personnes) avec un prix imbattable.
 - **Quote:** "Je veux juste voir qui fait quoi cette semaine"
 
 #### Persona 2: Marc - Fondateur Startup
+
 - **Âge:** 28 ans
 - **Équipe:** 3 personnes (lui + 2 devs)
 - **Pain points:**
@@ -61,17 +65,17 @@ ciblant les petites équipes tech (2-15 personnes) avec un prix imbattable.
 
 ### Features MVP
 
-| Feature | Description | Priorité |
-|---------|-------------|----------|
-| **Auth** | Magic link + GitHub OAuth | P0 |
-| **Teams** | Création, invitations, rôles | P0 |
-| **Projects** | CRUD, settings, archive | P0 |
-| **Kanban** | Board avec drag & drop | P0 |
-| **Tasks** | CRUD, assignation, labels | P0 |
-| **Billing** | Free tier, Pro $3/user | P0 |
-| **Notifications** | In-app + email digest | P1 |
-| **Search** | Full-text sur tasks | P1 |
-| **Activity** | Feed des changements | P2 |
+| Feature           | Description                  | Priorité |
+| ----------------- | ---------------------------- | -------- |
+| **Auth**          | Magic link + GitHub OAuth    | P0       |
+| **Teams**         | Création, invitations, rôles | P0       |
+| **Projects**      | CRUD, settings, archive      | P0       |
+| **Kanban**        | Board avec drag & drop       | P0       |
+| **Tasks**         | CRUD, assignation, labels    | P0       |
+| **Billing**       | Free tier, Pro $3/user       | P0       |
+| **Notifications** | In-app + email digest        | P1       |
+| **Search**        | Full-text sur tasks          | P1       |
+| **Activity**      | Feed des changements         | P2       |
 
 ### User Journey - Onboarding
 
@@ -93,6 +97,7 @@ Total: < 2 minutes
 ### In Scope (MVP)
 
 #### Auth & Users
+
 - [x] Sign up avec email (magic link)
 - [x] Sign up avec GitHub OAuth
 - [x] Login / Logout
@@ -100,6 +105,7 @@ Total: < 2 minutes
 - [x] Delete account
 
 #### Teams
+
 - [x] Créer une team
 - [x] Inviter par email
 - [x] Rôles: Owner, Admin, Member
@@ -108,12 +114,14 @@ Total: < 2 minutes
 - [x] Supprimer la team
 
 #### Projects
+
 - [x] CRUD projects
 - [x] Project settings (nom, description, couleur)
 - [x] Archiver/Désarchiver
 - [x] Membres du projet (subset de la team)
 
 #### Tasks
+
 - [x] CRUD tasks
 - [x] Titre, description (markdown)
 - [x] Statut: Backlog, Todo, In Progress, Done
@@ -124,6 +132,7 @@ Total: < 2 minutes
 - [x] Drag & drop sur Kanban
 
 #### Billing
+
 - [x] Free tier: 1 projet, 3 membres
 - [x] Pro tier: Illimité, $3/user/mois
 - [x] Stripe Checkout
@@ -213,59 +222,60 @@ interface TaskLabel {
 
 ## 6. Exigences non-fonctionnelles
 
-| Catégorie | Exigence | Cible |
-|-----------|----------|-------|
-| **Performance** | Time to Interactive | < 2s |
-| **Performance** | API response time | < 200ms p95 |
-| **Performance** | Drag & drop latency | < 100ms |
-| **Sécurité** | Auth | Supabase Auth (SOC2) |
-| **Sécurité** | Data isolation | RLS PostgreSQL |
-| **Sécurité** | Encryption | TLS 1.3, AES-256 at rest |
-| **Disponibilité** | Uptime | 99.9% |
-| **Scalabilité** | Users concurrent | 1,000 |
+| Catégorie         | Exigence            | Cible                    |
+| ----------------- | ------------------- | ------------------------ |
+| **Performance**   | Time to Interactive | < 2s                     |
+| **Performance**   | API response time   | < 200ms p95              |
+| **Performance**   | Drag & drop latency | < 100ms                  |
+| **Sécurité**      | Auth                | Supabase Auth (SOC2)     |
+| **Sécurité**      | Data isolation      | RLS PostgreSQL           |
+| **Sécurité**      | Encryption          | TLS 1.3, AES-256 at rest |
+| **Disponibilité** | Uptime              | 99.9%                    |
+| **Scalabilité**   | Users concurrent    | 1,000                    |
 
 ---
 
 ## 7. Risques et mitigations
 
-| Risque | Prob. | Impact | Mitigation |
-|--------|-------|--------|------------|
-| RLS mal configuré → data leak | Medium | Critical | Tests de sécurité, audit |
-| Stripe webhook fail → billing broken | Low | High | Retry logic, alerting |
-| Supabase outage | Low | High | Status page monitoring |
-| Performance Kanban 1000+ tasks | Medium | Medium | Virtualisation, pagination |
-| Churn élevé | Medium | High | Onboarding email sequence |
+| Risque                               | Prob.  | Impact   | Mitigation                 |
+| ------------------------------------ | ------ | -------- | -------------------------- |
+| RLS mal configuré → data leak        | Medium | Critical | Tests de sécurité, audit   |
+| Stripe webhook fail → billing broken | Low    | High     | Retry logic, alerting      |
+| Supabase outage                      | Low    | High     | Status page monitoring     |
+| Performance Kanban 1000+ tasks       | Medium | Medium   | Virtualisation, pagination |
+| Churn élevé                          | Medium | High     | Onboarding email sequence  |
 
 ---
 
 ## 8. Métriques de succès
 
 ### North Star Metric
+
 **Weekly Active Teams** - Équipes avec ≥ 1 tâche créée/modifiée cette semaine
 
 ### Métriques secondaires
 
-| Métrique | Définition | Cible |
-|----------|------------|-------|
-| Activation rate | % users → team created | > 60% |
-| Task velocity | Tasks completed / week / team | > 10 |
-| Invite rate | % teams avec ≥ 2 membres | > 40% |
-| Conversion free→pro | % teams qui upgrade | > 5% |
-| NPS | Net Promoter Score | > 40 |
+| Métrique            | Définition                    | Cible |
+| ------------------- | ----------------------------- | ----- |
+| Activation rate     | % users → team created        | > 60% |
+| Task velocity       | Tasks completed / week / team | > 10  |
+| Invite rate         | % teams avec ≥ 2 membres      | > 40% |
+| Conversion free→pro | % teams qui upgrade           | > 5%  |
+| NPS                 | Net Promoter Score            | > 40  |
 
 ---
 
 ## 9. Timeline
 
-| Phase | Durée | Livrables |
-|-------|-------|-----------|
-| **Architecture** | 1j | Doc architecture, ADRs |
-| **Epic 1: Auth** | 2j | Login, signup, profile |
-| **Epic 2: Core** | 4j | Teams, Projects, Tasks, Kanban |
-| **Epic 3: Billing** | 2j | Stripe integration |
-| **Polish** | 2j | Tests, review, bugfix |
-| **Launch** | 1j | Deploy, monitoring |
-| **Total** | **12j** | |
+| Phase               | Durée   | Livrables                      |
+| ------------------- | ------- | ------------------------------ |
+| **Architecture**    | 1j      | Doc architecture, ADRs         |
+| **Epic 1: Auth**    | 2j      | Login, signup, profile         |
+| **Epic 2: Core**    | 4j      | Teams, Projects, Tasks, Kanban |
+| **Epic 3: Billing** | 2j      | Stripe integration             |
+| **Polish**          | 2j      | Tests, review, bugfix          |
+| **Launch**          | 1j      | Deploy, monitoring             |
+| **Total**           | **12j** |                                |
 
 ---
 

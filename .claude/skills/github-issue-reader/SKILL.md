@@ -16,9 +16,11 @@ knowledge:
 ## 📥 Contexte chargé automatiquement
 
 ### Issue demandée : $ARGUMENTS
+
 !`gh issue view $ARGUMENTS --json number,title,body,state,labels,assignees,milestone,comments,projectItems 2>/dev/null || echo "⚠️ Issue non trouvée ou gh CLI non configuré - utiliser MCP GitHub"`
 
 ### PRs liées
+
 !`gh pr list --search "linked:$ARGUMENTS" --json number,title,state,url 2>/dev/null || echo "Aucune PR liée trouvée"`
 
 ---
@@ -26,6 +28,7 @@ knowledge:
 ## Activation
 
 > **Avant de lire une issue :**
+>
 > 1. Vérifier le contexte chargé ci-dessus
 > 2. Si ⚠️ erreur → utiliser `mcp__github__get_issue` comme fallback
 > 3. Identifier le type : nouvelle feature, bug fix, refactoring ?
@@ -38,12 +41,14 @@ knowledge:
 **Rôle** : Analyste qui transforme une issue GitHub en requirements clairs et actionnables.
 
 **Principes** :
+
 - **Extraction complète** - Ne rien oublier (description, labels, commentaires, linked issues)
 - **Clarification proactive** - Identifier les ambiguïtés AVANT le dev
 - **Structure standardisée** - Output toujours dans le même format
 - **Context preservation** - Garder le lien avec l'issue originale
 
 **Règles** :
+
 - ⛔ Ne JAMAIS ignorer les commentaires (souvent des précisions cruciales)
 - ⛔ Ne JAMAIS inventer des requirements non présents
 - ⛔ Ne JAMAIS passer aux étapes suivantes avec des questions ouvertes critiques
@@ -58,6 +63,7 @@ knowledge:
 ### 1. Récupération
 
 **Collecter toutes les données :**
+
 ```
 - [ ] Titre de l'issue
 - [ ] Description complète (body)
@@ -69,6 +75,7 @@ knowledge:
 ```
 
 **Méthodes d'accès :**
+
 - Via MCP GitHub : `mcp__github__get_issue`
 - Via URL directe : Parse le contenu
 - Via CLI : `gh issue view #NUM`
@@ -79,14 +86,15 @@ knowledge:
 
 **Catégoriser l'issue :**
 
-| Type | Indicateurs | Focus |
-|------|-------------|-------|
-| **Feature** | `enhancement`, `feature` | Requirements fonctionnels |
-| **Bug** | `bug`, `fix` | Steps to reproduce, expected vs actual |
-| **Refactoring** | `refactor`, `tech-debt` | Scope et contraintes |
-| **Chore** | `chore`, `maintenance` | Tâche spécifique |
+| Type            | Indicateurs              | Focus                                  |
+| --------------- | ------------------------ | -------------------------------------- |
+| **Feature**     | `enhancement`, `feature` | Requirements fonctionnels              |
+| **Bug**         | `bug`, `fix`             | Steps to reproduce, expected vs actual |
+| **Refactoring** | `refactor`, `tech-debt`  | Scope et contraintes                   |
+| **Chore**       | `chore`, `maintenance`   | Tâche spécifique                       |
 
 **Extraire les éléments clés :**
+
 - Requirements explicites (ce qui est demandé)
 - Requirements implicites (standards, conventions)
 - Critères d'acceptance (si présents)
@@ -97,6 +105,7 @@ knowledge:
 ### 3. Identification des ambiguïtés
 
 **Questions à se poser :**
+
 - Qui est l'utilisateur cible ?
 - Quels sont les edge cases ?
 - Y a-t-il des dépendances bloquantes ?
@@ -122,10 +131,11 @@ knowledge:
 
 ## Output Template
 
-```markdown
+````markdown
 ## Issue #[NUM]: [TITRE]
 
 ### 📋 Contexte
+
 **Type:** Feature | Bug | Refactoring | Chore
 **Source:** [Lien vers l'issue]
 
@@ -134,11 +144,13 @@ knowledge:
 ### ✅ Requirements extraits
 
 **Fonctionnels:**
+
 - [ ] REQ-1: [Description claire]
 - [ ] REQ-2: [Description claire]
 - [ ] REQ-3: [Description claire]
 
 **Non-fonctionnels:**
+
 - [ ] Performance: [Si mentionné]
 - [ ] Sécurité: [Si mentionné]
 - [ ] UX: [Si mentionné]
@@ -150,45 +162,53 @@ Given [contexte initial]
 When [action utilisateur]
 Then [résultat attendu]
 ```
+````
 
 **Checklist:**
+
 1. [Critère vérifiable 1]
 2. [Critère vérifiable 2]
 3. [Critère vérifiable 3]
 
 ### 📊 Metadata
 
-| Attribut | Valeur |
-|----------|--------|
-| Labels | [labels] |
-| Assignee | [si assigné] |
-| Milestone | [si défini] |
-| Priority | [P0-P3 si détectable] |
+| Attribut  | Valeur                |
+| --------- | --------------------- |
+| Labels    | [labels]              |
+| Assignee  | [si assigné]          |
+| Milestone | [si défini]           |
+| Priority  | [P0-P3 si détectable] |
 
 ### ❓ Questions ouvertes
 
 **🔴 Bloquantes:**
+
 - [Question critique nécessitant réponse]
 
 **🟡 Importantes:**
+
 - [Question avec assumption proposée]
-  → *Assumption: [proposition]*
+  → _Assumption: [proposition]_
 
 **🟢 Mineures:**
+
 - [Question pour référence]
 
 ### 🔗 Dépendances
 
 **Issues liées:**
+
 - #[NUM] - [Relation: blocks/blocked by/related]
 
 **PRs liées:**
+
 - #[NUM] - [Status]
 
 ### 📝 Notes des commentaires
 
 [Résumé des précisions importantes issues des commentaires]
-```
+
+````
 
 ---
 
@@ -204,7 +224,7 @@ Then [résultat attendu]
 - [ ] Le contexte est suffisant pour l'étape suivante
 
 **Questions bloquantes résolues ?** ✅/❌
-```
+````
 
 **⏸️ CHECKPOINT** - Attendre validation explicite.
 
@@ -217,15 +237,15 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Issue Reader
 
-| Critère | Status |
-|---------|--------|
-| Requirements fonctionnels extraits | ✅/❌ |
-| Critères d'acceptance formalisés | ✅/❌ |
-| Type d'issue identifié (feature/bug/refactor) | ✅/❌ |
-| Ambiguïtés classifiées (🔴/🟡/🟢) | ✅/❌ |
-| Questions bloquantes résolues | ✅/❌ |
-| Dépendances identifiées | ✅/❌ |
-| Metadata extraites (labels, milestone...) | ✅/❌ |
+| Critère                                       | Status |
+| --------------------------------------------- | ------ |
+| Requirements fonctionnels extraits            | ✅/❌  |
+| Critères d'acceptance formalisés              | ✅/❌  |
+| Type d'issue identifié (feature/bug/refactor) | ✅/❌  |
+| Ambiguïtés classifiées (🔴/🟡/🟢)             | ✅/❌  |
+| Questions bloquantes résolues                 | ✅/❌  |
+| Dépendances identifiées                       | ✅/❌  |
+| Metadata extraites (labels, milestone...)     | ✅/❌  |
 
 **Score : X/7** → Si < 5 ou questions 🔴 non résolues, compléter avant transition
 ```
@@ -242,6 +262,7 @@ Après validation de l'analyse, proposer automatiquement :
 ✅ Issue #[NUM] analysée.
 
 **Résumé :**
+
 - Type : [Feature/Bug/Refactor]
 - Requirements : [X] extraits
 - Questions bloquantes : [Résolues/X restantes]

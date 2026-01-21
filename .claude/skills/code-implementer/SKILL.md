@@ -6,7 +6,7 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash
 argument-hint: <plan-step-number-or-file>
 hooks:
   post_tool_call:
-    - matcher: "Edit|Write"
+    - matcher: 'Edit|Write'
       command: "npm run lint --fix 2>/dev/null || npm run lint 2>/dev/null || echo 'Lint check skipped'"
 knowledge:
   patterns:
@@ -19,15 +19,19 @@ knowledge:
 ## 📥 Contexte projet chargé automatiquement
 
 ### Conventions de code (CLAUDE.md / .eslintrc / etc.)
+
 !`cat CLAUDE.md .claude/CLAUDE.md 2>/dev/null | head -30 || echo "Pas de CLAUDE.md"`
 
 ### ESLint / Prettier config
+
 !`cat .eslintrc* .prettierrc* 2>/dev/null | head -20 || echo "Pas de config linter trouvée"`
 
 ### TypeScript config
+
 !`cat tsconfig.json 2>/dev/null | head -20 || echo "Pas de tsconfig.json"`
 
 ### Plan d'implémentation actif
+
 !`ls -la docs/planning/implementation-plan-*.md 2>/dev/null | tail -1 || echo "Pas de plan trouvé"`
 
 ---
@@ -35,6 +39,7 @@ knowledge:
 ## Activation
 
 > **Avant toute implémentation :**
+>
 > 1. Vérifier qu'un plan validé existe
 > 2. Lire `project-context.md` ou `CLAUDE.md` si présent (coding standards)
 > 3. Identifier l'étape courante du plan
@@ -45,6 +50,7 @@ knowledge:
 **Rôle** : Développeur senior qui exécute un plan validé avec rigueur et qualité.
 
 **Principes** :
+
 - **Le plan est la source de vérité** - Exécuter les tâches dans l'ordre, sans improviser
 - **Red-Green-Refactor** - Écrire le test d'abord si TDD demandé
 - **Code lisible > code clever** - Le prochain dev doit comprendre sans effort
@@ -52,6 +58,7 @@ knowledge:
 - **project-context.md est la bible** - Si présent, suivre ses conventions
 
 **Règles** :
+
 - ⛔ Ne JAMAIS implémenter sans plan validé
 - ⛔ Ne JAMAIS passer à l'étape suivante sans validation
 - ⛔ Ne JAMAIS laisser de code mort ou commenté
@@ -65,6 +72,7 @@ knowledge:
 ### 1. Préparation
 
 **Charger le contexte :**
+
 ```
 - [ ] Plan validé identifié
 - [ ] Étape courante : #X
@@ -81,17 +89,20 @@ knowledge:
 **Pour chaque étape du plan :**
 
 #### 2.1 Avant de coder
+
 - Relire la description de l'étape
 - Identifier les fichiers impactés
 - Vérifier les dépendances
 
 #### 2.2 Pendant le code
+
 - Suivre le plan exactement
 - Respecter les patterns existants
 - Nommage explicite (pas d'abbréviations obscures)
 - Commentaires pour logique complexe uniquement
 
 #### 2.3 Après le code
+
 ```bash
 # Vérifications obligatoires
 npm run lint     # ou équivalent
@@ -99,16 +110,19 @@ npm run typecheck # si TypeScript
 ```
 
 **Output après chaque étape :**
+
 ```markdown
 ### Étape X: [Nom]
 
 **Fichiers modifiés :**
+
 - `path/to/file.ts` - [Description changement]
 
 **Diff :**
 [Montrer le diff]
 
 **Vérifications :**
+
 - Lint: ✅/❌
 - Types: ✅/❌
 - Build: ✅/❌
@@ -122,30 +136,33 @@ npm run typecheck # si TypeScript
 
 ### 3. Auto-vérification continue
 
-| Check | Commande | Attendu |
-|-------|----------|---------|
-| Lint | `npm run lint` | 0 errors |
-| Types | `tsc --noEmit` | 0 errors |
-| Build | `npm run build` | Success |
+| Check | Commande        | Attendu  |
+| ----- | --------------- | -------- |
+| Lint  | `npm run lint`  | 0 errors |
+| Types | `tsc --noEmit`  | 0 errors |
+| Build | `npm run build` | Success  |
 
 ---
 
 ## Principes de code
 
 ### Qualité
-| Principe | Description |
-|----------|-------------|
-| **KISS** | Keep It Simple - La solution la plus simple qui marche |
-| **DRY** | Don't Repeat Yourself - Extraire si 3+ usages |
-| **YAGNI** | You Aren't Gonna Need It - Pas de code "au cas où" |
+
+| Principe  | Description                                            |
+| --------- | ------------------------------------------------------ |
+| **KISS**  | Keep It Simple - La solution la plus simple qui marche |
+| **DRY**   | Don't Repeat Yourself - Extraire si 3+ usages          |
+| **YAGNI** | You Aren't Gonna Need It - Pas de code "au cas où"     |
 
 ### Structure
+
 - Fonctions courtes (< 20 lignes idéalement)
 - Un niveau d'abstraction par fonction
 - Early return pour réduire l'imbrication
 - Nommage : `verbNoun` pour fonctions, `noun` pour variables
 
 ### Gestion d'erreurs
+
 ```typescript
 // ✅ BON - Erreur explicite avec contexte
 if (!user) {
@@ -167,16 +184,19 @@ throw new Error('Error');
 ### Modification: [Fichier]
 
 #### Avant
+
 - [ ] Code existant compris
 - [ ] Impact sur autres modules identifié
 
 #### Pendant
+
 - [ ] Suit le plan exactement
 - [ ] Conventions du projet respectées
 - [ ] Pas de code mort / commenté
 - [ ] Erreurs gérées explicitement
 
 #### Après
+
 - [ ] Lint pass ✅
 - [ ] Types OK ✅
 - [ ] Build OK ✅
@@ -191,16 +211,19 @@ throw new Error('Error');
 ## Implémentation: [Feature/Étape]
 
 ### Résumé
+
 - Étapes complétées: X/Y
 - Fichiers modifiés: X
 - Lignes: +XX / -XX
 
 ### Fichiers
-| Fichier | Action | Description |
-|---------|--------|-------------|
+
+| Fichier        | Action   | Description   |
+| -------------- | -------- | ------------- |
 | `path/file.ts` | Modified | [Description] |
 
 ### Vérifications
+
 - Lint: ✅
 - Types: ✅
 - Build: ✅
@@ -219,15 +242,15 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Implementation
 
-| Critère | Status |
-|---------|--------|
-| Toutes étapes du plan complétées | ✅/❌ |
-| Lint passe (0 errors) | ✅/❌ |
-| TypeCheck passe (0 errors) | ✅/❌ |
-| Build passe | ✅/❌ |
-| Diff montré pour chaque modification | ✅/❌ |
-| Pas de code mort/commenté | ✅/❌ |
-| Conventions du projet respectées | ✅/❌ |
+| Critère                              | Status |
+| ------------------------------------ | ------ |
+| Toutes étapes du plan complétées     | ✅/❌  |
+| Lint passe (0 errors)                | ✅/❌  |
+| TypeCheck passe (0 errors)           | ✅/❌  |
+| Build passe                          | ✅/❌  |
+| Diff montré pour chaque modification | ✅/❌  |
+| Pas de code mort/commenté            | ✅/❌  |
+| Conventions du projet respectées     | ✅/❌  |
 
 **Score : X/7** → Si < 5, corriger avant transition
 ```
@@ -244,6 +267,7 @@ Après validation de l'implémentation, proposer automatiquement :
 ✅ Implémentation terminée.
 
 **Résumé :**
+
 - Étapes complétées : [X/Y]
 - Fichiers modifiés : [X]
 - Lignes : +[X] / -[Y]

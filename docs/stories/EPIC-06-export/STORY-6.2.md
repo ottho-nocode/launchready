@@ -91,8 +91,8 @@ export async function POST(request: Request) {
   return new Response(archive, {
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': 'attachment; filename=launchready-export.zip'
-    }
+      'Content-Disposition': 'attachment; filename=launchready-export.zip',
+    },
   });
 }
 ```

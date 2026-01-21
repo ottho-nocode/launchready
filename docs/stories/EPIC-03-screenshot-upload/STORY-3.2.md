@@ -27,11 +27,11 @@ And l'utilisateur peut choisir manuellement le device
 
 ### Mapping des résolutions
 
-| Résolution | Device |
-|------------|--------|
-| 1290 x 2796 | iPhone 6.7" |
-| 1242 x 2688 | iPhone 6.5" |
-| 1242 x 2208 | iPhone 5.5" |
+| Résolution  | Device         |
+| ----------- | -------------- |
+| 1290 x 2796 | iPhone 6.7"    |
+| 1242 x 2688 | iPhone 6.5"    |
+| 1242 x 2208 | iPhone 5.5"    |
 | 2048 x 2732 | iPad Pro 12.9" |
 | 2048 x 2732 | iPad Pro 12.9" |
 

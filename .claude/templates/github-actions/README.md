@@ -18,21 +18,21 @@ cp .claude/templates/github-actions/dependabot.yml .github/
 
 ### ci.yml - Intégration Continue
 
-| Job | Description |
-|-----|-------------|
-| `lint` | ESLint |
-| `typecheck` | TypeScript |
-| `test` | Tests + Coverage |
-| `build` | Build + Artifacts |
+| Job         | Description       |
+| ----------- | ----------------- |
+| `lint`      | ESLint            |
+| `typecheck` | TypeScript        |
+| `test`      | Tests + Coverage  |
+| `build`     | Build + Artifacts |
 
 **Triggers** : Push/PR sur main/master
 
 ### release.yml - Release automatique
 
-| Job | Description |
-|-----|-------------|
+| Job       | Description                |
+| --------- | -------------------------- |
 | `release` | Changelog + GitHub Release |
-| `docker` | Build Docker (optionnel) |
+| `docker`  | Build Docker (optionnel)   |
 
 **Triggers** : Push tag `v*`
 
@@ -44,25 +44,25 @@ git push --tags
 
 ### security.yml - Scans de sécurité
 
-| Job | Description |
-|-----|-------------|
-| `dependency-audit` | npm audit |
-| `codeql` | CodeQL Analysis |
-| `secret-scanning` | TruffleHog + Gitleaks |
-| `snyk` | Snyk (optionnel) |
-| `ossf-scorecard` | OSSF Scorecard |
+| Job                | Description           |
+| ------------------ | --------------------- |
+| `dependency-audit` | npm audit             |
+| `codeql`           | CodeQL Analysis       |
+| `secret-scanning`  | TruffleHog + Gitleaks |
+| `snyk`             | Snyk (optionnel)      |
+| `ossf-scorecard`   | OSSF Scorecard        |
 
 **Triggers** : Push/PR + Weekly
 
 ### deploy.yml - Déploiement
 
-| Platform | Status | Secrets requis |
-|----------|--------|----------------|
-| Vercel | `if: false` | `VERCEL_TOKEN` |
-| Netlify | `if: false` | `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID` |
-| AWS S3 | `if: false` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET` |
-| Kubernetes | `if: false` | `KUBE_CONFIG` |
-| Railway | `if: false` | `RAILWAY_TOKEN` |
+| Platform   | Status      | Secrets requis                                                |
+| ---------- | ----------- | ------------------------------------------------------------- |
+| Vercel     | `if: false` | `VERCEL_TOKEN`                                                |
+| Netlify    | `if: false` | `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`                       |
+| AWS S3     | `if: false` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET` |
+| Kubernetes | `if: false` | `KUBE_CONFIG`                                                 |
+| Railway    | `if: false` | `RAILWAY_TOKEN`                                               |
 
 **Pour activer** : Changer `if: false` en `if: true`
 
@@ -76,13 +76,13 @@ git push --tags
 
 ### Secrets requis
 
-| Secret | Usage |
-|--------|-------|
-| `CODECOV_TOKEN` | Coverage reports |
-| `NPM_TOKEN` | Publish npm (optionnel) |
-| `VERCEL_TOKEN` | Deploy Vercel |
-| `NETLIFY_AUTH_TOKEN` | Deploy Netlify |
-| `SNYK_TOKEN` | Snyk security |
+| Secret               | Usage                   |
+| -------------------- | ----------------------- |
+| `CODECOV_TOKEN`      | Coverage reports        |
+| `NPM_TOKEN`          | Publish npm (optionnel) |
+| `VERCEL_TOKEN`       | Deploy Vercel           |
+| `NETLIFY_AUTH_TOKEN` | Deploy Netlify          |
+| `SNYK_TOKEN`         | Snyk security           |
 
 ### Personnalisation
 

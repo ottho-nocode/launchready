@@ -145,7 +145,7 @@ test('all utilities available', async ({ apiRequest, authToken, recurse, log }) 
 
   await recurse(
     () => apiRequest({ method: 'GET', path: `/status/${body.id}` }),
-    (res) => res.body.ready === true,
+    (res) => res.body.ready === true
   );
 });
 ```

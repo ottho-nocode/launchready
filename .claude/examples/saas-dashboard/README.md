@@ -6,6 +6,7 @@
 
 Dashboard SaaS pour une application de gestion de projets avec authentification,
 équipes, et analytics.
+
 - **Complexité** : FULL+ (1-2 semaines)
 - **Stack** : Next.js 14 + Supabase + Stripe + Tailwind
 
@@ -53,15 +54,15 @@ saas-dashboard/
 
 ## Fonctionnalités v2.6 utilisées
 
-| Feature | Usage dans cet exemple |
-|---------|------------------------|
-| **UX Designer** | 3 personas, 5 user journeys |
-| **UI Designer** | Design tokens, 12 composants spécifiés |
-| **Mode --verbose** | Logs détaillés pour debugging |
-| **Dynamic Context** | Tous les docs chargés automatiquement |
-| **Hook GitHub auth** | Vérifie auth avant création d'issues |
-| **Hook auto-lint** | Lint automatique à chaque modification |
-| **Hook coverage** | Coverage après chaque test run |
+| Feature              | Usage dans cet exemple                 |
+| -------------------- | -------------------------------------- |
+| **UX Designer**      | 3 personas, 5 user journeys            |
+| **UI Designer**      | Design tokens, 12 composants spécifiés |
+| **Mode --verbose**   | Logs détaillés pour debugging          |
+| **Dynamic Context**  | Tous les docs chargés automatiquement  |
+| **Hook GitHub auth** | Vérifie auth avant création d'issues   |
+| **Hook auto-lint**   | Lint automatique à chaque modification |
+| **Hook coverage**    | Coverage après chaque test run         |
 
 ## Commandes utiles v2.6
 
@@ -85,6 +86,7 @@ saas-dashboard/
 ## Logs RALPH
 
 Avec `--verbose`, les logs sont sauvegardés dans :
+
 ```
 docs/ralph-logs/
 ├── auto-discovery-2024-01-20-143022.md
@@ -165,13 +167,17 @@ export function createClient() {
 
 export async function getUser() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return user;
 }
 
 export async function getUserWithTeam() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return null;
 
@@ -216,7 +222,9 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Protected routes
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
@@ -341,11 +349,7 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (err) {
     console.error('Webhook signature verification failed');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
@@ -357,15 +361,13 @@ export async function POST(request: Request) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      await supabase
-        .from('subscriptions')
-        .upsert({
-          team_id: session.metadata?.team_id,
-          stripe_customer_id: session.customer as string,
-          stripe_subscription_id: session.subscription as string,
-          status: 'active',
-          plan: session.metadata?.plan || 'pro',
-        });
+      await supabase.from('subscriptions').upsert({
+        team_id: session.metadata?.team_id,
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: session.subscription as string,
+        status: 'active',
+        plan: session.metadata?.plan || 'pro',
+      });
       break;
     }
 
@@ -400,13 +402,7 @@ export async function POST(request: Request) {
 ### types/database.ts
 
 ```typescript
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
   public: {
@@ -419,7 +415,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['teams']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['teams']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['teams']['Insert']>;
       };
       team_members: {
@@ -443,7 +442,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['projects']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['projects']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['projects']['Insert']>;
       };
       subscriptions: {
@@ -522,11 +524,7 @@ describe('Projects', () => {
       mockSupabase.single.mockResolvedValue({ data: createdProject, error: null });
 
       const supabase = createClient();
-      const { data } = await supabase
-        .from('projects')
-        .insert(newProject)
-        .select()
-        .single();
+      const { data } = await supabase.from('projects').insert(newProject).select().single();
 
       expect(data).toEqual(createdProject);
     });

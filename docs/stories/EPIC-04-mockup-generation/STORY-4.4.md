@@ -27,11 +27,11 @@ And le store est mis à jour
 
 ### Options disponibles
 
-| Option | Values | Templates concernés |
-|--------|--------|---------------------|
-| Device color | black, white | Tous |
-| Background color | hex color | gradient, text-overlay |
-| Gradient direction | to-bottom, to-right | gradient |
+| Option             | Values              | Templates concernés    |
+| ------------------ | ------------------- | ---------------------- |
+| Device color       | black, white        | Tous                   |
+| Background color   | hex color           | gradient, text-overlay |
+| Gradient direction | to-bottom, to-right | gradient               |
 
 ### Checklist technique
 

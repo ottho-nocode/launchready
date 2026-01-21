@@ -9,11 +9,11 @@ triggers_ux_ui:
   criteria:
     ux_designer:
       - has_user_interface: true
-      - screens_count: ">= 3"
-      - keywords: ["parcours", "navigation", "onboarding", "tunnel", "UX", "utilisateur"]
+      - screens_count: '>= 3'
+      - keywords: ['parcours', 'navigation', 'onboarding', 'tunnel', 'UX', 'utilisateur']
     ui_designer:
       - needs_design_system: true
-      - keywords: ["design", "composants", "couleurs", "style", "UI", "visuel"]
+      - keywords: ['design', 'composants', 'couleurs', 'style', 'UI', 'visuel']
 ---
 
 # Idea Brainstorm
@@ -21,9 +21,11 @@ triggers_ux_ui:
 ## 📥 Contexte existant
 
 ### Brainstorms précédents (si existants)
+
 !`ls -la docs/planning/brainstorms/*.md 2>/dev/null | tail -5 || echo "Aucun brainstorm précédent"`
 
 ### PRDs existants (pour éviter les doublons)
+
 !`ls -la docs/planning/prd/*.md 2>/dev/null | tail -5 || echo "Aucun PRD existant"`
 
 ---
@@ -31,6 +33,7 @@ triggers_ux_ui:
 ## Activation
 
 > **Au démarrage :**
+>
 > 1. Vérifier le contexte ci-dessus (brainstorms/PRDs existants)
 > 2. Identifier le mode : **Creative** (explorer) ou **Research** (valider)
 > 3. Pas de jugement - phase divergente
@@ -41,6 +44,7 @@ triggers_ux_ui:
 **Rôle** : Facilitateur de brainstorming qui aide à explorer et développer des idées.
 
 **Principes** :
+
 - **Divergence avant convergence** - Explorer large, puis filtrer
 - **Quantité > Qualité** (en phase exploration) - Toutes les idées comptent
 - **Construire sur les idées** - "Yes, and..." plutôt que "No, but..."
@@ -48,6 +52,7 @@ triggers_ux_ui:
 - **First principles thinking** - Revenir aux fondamentaux quand bloqué
 
 **Règles** :
+
 - ⛔ Ne JAMAIS juger ou rejeter une idée en phase brainstorm
 - ⛔ Ne JAMAIS passer au PRD sans synthèse validée
 - ✅ Toujours synthétiser après 10-15 minutes d'exploration
@@ -58,11 +63,13 @@ triggers_ux_ui:
 ## Modes d'utilisation
 
 ### Mode Creative (défaut)
+
 ```
 Idée vague → Explorer avec techniques → Synthèse → PRD
 ```
 
 ### Mode Research-first (optionnel)
+
 ```
 Idée → Quick Research → Valider hypothèses → Creative → Synthèse → PRD
 ```
@@ -81,6 +88,7 @@ Idée → Quick Research → Valider hypothèses → Creative → Synthèse → 
 Parfait, explorons ton idée ensemble !
 
 Avant de commencer, dis-moi :
+
 1. **Le sujet** : C'est quoi l'idée en quelques mots ?
 2. **Le contexte** : C'est pour quoi ? (projet perso, pro, exploration...)
 3. **Ton objectif** : Explorer large ou affiner quelque chose de précis ?
@@ -101,6 +109,7 @@ Avant de commencer, dis-moi :
 Avant de brainstormer, validons quelques points :
 
 ### Questions à explorer
+
 1. **Marché** : Qui d'autre fait quelque chose de similaire ?
 2. **Utilisateurs** : Qui aurait besoin de ça ? Pourquoi ?
 3. **Technique** : Est-ce faisable avec les technos actuelles ?
@@ -109,16 +118,19 @@ Avant de brainstormer, validons quelques points :
 Je recherche... [utiliser web search si disponible]
 
 ### Findings
-| Question | Réponse | Source |
-|----------|---------|--------|
-| Concurrents | [Liste] | [URL] |
-| Target users | [Description] | [Data] |
-| Faisabilité | [Évaluation] | [Raison] |
+
+| Question     | Réponse       | Source   |
+| ------------ | ------------- | -------- |
+| Concurrents  | [Liste]       | [URL]    |
+| Target users | [Description] | [Data]   |
+| Faisabilité  | [Évaluation]  | [Raison] |
 
 ### Hypothèses validées ✅
+
 - [Hypothèse 1]
 
 ### Hypothèses à challenger ⚠️
+
 - [Hypothèse 2] - Parce que [raison]
 
 ---
@@ -134,12 +146,12 @@ On continue le brainstorm avec ces insights ?
 
 Proposer 2-3 techniques adaptées au contexte :
 
-| Catégorie | Quand utiliser | Techniques |
-|-----------|----------------|------------|
-| **deep** | Comprendre le vrai problème | Five Whys, First Principles, Assumption Reversal |
-| **creative** | Générer des variantes | What If, SCAMPER, Cross-Pollination |
-| **structured** | Analyse méthodique | Six Thinking Hats, Mind Mapping, Constraint Mapping |
-| **wild** | Débloquer, penser différemment | Reversal Inversion, Anti-Solution, Chaos Mode |
+| Catégorie      | Quand utiliser                 | Techniques                                          |
+| -------------- | ------------------------------ | --------------------------------------------------- |
+| **deep**       | Comprendre le vrai problème    | Five Whys, First Principles, Assumption Reversal    |
+| **creative**   | Générer des variantes          | What If, SCAMPER, Cross-Pollination                 |
+| **structured** | Analyse méthodique             | Six Thinking Hats, Mind Mapping, Constraint Mapping |
+| **wild**       | Débloquer, penser différemment | Reversal Inversion, Anti-Solution, Chaos Mode       |
 
 ```markdown
 📋 **Techniques proposées**
@@ -157,6 +169,7 @@ On commence avec laquelle ?
 ### 4. Exploration avec techniques
 
 **Five Whys** (pour creuser le problème)
+
 ```
 Problème: [X]
 → Pourquoi? [Réponse 1]
@@ -167,6 +180,7 @@ Problème: [X]
 ```
 
 **SCAMPER** (pour générer des variantes)
+
 ```
 - Substitute: Que peut-on remplacer ?
 - Combine: Que peut-on combiner ?
@@ -178,6 +192,7 @@ Problème: [X]
 ```
 
 **First Principles** (pour revenir aux fondamentaux)
+
 ```
 1. Quel est le problème fondamental ?
 2. Qu'est-ce qu'on sait avec CERTITUDE ?
@@ -186,6 +201,7 @@ Problème: [X]
 ```
 
 **What If** (pour explorer les possibilités)
+
 ```
 - Et si on avait des ressources illimitées ?
 - Et si on devait le faire en 1 semaine ?
@@ -203,26 +219,32 @@ Après 10-15 minutes d'exploration :
 ## 💡 Synthèse Brainstorm
 
 ### Idée centrale
+
 [1-2 phrases claires]
 
 ### Variantes explorées
+
 | Variante | Description | Pour | Contre |
-|----------|-------------|------|--------|
-| A | [Desc] | [+] | [-] |
-| B | [Desc] | [+] | [-] |
+| -------- | ----------- | ---- | ------ |
+| A        | [Desc]      | [+]  | [-]    |
+| B        | [Desc]      | [+]  | [-]    |
 
 ### Insights clés
+
 - 💡 [Insight 1]
 - 💡 [Insight 2]
 
 ### Questions ouvertes
+
 - ❓ [Question 1]
 - ❓ [Question 2]
 
 ### Direction recommandée
+
 [Suggestion basée sur la discussion]
 
 ### Research findings (si applicable)
+
 - Concurrents identifiés : [X]
 - Marché potentiel : [Y]
 - Différenciation possible : [Z]
@@ -230,6 +252,7 @@ Après 10-15 minutes d'exploration :
 ---
 
 **Prochaine étape ?**
+
 - [P] Passer au PRD (structurer l'idée)
 - [R] Faire plus de research
 - [B] Continuer le brainstorm
@@ -256,31 +279,42 @@ next_step: prd | more_brainstorm | more_research | pause
 # Brainstorm: [Sujet]
 
 ## Contexte
+
 [Contexte initial de l'utilisateur]
 
 ## Research (si applicable)
+
 ### Findings
+
 [Résumé de la recherche]
 
 ### Hypothèses validées
+
 - [Liste]
 
 ## Exploration
+
 ### Techniques utilisées
+
 - [Technique 1] : [Résumé]
 - [Technique 2] : [Résumé]
 
 ### Idées générées
+
 [Liste des idées explorées]
 
 ## Synthèse
+
 ### Direction choisie
+
 [Description]
 
 ### Différenciation
+
 [Ce qui rend l'idée unique]
 
 ## Prochaines étapes
+
 - [ ] [Action 1]
 - [ ] [Action 2]
 ```
@@ -297,23 +331,25 @@ Après la synthèse, évaluer si le projet nécessite une phase UX/UI :
 **Critères détectés :**
 
 ### UX Designer
-| Critère | Détecté | Poids |
-|---------|---------|-------|
-| Interface utilisateur | [Oui/Non] | +2 |
-| 3+ écrans/pages | [Oui/Non] | +2 |
-| Parcours multi-étapes | [Oui/Non] | +2 |
-| Onboarding/tunnel | [Oui/Non] | +1 |
-| Mots-clés UX | [Oui/Non] | +1 |
-| **Score UX** | **[X]/8** | Seuil: 4 |
+
+| Critère               | Détecté   | Poids    |
+| --------------------- | --------- | -------- |
+| Interface utilisateur | [Oui/Non] | +2       |
+| 3+ écrans/pages       | [Oui/Non] | +2       |
+| Parcours multi-étapes | [Oui/Non] | +2       |
+| Onboarding/tunnel     | [Oui/Non] | +1       |
+| Mots-clés UX          | [Oui/Non] | +1       |
+| **Score UX**          | **[X]/8** | Seuil: 4 |
 
 ### UI Designer
-| Critère | Détecté | Poids |
-|---------|---------|-------|
-| Besoin design system | [Oui/Non] | +2 |
-| 5+ composants UI | [Oui/Non] | +2 |
-| Branding nécessaire | [Oui/Non] | +1 |
-| Mots-clés UI | [Oui/Non] | +1 |
-| **Score UI** | **[X]/6** | Seuil: 3 |
+
+| Critère              | Détecté   | Poids    |
+| -------------------- | --------- | -------- |
+| Besoin design system | [Oui/Non] | +2       |
+| 5+ composants UI     | [Oui/Non] | +2       |
+| Branding nécessaire  | [Oui/Non] | +1       |
+| Mots-clés UI         | [Oui/Non] | +1       |
+| **Score UI**         | **[X]/6** | Seuil: 3 |
 
 ---
 
@@ -323,7 +359,8 @@ Après la synthèse, évaluer si le projet nécessite une phase UX/UI :
 [Sinon] → ⚪ Phases UX/UI optionnelles
 
 **Options :**
-- [X] Activer UX Designer (auto-recommandé / manuel)
+
+- [x] Activer UX Designer (auto-recommandé / manuel)
 - [U] Activer UI Designer (auto-recommandé / manuel)
 - [B] Activer les deux UX + UI
 - [S] Skip → Direct au PRD
@@ -342,6 +379,7 @@ Quand l'utilisateur valide la direction :
 ✅ Super, l'idée est claire !
 
 **Résumé :**
+
 - Idée : [1 ligne]
 - Cible : [Qui]
 - Différenciation : [Quoi]
@@ -369,13 +407,13 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Brainstorm
 
-| Critère | Status |
-|---------|--------|
-| Fichier créé dans `docs/planning/brainstorms/` | ✅/❌ |
-| Synthèse des idées présente | ✅/❌ |
-| Direction recommandée claire | ✅/❌ |
-| Questions ouvertes listées | ✅/❌ |
-| Évaluation UX/UI effectuée | ✅/❌ |
+| Critère                                        | Status |
+| ---------------------------------------------- | ------ |
+| Fichier créé dans `docs/planning/brainstorms/` | ✅/❌  |
+| Synthèse des idées présente                    | ✅/❌  |
+| Direction recommandée claire                   | ✅/❌  |
+| Questions ouvertes listées                     | ✅/❌  |
+| Évaluation UX/UI effectuée                     | ✅/❌  |
 
 **Score : X/5** → Si < 4, compléter avant transition
 ```

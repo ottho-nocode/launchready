@@ -52,15 +52,15 @@ npm run dev
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint errors |
-| `npm run format` | Format code with Prettier |
-| `npm run typecheck` | Check TypeScript types |
+| Script              | Description               |
+| ------------------- | ------------------------- |
+| `npm run dev`       | Start development server  |
+| `npm run build`     | Build for production      |
+| `npm run start`     | Start production server   |
+| `npm run lint`      | Run ESLint                |
+| `npm run lint:fix`  | Fix ESLint errors         |
+| `npm run format`    | Format code with Prettier |
+| `npm run typecheck` | Check TypeScript types    |
 
 ## Tech Stack
 

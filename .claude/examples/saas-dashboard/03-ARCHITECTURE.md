@@ -35,27 +35,27 @@
 
 ## 2. Stack technique
 
-| Couche | Technologie | Justification |
-|--------|-------------|---------------|
-| **Frontend** | Next.js 14 (App Router) | SSR, excellent DX, Vercel native |
-| **UI** | Tailwind + shadcn/ui | Composants accessibles, customisables |
-| **State** | Zustand + React Query | Simple, performant, cache |
-| **Backend** | Supabase | Auth + DB + Storage + Realtime |
-| **Database** | PostgreSQL | Robuste, RLS pour multi-tenant |
-| **Auth** | Supabase Auth | Magic link, OAuth, JWT |
-| **Billing** | Stripe | Standard industrie |
-| **Deploy** | Vercel | Preview, Edge, Analytics |
-| **Monitoring** | Sentry + Vercel Analytics | Errors + Performance |
+| Couche         | Technologie               | Justification                         |
+| -------------- | ------------------------- | ------------------------------------- |
+| **Frontend**   | Next.js 14 (App Router)   | SSR, excellent DX, Vercel native      |
+| **UI**         | Tailwind + shadcn/ui      | Composants accessibles, customisables |
+| **State**      | Zustand + React Query     | Simple, performant, cache             |
+| **Backend**    | Supabase                  | Auth + DB + Storage + Realtime        |
+| **Database**   | PostgreSQL                | Robuste, RLS pour multi-tenant        |
+| **Auth**       | Supabase Auth             | Magic link, OAuth, JWT                |
+| **Billing**    | Stripe                    | Standard industrie                    |
+| **Deploy**     | Vercel                    | Preview, Edge, Analytics              |
+| **Monitoring** | Sentry + Vercel Analytics | Errors + Performance                  |
 
 ### Alternatives rejetées
 
-| Choix | Alternative | Raison du rejet |
-|-------|-------------|-----------------|
-| Supabase | Firebase | SQL > NoSQL pour relations |
-| Supabase | Prisma + PlanetScale | Plus de setup, moins intégré |
-| shadcn/ui | Radix seul | shadcn pré-stylé = plus rapide |
-| Zustand | Redux | Overkill, plus de boilerplate |
-| Stripe | Paddle | Moins de contrôle, plus cher |
+| Choix     | Alternative          | Raison du rejet                |
+| --------- | -------------------- | ------------------------------ |
+| Supabase  | Firebase             | SQL > NoSQL pour relations     |
+| Supabase  | Prisma + PlanetScale | Plus de setup, moins intégré   |
+| shadcn/ui | Radix seul           | shadcn pré-stylé = plus rapide |
+| Zustand   | Redux                | Overkill, plus de boilerplate  |
+| Stripe    | Paddle               | Moins de contrôle, plus cher   |
 
 ---
 
@@ -266,21 +266,21 @@ CREATE POLICY "Team members can manage tasks"
 
 ### Supabase (auto-generated)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/rest/v1/teams` | List user's teams |
-| POST | `/rest/v1/teams` | Create team |
-| GET | `/rest/v1/projects?team_id=X` | List projects |
-| GET | `/rest/v1/tasks?project_id=X` | List tasks |
-| PATCH | `/rest/v1/tasks?id=X` | Update task |
+| Method | Endpoint                      | Description       |
+| ------ | ----------------------------- | ----------------- |
+| GET    | `/rest/v1/teams`              | List user's teams |
+| POST   | `/rest/v1/teams`              | Create team       |
+| GET    | `/rest/v1/projects?team_id=X` | List projects     |
+| GET    | `/rest/v1/tasks?project_id=X` | List tasks        |
+| PATCH  | `/rest/v1/tasks?id=X`         | Update task       |
 
 ### Custom API Routes (Next.js)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/webhooks/stripe` | Stripe webhooks |
-| POST | `/api/invitations/[id]/accept` | Accept team invite |
-| POST | `/api/teams/[slug]/billing/portal` | Stripe portal |
+| Method | Endpoint                           | Description        |
+| ------ | ---------------------------------- | ------------------ |
+| POST   | `/api/webhooks/stripe`             | Stripe webhooks    |
+| POST   | `/api/invitations/[id]/accept`     | Accept team invite |
+| POST   | `/api/teams/[slug]/billing/portal` | Stripe portal      |
 
 ---
 
@@ -306,7 +306,9 @@ CREATE POLICY "Team members can manage tasks"
 // middleware.ts
 export async function middleware(request: NextRequest) {
   const supabase = createMiddlewareClient({ req, res });
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
@@ -332,10 +334,10 @@ export async function middleware(request: NextRequest) {
 
 ### Plans
 
-| Plan | Prix | Limites |
-|------|------|---------|
-| Free | $0 | 1 projet, 3 membres |
-| Pro | $3/user/mois | Illimité |
+| Plan | Prix         | Limites             |
+| ---- | ------------ | ------------------- |
+| Free | $0           | 1 projet, 3 membres |
+| Pro  | $3/user/mois | Illimité            |
 
 ### Stripe Flow
 
@@ -352,12 +354,12 @@ export async function middleware(request: NextRequest) {
 
 ### Webhook Events
 
-| Event | Action |
-|-------|--------|
-| `checkout.session.completed` | Activate subscription |
-| `invoice.paid` | Log payment |
-| `invoice.payment_failed` | Send email, grace period |
-| `customer.subscription.deleted` | Downgrade to free |
+| Event                           | Action                   |
+| ------------------------------- | ------------------------ |
+| `checkout.session.completed`    | Activate subscription    |
+| `invoice.paid`                  | Log payment              |
+| `invoice.payment_failed`        | Send email, grace period |
+| `customer.subscription.deleted` | Downgrade to free        |
 
 ---
 
@@ -365,20 +367,20 @@ export async function middleware(request: NextRequest) {
 
 ### Frontend
 
-| Optimization | Implementation |
-|--------------|----------------|
-| Optimistic updates | Zustand + React Query mutation |
-| Lazy loading | `dynamic()` pour composants lourds |
-| Prefetching | `<Link prefetch>` pour navigation |
-| Image optimization | `next/image` |
+| Optimization       | Implementation                     |
+| ------------------ | ---------------------------------- |
+| Optimistic updates | Zustand + React Query mutation     |
+| Lazy loading       | `dynamic()` pour composants lourds |
+| Prefetching        | `<Link prefetch>` pour navigation  |
+| Image optimization | `next/image`                       |
 
 ### Database
 
-| Optimization | Implementation |
-|--------------|----------------|
-| Indexes | `team_id`, `project_id`, `status` |
-| Connection pooling | Supabase managed |
-| Query optimization | Select only needed columns |
+| Optimization       | Implementation                    |
+| ------------------ | --------------------------------- |
+| Indexes            | `team_id`, `project_id`, `status` |
+| Connection pooling | Supabase managed                  |
+| Query optimization | Select only needed columns        |
 
 ### Kanban
 
@@ -423,11 +425,7 @@ test('RLS prevents cross-team access', async () => {
   const task = await createTask(userB, { title: 'Secret' });
 
   // User A essaie de la lire
-  const { data, error } = await supabase
-    .from('tasks')
-    .select()
-    .eq('id', task.id)
-    .single();
+  const { data, error } = await supabase.from('tasks').select().eq('id', task.id).single();
 
   expect(data).toBeNull();
   expect(error.code).toBe('PGRST116'); // Row not found
@@ -445,6 +443,7 @@ test('RLS prevents cross-team access', async () => {
 **Décision** : Supabase
 
 **Raisons** :
+
 - Auth intégré (magic link, OAuth)
 - PostgreSQL avec RLS = multi-tenant simple
 - Realtime subscriptions inclus
@@ -452,6 +451,7 @@ test('RLS prevents cross-team access', async () => {
 - Free tier généreux
 
 **Conséquences** :
+
 - Vendor lock-in partiel (mitigé: PostgreSQL standard)
 - Moins de flexibilité que custom
 
@@ -462,12 +462,14 @@ test('RLS prevents cross-team access', async () => {
 **Décision** : Stripe Checkout (hosted)
 
 **Raisons** :
+
 - PCI compliance géré par Stripe
 - Moins de code (pas de formulaire)
 - Support cartes, Apple Pay, etc. automatique
 - Meilleur taux de conversion
 
 **Conséquences** :
+
 - Redirection vers Stripe (UX légèrement moins fluide)
 - Moins de contrôle sur le design
 
@@ -478,11 +480,13 @@ test('RLS prevents cross-team access', async () => {
 **Décision** : Zustand pour UI state, React Query pour server state
 
 **Raisons** :
+
 - Zustand : Simple, pas de boilerplate, performant
 - React Query : Cache, refetch, optimistic updates
 - Séparation claire UI state / server state
 
 **Conséquences** :
+
 - Deux librairies au lieu d'une
 - Pattern à apprendre
 
@@ -490,19 +494,19 @@ test('RLS prevents cross-team access', async () => {
 
 ## 11. Monitoring & Observabilité
 
-| Outil | Usage |
-|-------|-------|
-| **Sentry** | Error tracking |
-| **Vercel Analytics** | Web vitals, traffic |
+| Outil                  | Usage                 |
+| ---------------------- | --------------------- |
+| **Sentry**             | Error tracking        |
+| **Vercel Analytics**   | Web vitals, traffic   |
 | **Supabase Dashboard** | DB metrics, auth logs |
-| **Stripe Dashboard** | Revenue, churn |
-| **Uptime Robot** | Alertes downtime |
+| **Stripe Dashboard**   | Revenue, churn        |
+| **Uptime Robot**       | Alertes downtime      |
 
 ### Alertes configurées
 
-| Alerte | Seuil | Action |
-|--------|-------|--------|
-| Error rate | > 1% | Slack + Email |
-| P95 latency | > 2s | Slack |
-| Auth failures | > 10/min | Email |
-| Stripe webhook fail | Any | PagerDuty |
+| Alerte              | Seuil    | Action        |
+| ------------------- | -------- | ------------- |
+| Error rate          | > 1%     | Slack + Email |
+| P95 latency         | > 2s     | Slack         |
+| Auth failures       | > 10/min | Email         |
+| Stripe webhook fail | Any      | PagerDuty     |

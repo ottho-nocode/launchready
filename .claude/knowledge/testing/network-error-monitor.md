@@ -64,13 +64,17 @@ test('should load dashboard', async ({ page }) => {
 import { test } from '@seontechnologies/playwright-utils/network-error-monitor/fixtures';
 
 // Opt-out with annotation
-test('should show error on invalid input', { annotation: [{ type: 'skipNetworkMonitoring' }] }, async ({ page }) => {
-  await page.goto('/form');
-  await page.click('#submit'); // Triggers 400 error
+test(
+  'should show error on invalid input',
+  { annotation: [{ type: 'skipNetworkMonitoring' }] },
+  async ({ page }) => {
+    await page.goto('/form');
+    await page.click('#submit'); // Triggers 400 error
 
-  // Monitoring disabled - test won't fail on 400
-  await expect(page.getByText('Invalid input')).toBeVisible();
-});
+    // Monitoring disabled - test won't fail on 400
+    await expect(page.getByText('Invalid input')).toBeVisible();
+  }
+);
 
 // Or opt-out entire describe block
 test.describe('error handling', { annotation: [{ type: 'skipNetworkMonitoring' }] }, () => {
@@ -105,7 +109,7 @@ import { test as networkErrorMonitorFixture } from '@seontechnologies/playwright
 
 export const test = mergeTests(
   authFixture,
-  networkErrorMonitorFixture,
+  networkErrorMonitorFixture
   // Add other fixtures
 );
 
@@ -229,7 +233,7 @@ import { test as networkErrorMonitorFixture } from '@seontechnologies/playwright
 
 export const test = mergeTests(
   // ... other fixtures
-  networkErrorMonitorFixture,
+  networkErrorMonitorFixture
 );
 ```
 

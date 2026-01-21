@@ -20,21 +20,21 @@
 
 ## Temps réel vs estimé
 
-| Phase | Estimé | Réel | Notes |
-|-------|--------|------|-------|
-| Brainstorm | 15min | 12min | Idée claire dès le départ |
-| PRD | 1h | 1h15 | Ajout section NFR |
-| Architecture | 1h | 45min | Stack familier |
-| Stories | 1h | 1h | Readiness Check utile |
-| Setup (1.1) | 2h | 2h30 | Contentlayer config |
-| Liste (1.2) | 2h | 1h30 | Plus simple que prévu |
-| Article (1.3) | 3h | 4h | Syntax highlighting |
-| Dark mode (3.1) | 1h | 45min | next-themes simple |
-| Tags (2.1) | 2h | 2h | Comme prévu |
-| SEO (4.1, 4.2) | 2h | 1h30 | Next.js fait le travail |
-| RSS (3.2) | 1h | 1h | |
-| About (2.2) | 30min | 30min | |
-| **Total** | **4j** | **3.5j** | |
+| Phase           | Estimé | Réel     | Notes                     |
+| --------------- | ------ | -------- | ------------------------- |
+| Brainstorm      | 15min  | 12min    | Idée claire dès le départ |
+| PRD             | 1h     | 1h15     | Ajout section NFR         |
+| Architecture    | 1h     | 45min    | Stack familier            |
+| Stories         | 1h     | 1h       | Readiness Check utile     |
+| Setup (1.1)     | 2h     | 2h30     | Contentlayer config       |
+| Liste (1.2)     | 2h     | 1h30     | Plus simple que prévu     |
+| Article (1.3)   | 3h     | 4h       | Syntax highlighting       |
+| Dark mode (3.1) | 1h     | 45min    | next-themes simple        |
+| Tags (2.1)      | 2h     | 2h       | Comme prévu               |
+| SEO (4.1, 4.2)  | 2h     | 1h30     | Next.js fait le travail   |
+| RSS (3.2)       | 1h     | 1h       |                           |
+| About (2.2)     | 30min  | 30min    |                           |
+| **Total**       | **4j** | **3.5j** |                           |
 
 ## Leçons apprises
 
@@ -64,9 +64,7 @@
 export function getArticles() {
   return allPosts
     .filter((post) => !post.draft)
-    .sort((a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 // Metadata dynamique

@@ -20,12 +20,12 @@ And les variantes de couleur sont disponibles (noir, blanc)
 
 ### Assets requis
 
-| Device | Couleurs | Résolution |
-|--------|----------|------------|
-| iPhone 14 Pro Max | black, white | 1290x2796 |
-| iPhone 11 Pro Max | black, white | 1242x2688 |
-| iPhone 8 Plus | black, white | 1242x2208 |
-| iPad Pro 12.9" | black, white | 2048x2732 |
+| Device            | Couleurs     | Résolution |
+| ----------------- | ------------ | ---------- |
+| iPhone 14 Pro Max | black, white | 1290x2796  |
+| iPhone 11 Pro Max | black, white | 1242x2688  |
+| iPhone 8 Plus     | black, white | 1242x2208  |
+| iPad Pro 12.9"    | black, white | 2048x2732  |
 
 ### Checklist technique
 
@@ -50,6 +50,7 @@ And les variantes de couleur sont disponibles (noir, blanc)
 ## Notes techniques
 
 Sources possibles pour device frames :
+
 - Facebook Design (free)
 - Mockup World
 - Créés sur mesure si nécessaire

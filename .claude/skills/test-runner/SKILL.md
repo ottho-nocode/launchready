@@ -6,7 +6,7 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash
 argument-hint: <file-or-directory-to-test>
 hooks:
   post_tool_call:
-    - matcher: "Bash.*npm test|Bash.*npm run test|Bash.*jest|Bash.*vitest|Bash.*pytest"
+    - matcher: 'Bash.*npm test|Bash.*npm run test|Bash.*jest|Bash.*vitest|Bash.*pytest'
       command: "npm run coverage 2>/dev/null | tail -10 || echo 'Coverage non disponible'"
 knowledge:
   core:
@@ -29,15 +29,19 @@ knowledge:
 ## 📥 Contexte test chargé automatiquement
 
 ### Configuration test détectée
+
 !`cat jest.config.* vitest.config.* pytest.ini setup.cfg pyproject.toml 2>/dev/null | head -30 || echo "Aucune config test standard trouvée"`
 
 ### Tests existants (structure)
+
 !`find . -name "*.test.*" -o -name "*.spec.*" -o -name "test_*.py" 2>/dev/null | head -20 || echo "Aucun test trouvé"`
 
 ### Dernière exécution (si log disponible)
+
 !`cat test-results.json coverage/coverage-summary.json 2>/dev/null | head -20 || echo "Pas de résultats de tests récents"`
 
 ### Package.json scripts test
+
 !`cat package.json 2>/dev/null | grep -A5 '"scripts"' | grep -i test || echo "Pas de script test trouvé"`
 
 ---
@@ -45,6 +49,7 @@ knowledge:
 ## Activation
 
 > **Avant d'écrire des tests :**
+>
 > 1. Identifier le mode : **ATDD** (tests avant code) ou **Standard** (tests après code)
 > 2. Charger knowledge core (`test-levels-framework.md`, `test-priorities-matrix.md`)
 > 3. Lire `project-context.md` si présent (conventions de tests)
@@ -55,6 +60,7 @@ knowledge:
 **Rôle** : Test Architect qui conçoit et exécute une stratégie de test risk-based.
 
 **Principes** :
+
 - **Risk-based testing** - La profondeur des tests scale avec l'impact business
 - **Tests = documentation** - Un bon test explique le comportement attendu
 - **Déterminisme absolu** - Pas de flaky tests, pas de hard waits, pas de conditionnels
@@ -63,6 +69,7 @@ knowledge:
 - **Tests first (ATDD)** - Écrire le test AVANT le code quand possible
 
 **Règles** :
+
 - ⛔ Ne JAMAIS utiliser `waitForTimeout()` - utiliser `waitForResponse()` ou état élément
 - ⛔ Ne JAMAIS passer à la review avec tests échouant
 - ⛔ Ne JAMAIS cacher des assertions dans des helpers
@@ -74,12 +81,14 @@ knowledge:
 ## Modes d'utilisation
 
 ### Mode ATDD (Tests First)
+
 ```
 Story/AC → Écrire tests E2E/Integration → Tests échouent (RED)
 → Implémenter code → Tests passent (GREEN) → Refactor
 ```
 
 ### Mode Standard (Tests After)
+
 ```
 Code implémenté → Analyser coverage gaps → Écrire tests manquants
 → Tous tests passent → Review
@@ -94,28 +103,32 @@ Code implémenté → Analyser coverage gaps → Écrire tests manquants
 **32 fichiers de knowledge disponibles dans `../../knowledge/testing/`**
 
 ### Core (charger en premier)
-| Fichier | Description |
-|---------|-------------|
-| `test-levels-framework.md` | Quand utiliser Unit vs Integration vs E2E |
-| `test-priorities-matrix.md` | Priorités P0-P3 et coverage targets |
-| `test-quality.md` | Definition of Done pour tests de qualité |
+
+| Fichier                     | Description                               |
+| --------------------------- | ----------------------------------------- |
+| `test-levels-framework.md`  | Quand utiliser Unit vs Integration vs E2E |
+| `test-priorities-matrix.md` | Priorités P0-P3 et coverage targets       |
+| `test-quality.md`           | Definition of Done pour tests de qualité  |
 
 ### Advanced (charger si besoin)
-| Fichier | Description |
-|---------|-------------|
-| `data-factories.md` | Factory functions avec faker, API seeding |
-| `fixture-architecture.md` | Pure function → fixture → mergeTests |
-| `network-first.md` | Intercept-before-navigate, HAR capture |
-| `component-tdd.md` | Red→green→refactor, accessibility |
+
+| Fichier                   | Description                               |
+| ------------------------- | ----------------------------------------- |
+| `data-factories.md`       | Factory functions avec faker, API seeding |
+| `fixture-architecture.md` | Pure function → fixture → mergeTests      |
+| `network-first.md`        | Intercept-before-navigate, HAR capture    |
+| `component-tdd.md`        | Red→green→refactor, accessibility         |
 
 ### Debugging (charger si tests flaky)
-| Fichier | Description |
-|---------|-------------|
-| `test-healing-patterns.md` | Common failure patterns + fixes |
-| `selector-resilience.md` | Robust selector strategies |
-| `timing-debugging.md` | Race conditions + deterministic waits |
+
+| Fichier                    | Description                           |
+| -------------------------- | ------------------------------------- |
+| `test-healing-patterns.md` | Common failure patterns + fixes       |
+| `selector-resilience.md`   | Robust selector strategies            |
+| `timing-debugging.md`      | Race conditions + deterministic waits |
 
 ### Index complet
+
 Voir `../../knowledge/tea-index.csv` pour la liste complète des 32 fragments.
 
 ---
@@ -126,14 +139,15 @@ Voir `../../knowledge/tea-index.csv` pour la liste complète des 32 fragments.
 
 **Classifier chaque fonctionnalité par priorité :**
 
-| Priorité | Critères | Coverage cible |
-|----------|----------|----------------|
-| **P0** | Revenue-critical, Security, Data integrity | Unit >90%, Int >80%, E2E all paths |
-| **P1** | Core user journeys, Complex logic | Unit >80%, Int >60%, E2E happy paths |
-| **P2** | Secondary features, Admin | Unit >60%, Int >40%, Smoke |
-| **P3** | Rarely used, Nice-to-have | Best effort, Manual OK |
+| Priorité | Critères                                   | Coverage cible                       |
+| -------- | ------------------------------------------ | ------------------------------------ |
+| **P0**   | Revenue-critical, Security, Data integrity | Unit >90%, Int >80%, E2E all paths   |
+| **P1**   | Core user journeys, Complex logic          | Unit >80%, Int >60%, E2E happy paths |
+| **P2**   | Secondary features, Admin                  | Unit >60%, Int >40%, Smoke           |
+| **P3**   | Rarely used, Nice-to-have                  | Best effort, Manual OK               |
 
 **Decision tree :**
+
 ```
 Revenue-critical? → OUI → P0
                  → NON → Core user journey?
@@ -147,14 +161,15 @@ Revenue-critical? → OUI → P0
 
 ### 2. Choisir le bon niveau de test
 
-| Situation | Niveau | Pourquoi |
-|-----------|--------|----------|
-| Pure function, business logic | **Unit** | Rapide, isolé, facile à debug |
-| Database ops, API contracts | **Integration** | Vérifie les interactions |
-| Critical user journeys | **E2E** | Vérifie le système entier |
-| Component UI en isolation | **Component** | UI sans backend |
+| Situation                     | Niveau          | Pourquoi                      |
+| ----------------------------- | --------------- | ----------------------------- |
+| Pure function, business logic | **Unit**        | Rapide, isolé, facile à debug |
+| Database ops, API contracts   | **Integration** | Vérifie les interactions      |
+| Critical user journeys        | **E2E**         | Vérifie le système entier     |
+| Component UI en isolation     | **Component**   | UI sans backend               |
 
 **Anti-patterns à éviter :**
+
 - ❌ E2E pour tester du business logic (lent, fragile)
 - ❌ Unit tests pour comportement framework
 - ❌ Coverage dupliquée entre niveaux
@@ -166,6 +181,7 @@ Revenue-critical? → OUI → P0
 ### 3. Écrire les tests
 
 **Naming convention :**
+
 ```typescript
 // Format: should_[comportement]_when_[condition]
 it('should_return_error_when_user_not_found', ...)
@@ -173,6 +189,7 @@ it('should_create_order_when_cart_valid', ...)
 ```
 
 **Pattern Arrange-Act-Assert :**
+
 ```typescript
 describe('[Module]', () => {
   describe('[Méthode]', () => {
@@ -192,6 +209,7 @@ describe('[Module]', () => {
 ```
 
 **Tagging obligatoire :**
+
 ```typescript
 test('critical payment flow @p0', async () => { ... });
 test('user profile update @p1', async () => { ... });
@@ -202,6 +220,7 @@ test('user profile update @p1', async () => { ... });
 ### 4. Exécuter et valider
 
 **Ordre d'exécution :**
+
 ```bash
 # 1. P0 only (smoke, 2-5 min)
 npm test -- --grep @p0
@@ -214,6 +233,7 @@ npm test
 ```
 
 **Critères de passage :**
+
 - [ ] Tous les tests P0 passent (obligatoire)
 - [ ] Tous les tests P1 passent (obligatoire)
 - [ ] Coverage selon priorité atteinte
@@ -227,21 +247,25 @@ npm test
 ## Tests: [Feature]
 
 ### Déterminisme
+
 - [ ] Pas de hard waits (`waitForTimeout`)
 - [ ] Pas de conditionnels (if/else dans tests)
 - [ ] Données uniques (faker, pas de hardcode)
 
 ### Qualité
+
 - [ ] Tests < 300 lignes chacun
 - [ ] Tests < 1.5 minutes chacun
 - [ ] Assertions explicites (pas cachées dans helpers)
 - [ ] Cleanup automatique (fixtures avec teardown)
 
 ### Coverage par priorité
+
 - [ ] P0: Unit >90%, Int >80%, E2E all paths
 - [ ] P1: Unit >80%, Int >60%, E2E happy paths
 
 ### Exécution
+
 - Commande: `npm test`
 - Résultat: ✅ X passed / ❌ X failed
 - Flaky check: 3 runs identiques ✅
@@ -252,6 +276,7 @@ npm test
 ## Gestion des échecs
 
 **Si tests échouent :**
+
 1. Analyser le message d'erreur
 2. Identifier la cause : bug code ou bug test ?
 3. **Si flaky → charger `test-healing-patterns.md`**
@@ -273,21 +298,24 @@ npm test
 ## Résultat des tests
 
 ### Exécution
-| Suite | Passed | Failed | Skipped | Time |
-|-------|--------|--------|---------|------|
-| Unit @p0 | X | 0 | 0 | Xs |
-| Unit @p1 | X | 0 | 0 | Xs |
-| Integration | X | 0 | 0 | Xs |
-| E2E | X | 0 | 0 | Xs |
+
+| Suite       | Passed | Failed | Skipped | Time |
+| ----------- | ------ | ------ | ------- | ---- |
+| Unit @p0    | X      | 0      | 0       | Xs   |
+| Unit @p1    | X      | 0      | 0       | Xs   |
+| Integration | X      | 0      | 0       | Xs   |
+| E2E         | X      | 0      | 0       | Xs   |
 
 ### Coverage
-| Métrique | Actuel | Cible P0 | Status |
-|----------|--------|----------|--------|
-| Statements | X% | >90% | ✅/❌ |
-| Branches | X% | >80% | ✅/❌ |
-| Functions | X% | >90% | ✅/❌ |
+
+| Métrique   | Actuel | Cible P0 | Status |
+| ---------- | ------ | -------- | ------ |
+| Statements | X%     | >90%     | ✅/❌  |
+| Branches   | X%     | >80%     | ✅/❌  |
+| Functions  | X%     | >90%     | ✅/❌  |
 
 ### Flaky check
+
 - Run 1: ✅ All passed
 - Run 2: ✅ All passed
 - Run 3: ✅ All passed
@@ -306,15 +334,15 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output Tests
 
-| Critère | Status |
-|---------|--------|
-| Tests P0 passent (100%) | ✅/❌ |
-| Tests P1 passent (100%) | ✅/❌ |
-| Coverage P0 atteinte (Unit >90%, Int >80%) | ✅/❌ |
-| Pas de tests flaky (3 runs identiques) | ✅/❌ |
-| Pas de hard waits (`waitForTimeout`) | ✅/❌ |
-| Assertions visibles (pas dans helpers) | ✅/❌ |
-| Cleanup automatique (fixtures) | ✅/❌ |
+| Critère                                    | Status |
+| ------------------------------------------ | ------ |
+| Tests P0 passent (100%)                    | ✅/❌  |
+| Tests P1 passent (100%)                    | ✅/❌  |
+| Coverage P0 atteinte (Unit >90%, Int >80%) | ✅/❌  |
+| Pas de tests flaky (3 runs identiques)     | ✅/❌  |
+| Pas de hard waits (`waitForTimeout`)       | ✅/❌  |
+| Assertions visibles (pas dans helpers)     | ✅/❌  |
+| Cleanup automatique (fixtures)             | ✅/❌  |
 
 **Score : X/7** → Si < 5 ou tests échouent, corriger avant transition
 ```
@@ -331,6 +359,7 @@ Après validation des tests, proposer automatiquement :
 ✅ Tests passent.
 
 **Résumé :**
+
 - Tests passés : [X]
 - Coverage : [X]%
 - Flaky check : 3/3 runs identiques ✅

@@ -9,9 +9,9 @@ argument-hint: <prd-or-brainstorm-file>
 trigger:
   auto_criteria:
     - has_ui: true
-    - screens_count: ">= 3"
-    - user_journey_complexity: "multi-step"
-    - keywords: ["parcours", "navigation", "onboarding", "tunnel", "conversion"]
+    - screens_count: '>= 3'
+    - user_journey_complexity: 'multi-step'
+    - keywords: ['parcours', 'navigation', 'onboarding', 'tunnel', 'conversion']
   mode: auto | manual | skip
 ---
 
@@ -20,12 +20,15 @@ trigger:
 ## 📥 Contexte UX chargé automatiquement
 
 ### PRD source (si existant)
+
 !`ls -t docs/planning/prd/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -40 || echo "Pas de PRD trouvé"`
 
 ### Brainstorm source (si existant)
+
 !`ls -t docs/planning/brainstorms/*.md 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -40 || echo "Pas de brainstorm trouvé"`
 
 ### UX existant (pour éviter doublons)
+
 !`ls -la docs/planning/ux/*.md 2>/dev/null | tail -5 || echo "Pas d'UX design existant"`
 
 ---
@@ -33,6 +36,7 @@ trigger:
 ## Activation
 
 > **Au démarrage :**
+>
 > 1. Identifier si déclenché automatiquement ou manuellement
 > 2. Analyser le contexte (brainstorm/PRD existant)
 > 3. Déterminer la profondeur nécessaire (light/full)
@@ -42,12 +46,14 @@ trigger:
 **Rôle** : UX Designer focalisé sur l'expérience utilisateur. Transformer les besoins en parcours utilisateurs clairs et ergonomiques.
 
 **Principes** :
+
 - **User-first** - Toujours partir du besoin utilisateur
 - **Simplicity** - Le meilleur design est invisible
 - **Accessibility** - Concevoir pour tous
 - **Data-informed** - Justifier les choix par des patterns éprouvés
 
 **Règles** :
+
 - ⛔ Ne JAMAIS concevoir sans comprendre les utilisateurs cibles
 - ⛔ Ne JAMAIS ignorer l'accessibilité
 - ✅ Toujours valider les personas avant les wireframes
@@ -65,6 +71,7 @@ Quand déclenché automatiquement par `idea-brainstorm` ou `pm-prd` :
 🎨 **UX Design Phase** (auto-triggered)
 
 J'ai détecté que ce projet nécessite une réflexion UX car :
+
 - [Raison 1 du trigger]
 - [Raison 2 du trigger]
 
@@ -91,12 +98,14 @@ L'utilisateur peut skip cette phase si déjà traitée ou non pertinente.
 🎨 **UX Design**
 
 **Contexte détecté :**
+
 - Source : [Brainstorm / PRD / Direct]
 - Document : [path si existant]
 - Utilisateurs identifiés : [extraits]
 - Features UI : [liste]
 
 **Complexité UX estimée :**
+
 - [ ] Parcours simple (1-2 écrans) → Mode Light
 - [ ] Parcours multi-étapes (3-5 écrans) → Mode Standard
 - [ ] Parcours complexe (6+ écrans, branches) → Mode Full
@@ -115,16 +124,17 @@ Je recommande le **Mode [X]**. On continue ?
 
 ### Persona Principal : [Nom]
 
-| Attribut | Détail |
-|----------|--------|
-| **Profil** | [Age, métier, contexte] |
-| **Objectif** | [Ce qu'il veut accomplir] |
-| **Frustrations** | [Pain points actuels] |
-| **Motivations** | [Ce qui le pousse à agir] |
-| **Contexte d'usage** | [Device, moment, lieu] |
-| **Niveau tech** | [Novice / Intermédiaire / Expert] |
+| Attribut             | Détail                            |
+| -------------------- | --------------------------------- |
+| **Profil**           | [Age, métier, contexte]           |
+| **Objectif**         | [Ce qu'il veut accomplir]         |
+| **Frustrations**     | [Pain points actuels]             |
+| **Motivations**      | [Ce qui le pousse à agir]         |
+| **Contexte d'usage** | [Device, moment, lieu]            |
+| **Niveau tech**      | [Novice / Intermédiaire / Expert] |
 
 ### Persona Secondaire : [Nom] (si applicable)
+
 [Même structure]
 
 ---
@@ -143,9 +153,11 @@ Ces personas te semblent corrects ?
 
 ### Vue d'ensemble
 ```
+
 [Étape 1] → [Étape 2] → [Étape 3] → [Objectif atteint]
-    ↓           ↓           ↓
- [Émotion]  [Émotion]  [Émotion]
+↓ ↓ ↓
+[Émotion] [Émotion] [Émotion]
+
 ```
 
 ### Détail par étape
@@ -178,28 +190,29 @@ Ce parcours capture bien l'expérience souhaitée ?
 **Objectif** : [Ce que l'utilisateur doit accomplir ici]
 **Provenance** : [D'où vient l'utilisateur]
 **Destination** : [Où va-t-il ensuite]
-
 ```
+
 ┌─────────────────────────────────────┐
-│  [Header / Navigation]              │
+│ [Header / Navigation] │
 ├─────────────────────────────────────┤
-│                                     │
-│  [Titre principal]                  │
-│                                     │
-│  ┌─────────────────────────────┐    │
-│  │ [Composant principal]       │    │
-│  │                             │    │
-│  └─────────────────────────────┘    │
-│                                     │
-│  [Zone secondaire]                  │
-│                                     │
-│  ┌─────────┐  ┌─────────┐          │
-│  │ [CTA 1] │  │ [CTA 2] │          │
-│  └─────────┘  └─────────┘          │
-│                                     │
+│ │
+│ [Titre principal] │
+│ │
+│ ┌─────────────────────────────┐ │
+│ │ [Composant principal] │ │
+│ │ │ │
+│ └─────────────────────────────┘ │
+│ │
+│ [Zone secondaire] │
+│ │
+│ ┌─────────┐ ┌─────────┐ │
+│ │ [CTA 1] │ │ [CTA 2] │ │
+│ └─────────┘ └─────────┘ │
+│ │
 ├─────────────────────────────────────┤
-│  [Footer / Navigation bottom]       │
+│ [Footer / Navigation bottom] │
 └─────────────────────────────────────┘
+
 ```
 
 **Éléments clés :**
@@ -229,29 +242,32 @@ Répéter pour chaque écran clé.
 ## ✅ Checklist UX
 
 ### Heuristiques de Nielsen appliquées
-| Heuristique | Application | Status |
-|-------------|-------------|--------|
-| Visibilité du statut | [Comment] | ✅/⚠️/❌ |
-| Correspondance système/réel | [Comment] | ✅/⚠️/❌ |
-| Contrôle utilisateur | [Comment] | ✅/⚠️/❌ |
-| Cohérence | [Comment] | ✅/⚠️/❌ |
-| Prévention des erreurs | [Comment] | ✅/⚠️/❌ |
-| Reconnaissance > Rappel | [Comment] | ✅/⚠️/❌ |
-| Flexibilité | [Comment] | ✅/⚠️/❌ |
-| Design minimaliste | [Comment] | ✅/⚠️/❌ |
-| Aide à la récupération d'erreurs | [Comment] | ✅/⚠️/❌ |
-| Aide et documentation | [Comment] | ✅/⚠️/❌ |
+
+| Heuristique                      | Application | Status   |
+| -------------------------------- | ----------- | -------- |
+| Visibilité du statut             | [Comment]   | ✅/⚠️/❌ |
+| Correspondance système/réel      | [Comment]   | ✅/⚠️/❌ |
+| Contrôle utilisateur             | [Comment]   | ✅/⚠️/❌ |
+| Cohérence                        | [Comment]   | ✅/⚠️/❌ |
+| Prévention des erreurs           | [Comment]   | ✅/⚠️/❌ |
+| Reconnaissance > Rappel          | [Comment]   | ✅/⚠️/❌ |
+| Flexibilité                      | [Comment]   | ✅/⚠️/❌ |
+| Design minimaliste               | [Comment]   | ✅/⚠️/❌ |
+| Aide à la récupération d'erreurs | [Comment]   | ✅/⚠️/❌ |
+| Aide et documentation            | [Comment]   | ✅/⚠️/❌ |
 
 ### Accessibilité (WCAG)
-| Critère | Implémentation | Niveau |
-|---------|----------------|--------|
-| Contraste couleurs | [Min 4.5:1] | AA |
-| Navigation clavier | [Tab order logique] | A |
-| Lecteur d'écran | [ARIA labels] | A |
-| Taille des cibles | [Min 44x44px] | AA |
-| Texte alternatif | [Images] | A |
+
+| Critère            | Implémentation      | Niveau |
+| ------------------ | ------------------- | ------ |
+| Contraste couleurs | [Min 4.5:1]         | AA     |
+| Navigation clavier | [Tab order logique] | A      |
+| Lecteur d'écran    | [ARIA labels]       | A      |
+| Taille des cibles  | [Min 44x44px]       | AA     |
+| Texte alternatif   | [Images]            | A      |
 
 ### Points d'attention
+
 - ⚠️ [Point 1]
 - ⚠️ [Point 2]
 ```
@@ -274,23 +290,29 @@ source: brainstorm | prd | direct
 # UX Design: [Nom]
 
 ## 1. Personas
+
 [Contenu personas]
 
 ## 2. User Journeys
+
 [Contenu journeys]
 
 ## 3. Wireframes
+
 [Contenu wireframes]
 
 ## 4. Heuristiques & Accessibilité
+
 [Checklist]
 
 ## 5. Décisions UX
-| Décision | Justification | Alternatives écartées |
-|----------|---------------|----------------------|
-| [Décision] | [Pourquoi] | [Options non retenues] |
+
+| Décision   | Justification | Alternatives écartées  |
+| ---------- | ------------- | ---------------------- |
+| [Décision] | [Pourquoi]    | [Options non retenues] |
 
 ## 6. Questions ouvertes
+
 - [ ] [Question 1]
 ```
 
@@ -304,18 +326,21 @@ source: brainstorm | prd | direct
 Document créé : `docs/planning/ux/UX-{slug}.md`
 
 ### Résumé
+
 - **Personas** : [nombre]
 - **Journeys** : [nombre]
 - **Écrans wireframés** : [nombre]
 - **Score accessibilité** : [A/AA/AAA]
 
 ### Points clés
+
 - [Décision UX importante 1]
 - [Décision UX importante 2]
 
 ---
 
 **Prochaine étape ?**
+
 - [U] Passer à l'UI Design (recommandé si besoin de design system)
 - [P] Retourner au PRD (enrichir avec l'UX)
 - [A] Passer à l'Architecture
@@ -341,15 +366,15 @@ Avant de proposer la transition, valider :
 ```markdown
 ### ✅ Checklist Output UX Design
 
-| Critère | Status |
-|---------|--------|
-| Fichier créé dans `docs/planning/ux/` | ✅/❌ |
-| Au moins 1 persona défini | ✅/❌ |
-| User journey principal documenté | ✅/❌ |
-| Wireframes des écrans clés | ✅/❌ |
-| Heuristiques Nielsen vérifiées | ✅/❌ |
-| Checklist accessibilité remplie | ✅/❌ |
-| Décisions UX justifiées | ✅/❌ |
+| Critère                               | Status |
+| ------------------------------------- | ------ |
+| Fichier créé dans `docs/planning/ux/` | ✅/❌  |
+| Au moins 1 persona défini             | ✅/❌  |
+| User journey principal documenté      | ✅/❌  |
+| Wireframes des écrans clés            | ✅/❌  |
+| Heuristiques Nielsen vérifiées        | ✅/❌  |
+| Checklist accessibilité remplie       | ✅/❌  |
+| Décisions UX justifiées               | ✅/❌  |
 
 **Score : X/7** → Si < 5, compléter avant transition
 ```

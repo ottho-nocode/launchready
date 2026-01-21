@@ -58,16 +58,17 @@ Le projet sera automatiquement ouvert dans un Codespace avec cette configuration
 
 Configuration principale :
 
-| Option | Description |
-|--------|-------------|
-| `features` | Node.js 20, Git, GitHub CLI |
-| `forwardPorts` | 3000 (app), 5432 (PostgreSQL) |
-| `extensions` | ESLint, Prettier, Tailwind, Prisma, etc. |
-| `postCreateCommand` | `npm install` |
+| Option              | Description                              |
+| ------------------- | ---------------------------------------- |
+| `features`          | Node.js 20, Git, GitHub CLI              |
+| `forwardPorts`      | 3000 (app), 5432 (PostgreSQL)            |
+| `extensions`        | ESLint, Prettier, Tailwind, Prisma, etc. |
+| `postCreateCommand` | `npm install`                            |
 
 ### Dockerfile
 
 Image basée sur Node.js 20 avec :
+
 - Git, curl, wget, jq
 - Zsh + Oh My Zsh
 - PostgreSQL client
@@ -77,13 +78,13 @@ Image basée sur Node.js 20 avec :
 
 Services optionnels :
 
-| Service | Port | Description |
-|---------|------|-------------|
-| `app` | 3000 | Application Node.js |
-| `db` | 5432 | PostgreSQL 16 |
-| `redis` | 6379 | Redis 7 |
-| `mailhog` | 8025 | Email testing (optionnel) |
-| `minio` | 9000 | S3-compatible storage (optionnel) |
+| Service   | Port | Description                       |
+| --------- | ---- | --------------------------------- |
+| `app`     | 3000 | Application Node.js               |
+| `db`      | 5432 | PostgreSQL 16                     |
+| `redis`   | 6379 | Redis 7                           |
+| `mailhog` | 8025 | Email testing (optionnel)         |
+| `minio`   | 9000 | S3-compatible storage (optionnel) |
 
 ## Personnalisation
 
@@ -128,7 +129,7 @@ services:
   mongodb:
     image: mongo:7
     ports:
-      - "27017:27017"
+      - '27017:27017'
 ```
 
 ## Troubleshooting

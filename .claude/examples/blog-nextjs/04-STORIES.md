@@ -6,9 +6,11 @@
 ---
 
 ## Epic 1: Core Blog Infrastructure
+
 > Setup du projet et affichage des articles
 
 ### Story 1.1: Setup projet Next.js
+
 **Taille:** M | **Priorité:** P0 | **Tags:** `setup`, `infra`
 
 **En tant que** développeur,
@@ -16,6 +18,7 @@
 **Afin de** commencer le développement.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given un nouveau projet
 When je lance npm run dev
@@ -25,6 +28,7 @@ And TypeScript compile
 ```
 
 **Tâches techniques:**
+
 - [ ] `npx create-next-app@latest` avec App Router
 - [ ] Configurer Tailwind CSS
 - [ ] Configurer Contentlayer
@@ -34,6 +38,7 @@ And TypeScript compile
 ---
 
 ### Story 1.2: Afficher liste d'articles
+
 **Taille:** M | **Priorité:** P0 | **Tags:** `feature`, `home`
 
 **En tant que** visiteur,
@@ -41,6 +46,7 @@ And TypeScript compile
 **Afin de** découvrir le contenu du blog.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given des articles MDX existent dans content/blog/
 When je visite la page d'accueil
@@ -54,6 +60,7 @@ And les drafts ne sont pas affichés
 ---
 
 ### Story 1.3: Lire un article MDX
+
 **Taille:** L | **Priorité:** P0 | **Tags:** `feature`, `article`
 
 **En tant que** visiteur,
@@ -61,6 +68,7 @@ And les drafts ne sont pas affichés
 **Afin de** consommer le contenu.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given un article "hello-world" existe
 When je visite /blog/hello-world
@@ -75,9 +83,11 @@ And les liens vers tags sont cliquables
 ---
 
 ## Epic 2: Navigation & Tags
+
 > Système de tags et navigation
 
 ### Story 2.1: Naviguer par tags
+
 **Taille:** M | **Priorité:** P1 | **Tags:** `feature`, `navigation`
 
 **En tant que** visiteur,
@@ -85,6 +95,7 @@ And les liens vers tags sont cliquables
 **Afin de** trouver du contenu sur un sujet précis.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given des articles avec le tag "nextjs" existent
 When je visite /tags/nextjs
@@ -100,6 +111,7 @@ Then je vois tous les tags avec leur count
 ---
 
 ### Story 2.2: Page à propos
+
 **Taille:** S | **Priorité:** P2 | **Tags:** `feature`, `page`
 
 **En tant que** visiteur,
@@ -107,6 +119,7 @@ Then je vois tous les tags avec leur count
 **Afin de** connaître qui écrit le blog.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given je visite /about
 Then je vois une présentation de l'auteur
@@ -117,9 +130,11 @@ And une photo (optionnel)
 ---
 
 ## Epic 3: User Experience
+
 > Dark mode et améliorations UX
 
 ### Story 3.1: Toggle Dark/Light mode
+
 **Taille:** S | **Priorité:** P1 | **Tags:** `ux`, `theme`
 
 **En tant que** visiteur,
@@ -127,6 +142,7 @@ And une photo (optionnel)
 **Afin d'** avoir un confort de lecture adapté.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given je suis sur le site
 When je clique sur le toggle de thème
@@ -138,6 +154,7 @@ And pas de flash au rechargement (SSR-safe)
 ---
 
 ### Story 3.2: RSS Feed
+
 **Taille:** S | **Priorité:** P2 | **Tags:** `feature`, `feed`
 
 **En tant que** lecteur,
@@ -145,6 +162,7 @@ And pas de flash au rechargement (SSR-safe)
 **Afin de** recevoir les nouveaux articles.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given je visite /feed.xml
 Then je reçois un XML RSS valide
@@ -155,9 +173,11 @@ And le feed passe la validation W3C
 ---
 
 ## Epic 4: SEO & Performance
+
 > Optimisation pour les moteurs de recherche
 
 ### Story 4.1: Metadata dynamique
+
 **Taille:** M | **Priorité:** P0 | **Tags:** `seo`, `meta`
 
 **En tant que** moteur de recherche,
@@ -165,6 +185,7 @@ And le feed passe la validation W3C
 **Afin d'** indexer correctement le contenu.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given je visite un article
 Then la balise <title> contient le titre de l'article
@@ -176,6 +197,7 @@ And Twitter Card tags sont présents
 ---
 
 ### Story 4.2: Sitemap automatique
+
 **Taille:** S | **Priorité:** P1 | **Tags:** `seo`, `sitemap`
 
 **En tant que** moteur de recherche,
@@ -183,6 +205,7 @@ And Twitter Card tags sont présents
 **Afin de** découvrir toutes les pages.
 
 **Critères d'acceptance:**
+
 ```gherkin
 Given je visite /sitemap.xml
 Then je reçois un sitemap XML valide
@@ -194,14 +217,14 @@ And les dates de modification sont correctes
 
 ## Readiness Check: 15/15 ✅
 
-| Critère | Score | Détail |
-|---------|-------|--------|
-| Stories INVEST | 3/3 | Indépendantes, Négociables, Valuable, Estimables, Small, Testables |
-| Critères Given/When/Then | 3/3 | Tous les AC en Gherkin |
-| Estimations cohérentes | 2/2 | S/M/L appropriés |
-| Priorités définies | 2/2 | P0 > P1 > P2 claire |
-| Dépendances identifiées | 3/3 | Dépendances explicites |
-| Risques techniques | 2/2 | Contentlayer beta, App Router |
+| Critère                  | Score | Détail                                                             |
+| ------------------------ | ----- | ------------------------------------------------------------------ |
+| Stories INVEST           | 3/3   | Indépendantes, Négociables, Valuable, Estimables, Small, Testables |
+| Critères Given/When/Then | 3/3   | Tous les AC en Gherkin                                             |
+| Estimations cohérentes   | 2/2   | S/M/L appropriés                                                   |
+| Priorités définies       | 2/2   | P0 > P1 > P2 claire                                                |
+| Dépendances identifiées  | 3/3   | Dépendances explicites                                             |
+| Risques techniques       | 2/2   | Contentlayer beta, App Router                                      |
 
 **Prêt pour implémentation !**
 

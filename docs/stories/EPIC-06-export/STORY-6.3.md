@@ -25,15 +25,15 @@ And les fichiers .txt individuels ne sont pas présents
 
 ### Options disponibles
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| iPhone 6.7" | ✓ | Inclure mockups iPhone 14 Pro Max |
-| iPhone 6.5" | ✓ | Inclure mockups iPhone 11 Pro Max |
-| iPhone 5.5" | ✗ | Inclure mockups iPhone 8 Plus |
-| iPad 12.9" | ✗ | Inclure mockups iPad |
-| Textes JSON | ✓ | Fichier JSON consolidé |
-| Textes TXT | ✓ | Fichiers texte séparés |
-| README | ✓ | Instructions d'utilisation |
+| Option      | Default | Description                       |
+| ----------- | ------- | --------------------------------- |
+| iPhone 6.7" | ✓       | Inclure mockups iPhone 14 Pro Max |
+| iPhone 6.5" | ✓       | Inclure mockups iPhone 11 Pro Max |
+| iPhone 5.5" | ✗       | Inclure mockups iPhone 8 Plus     |
+| iPad 12.9"  | ✗       | Inclure mockups iPad              |
+| Textes JSON | ✓       | Fichier JSON consolidé            |
+| Textes TXT  | ✓       | Fichiers texte séparés            |
+| README      | ✓       | Instructions d'utilisation        |
 
 ### Checklist technique
 
