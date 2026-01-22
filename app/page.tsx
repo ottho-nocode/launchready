@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import * as fabric from 'fabric';
 
 // Preset background colors
 const BACKGROUND_COLORS = [
@@ -31,292 +30,170 @@ const TEXT_COLORS = [
   '#16A34A',
 ];
 
+// Canvas and phone dimensions
+const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 867;
+const EXPORT_SCALE = 3.1;
+
+const PHONE_WIDTH = 280;
+const PHONE_HEIGHT = 580;
+const PHONE_X = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
+const PHONE_Y = 200;
+const CORNER_RADIUS = 45;
+const BEZEL_WIDTH = 8;
+
+// Screen area
+const SCREEN_X = PHONE_X + BEZEL_WIDTH + 4;
+const SCREEN_Y = PHONE_Y + BEZEL_WIDTH + 4;
+const SCREEN_WIDTH = PHONE_WIDTH - (BEZEL_WIDTH + 4) * 2;
+const SCREEN_HEIGHT = PHONE_HEIGHT - (BEZEL_WIDTH + 4) * 2;
+const SCREEN_RADIUS = CORNER_RADIUS - BEZEL_WIDTH - 4;
+
 export default function MockupEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricRef = useRef<fabric.Canvas | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [backgroundColor, setBackgroundColor] = useState('#2563EB');
-  const [screenshot, setScreenshot] = useState<string | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const [selectedObject, setSelectedObject] = useState<fabric.FabricObject | null>(null);
+  const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [headline, setHeadline] = useState('Votre texte\npromotionnel');
   const [textColor, setTextColor] = useState('#FFFFFF');
   const [textOpacity, setTextOpacity] = useState(100);
+  const [fontSize, setFontSize] = useState(36);
 
-  // Canvas dimensions
-  const CANVAS_WIDTH = 400;
-  const CANVAS_HEIGHT = 867;
-  const EXPORT_SCALE = 3.1; // Export at ~1242x2688
+  // Draw everything on canvas
+  const drawCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  // Phone dimensions (centered in canvas)
-  const PHONE_WIDTH = 320;
-  const PHONE_HEIGHT = 660;
-  const PHONE_X = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
-  const PHONE_Y = 180;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  // Screen area inside phone (where screenshot goes)
-  const SCREEN_PADDING = 14;
-  const NOTCH_HEIGHT = 34;
-  const SCREEN_X = PHONE_X + SCREEN_PADDING;
-  const SCREEN_Y = PHONE_Y + SCREEN_PADDING + NOTCH_HEIGHT;
-  const SCREEN_WIDTH = PHONE_WIDTH - SCREEN_PADDING * 2;
-  const SCREEN_HEIGHT = PHONE_HEIGHT - SCREEN_PADDING * 2 - NOTCH_HEIGHT;
+    // Clear canvas
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Initialize canvas
-  useEffect(() => {
-    if (!canvasRef.current || fabricRef.current) return;
+    // Draw background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      backgroundColor: backgroundColor,
-      selection: true,
-      preserveObjectStacking: true,
+    // Draw headline text
+    ctx.save();
+    ctx.globalAlpha = textOpacity / 100;
+    ctx.fillStyle = textColor;
+    ctx.font = `700 ${fontSize}px Inter, system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    const lines = headline.split('\n');
+    const lineHeight = fontSize * 1.2;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, CANVAS_WIDTH / 2, 50 + i * lineHeight);
     });
+    ctx.restore();
 
-    fabricRef.current = canvas;
+    // Draw phone outer frame
+    ctx.fillStyle = '#1a1a1a';
+    roundRect(ctx, PHONE_X, PHONE_Y, PHONE_WIDTH, PHONE_HEIGHT, CORNER_RADIUS);
+    ctx.fill();
 
-    // Add phone frame
-    addPhoneFrame(canvas);
-
-    // Add default text
-    addText(canvas, 'Votre texte\npromotionnel', 50);
-
-    // Selection events
-    canvas.on('selection:created', (e) => {
-      setSelectedObject(e.selected?.[0] || null);
-      updateTextControls(e.selected?.[0]);
-    });
-    canvas.on('selection:updated', (e) => {
-      setSelectedObject(e.selected?.[0] || null);
-      updateTextControls(e.selected?.[0]);
-    });
-    canvas.on('selection:cleared', () => {
-      setSelectedObject(null);
-    });
-
-    // Keyboard delete
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const active = canvas.getActiveObject();
-      if (!active) return;
-      // Check if text is being edited (only IText has isEditing)
-      const isEditing = 'isEditing' in active && (active as fabric.IText).isEditing;
-      if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing) {
-        canvas.remove(active);
-        canvas.discardActiveObject();
-        canvas.renderAll();
-        setSelectedObject(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
-    setIsReady(true);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      canvas.dispose();
-      fabricRef.current = null;
-    };
-  }, []);
-
-  // Update background
-  useEffect(() => {
-    if (!fabricRef.current) return;
-    fabricRef.current.backgroundColor = backgroundColor;
-    fabricRef.current.renderAll();
-  }, [backgroundColor]);
-
-  const updateTextControls = (obj: fabric.FabricObject | undefined) => {
-    if (obj && obj.type === 'i-text') {
-      const textObj = obj as fabric.IText;
-      setTextColor((textObj.fill as string) || '#FFFFFF');
-      setTextOpacity(Math.round((textObj.opacity || 1) * 100));
-    }
-  };
-
-  // Add phone frame using Fabric shapes grouped together
-  const addPhoneFrame = (canvas: fabric.Canvas) => {
-    const cornerRadius = 50;
-    const bezelWidth = 6;
-    const screenPadding = 14;
-
-    // Outer frame (dark gray)
-    const outerFrame = new fabric.Rect({
-      left: 0,
-      top: 0,
-      width: PHONE_WIDTH,
-      height: PHONE_HEIGHT,
-      rx: cornerRadius,
-      ry: cornerRadius,
-      fill: '#1a1a1a',
-      selectable: false,
-      evented: false,
-    });
-
-    // Bezel (slightly lighter)
-    const bezel = new fabric.Rect({
-      left: bezelWidth,
-      top: bezelWidth,
-      width: PHONE_WIDTH - bezelWidth * 2,
-      height: PHONE_HEIGHT - bezelWidth * 2,
-      rx: cornerRadius - bezelWidth,
-      ry: cornerRadius - bezelWidth,
-      fill: '#2d2d2d',
-      selectable: false,
-      evented: false,
-    });
-
-    // Screen (black)
-    const screen = new fabric.Rect({
-      left: screenPadding,
-      top: screenPadding,
-      width: PHONE_WIDTH - screenPadding * 2,
-      height: PHONE_HEIGHT - screenPadding * 2,
-      rx: cornerRadius - screenPadding,
-      ry: cornerRadius - screenPadding,
-      fill: '#000000',
-      selectable: false,
-      evented: false,
-    });
-
-    // Notch
-    const notchWidth = PHONE_WIDTH * 0.35;
-    const notchHeight = 34;
-    const notchX = (PHONE_WIDTH - notchWidth) / 2;
-    const notch = new fabric.Rect({
-      left: notchX,
-      top: screenPadding,
-      width: notchWidth,
-      height: notchHeight,
-      rx: 17,
-      ry: 17,
-      fill: '#1a1a1a',
-      selectable: false,
-      evented: false,
-    });
-
-    // Camera
-    const camera = new fabric.Circle({
-      left: notchX + notchWidth - 35,
-      top: screenPadding + notchHeight / 2 - 8,
-      radius: 8,
-      fill: '#0d2137',
-      selectable: false,
-      evented: false,
-    });
-
-    // Speaker
-    const speaker = new fabric.Rect({
-      left: (PHONE_WIDTH - 60) / 2,
-      top: screenPadding + 8,
-      width: 60,
-      height: 6,
-      rx: 3,
-      ry: 3,
-      fill: '#0d2137',
-      selectable: false,
-      evented: false,
-    });
-
-    // Group all phone elements
-    const phoneGroup = new fabric.Group(
-      [outerFrame, bezel, screen, notch, camera, speaker],
-      {
-        left: PHONE_X,
-        top: PHONE_Y,
-        selectable: false,
-        evented: false,
-      }
+    // Draw phone bezel
+    ctx.fillStyle = '#2d2d2d';
+    roundRect(
+      ctx,
+      PHONE_X + 4,
+      PHONE_Y + 4,
+      PHONE_WIDTH - 8,
+      PHONE_HEIGHT - 8,
+      CORNER_RADIUS - 4
     );
-    (phoneGroup as any).name = 'phoneFrame';
+    ctx.fill();
 
-    canvas.add(phoneGroup);
-    canvas.renderAll();
-  };
+    // Draw screen background (black)
+    ctx.fillStyle = '#000000';
+    roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
+    ctx.fill();
 
-  // Add text
-  const addText = (canvas: fabric.Canvas, content: string, top: number) => {
-    const text = new fabric.IText(content, {
-      left: CANVAS_WIDTH / 2,
-      top: top,
-      fontSize: 36,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontWeight: '700',
-      fill: '#FFFFFF',
-      textAlign: 'center',
-      originX: 'center',
-      originY: 'top',
-    });
-    canvas.add(text);
-    canvas.setActiveObject(text);
-    canvas.renderAll();
-  };
+    // Draw screenshot if available
+    if (screenshot) {
+      ctx.save();
+
+      // Create clipping path for screen
+      ctx.beginPath();
+      roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
+      ctx.clip();
+
+      // Calculate scale to cover screen
+      const imgRatio = screenshot.width / screenshot.height;
+      const screenRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
+
+      let drawWidth, drawHeight, drawX, drawY;
+
+      if (imgRatio > screenRatio) {
+        drawHeight = SCREEN_HEIGHT;
+        drawWidth = drawHeight * imgRatio;
+        drawX = SCREEN_X - (drawWidth - SCREEN_WIDTH) / 2;
+        drawY = SCREEN_Y;
+      } else {
+        drawWidth = SCREEN_WIDTH;
+        drawHeight = drawWidth / imgRatio;
+        drawX = SCREEN_X;
+        drawY = SCREEN_Y;
+      }
+
+      ctx.drawImage(screenshot, drawX, drawY, drawWidth, drawHeight);
+      ctx.restore();
+    }
+
+    // Draw notch
+    const notchWidth = 90;
+    const notchHeight = 28;
+    const notchX = PHONE_X + (PHONE_WIDTH - notchWidth) / 2;
+    const notchY = SCREEN_Y;
+
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.roundRect(notchX, notchY, notchWidth, notchHeight, [0, 0, 14, 14]);
+    ctx.fill();
+
+    // Draw camera in notch
+    ctx.fillStyle = '#0d2137';
+    ctx.beginPath();
+    ctx.arc(notchX + notchWidth - 20, notchY + notchHeight / 2, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw speaker in notch
+    ctx.fillStyle = '#0d2137';
+    ctx.beginPath();
+    ctx.roundRect(notchX + 20, notchY + notchHeight / 2 - 2, 40, 4, 2);
+    ctx.fill();
+
+  }, [backgroundColor, screenshot, headline, textColor, textOpacity, fontSize]);
+
+  // Redraw when dependencies change
+  useEffect(() => {
+    drawCanvas();
+  }, [drawCanvas]);
 
   // Handle screenshot upload
   const handleScreenshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !fabricRef.current) return;
+    if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
-      setScreenshot(dataUrl);
+      setScreenshotPreview(dataUrl);
 
-      fabric.FabricImage.fromURL(dataUrl).then((img) => {
-        const canvas = fabricRef.current;
-        if (!canvas) return;
-
-        // Remove existing screenshot
-        const objects = canvas.getObjects();
-        for (const obj of objects) {
-          if ((obj as any).name === 'screenshot') {
-            canvas.remove(obj);
-            break;
-          }
-        }
-
-        // Scale to fit screen area
-        const scaleX = SCREEN_WIDTH / (img.width || 1);
-        const scaleY = SCREEN_HEIGHT / (img.height || 1);
-        const scale = Math.max(scaleX, scaleY);
-
-        img.set({
-          left: SCREEN_X + SCREEN_WIDTH / 2,
-          top: SCREEN_Y,
-          scaleX: scale,
-          scaleY: scale,
-          originX: 'center',
-          originY: 'top',
-          selectable: false,
-          evented: false,
-        });
-        (img as any).name = 'screenshot';
-
-        // Clip to screen area
-        img.clipPath = new fabric.Rect({
-          left: SCREEN_X,
-          top: SCREEN_Y,
-          width: SCREEN_WIDTH,
-          height: SCREEN_HEIGHT,
-          rx: 26,
-          ry: 26,
-          absolutePositioned: true,
-        });
-
-        // Find phone frame and insert screenshot before it (behind)
-        const phoneFrameIndex = objects.findIndex((obj) => (obj as any).name === 'phoneFrame');
-        if (phoneFrameIndex >= 0) {
-          canvas.insertAt(phoneFrameIndex, img);
-        } else {
-          canvas.add(img);
-        }
-        canvas.renderAll();
-      });
+      const img = new Image();
+      img.onload = () => {
+        setScreenshot(img);
+      };
+      img.src = dataUrl;
     };
     reader.readAsDataURL(file);
   }, []);
 
-  // Drag and drop
+  // Handle drag and drop
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
@@ -328,65 +205,114 @@ export default function MockupEditor() {
     }
   }, []);
 
-  // Delete selected
-  const deleteSelected = useCallback(() => {
-    if (!fabricRef.current || !selectedObject) return;
-    fabricRef.current.remove(selectedObject);
-    fabricRef.current.discardActiveObject();
-    fabricRef.current.renderAll();
-    setSelectedObject(null);
-  }, [selectedObject]);
-
-  // Add new text
-  const handleAddText = useCallback(() => {
-    if (!fabricRef.current) return;
-    addText(fabricRef.current, 'Nouveau texte', 100);
-  }, []);
-
-  // Update text color
-  const handleTextColorChange = useCallback((color: string) => {
-    setTextColor(color);
-    if (selectedObject && selectedObject.type === 'i-text') {
-      (selectedObject as fabric.IText).set('fill', color);
-      fabricRef.current?.renderAll();
-    }
-  }, [selectedObject]);
-
-  // Update text opacity
-  const handleTextOpacityChange = useCallback((value: number[]) => {
-    const opacity = value[0];
-    setTextOpacity(opacity);
-    if (selectedObject && selectedObject.type === 'i-text') {
-      (selectedObject as fabric.IText).set('opacity', opacity / 100);
-      fabricRef.current?.renderAll();
-    }
-  }, [selectedObject]);
-
   // Export PNG
   const exportMockup = useCallback(() => {
-    if (!fabricRef.current) return;
-    fabricRef.current.discardActiveObject();
-    fabricRef.current.renderAll();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const dataUrl = fabricRef.current.toDataURL({
-      format: 'png',
-      multiplier: EXPORT_SCALE,
+    // Create high-res canvas
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = CANVAS_WIDTH * EXPORT_SCALE;
+    exportCanvas.height = CANVAS_HEIGHT * EXPORT_SCALE;
+
+    const ctx = exportCanvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
+
+    // Redraw everything on export canvas
+    // Background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Headline
+    ctx.save();
+    ctx.globalAlpha = textOpacity / 100;
+    ctx.fillStyle = textColor;
+    ctx.font = `700 ${fontSize}px Inter, system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    const lines = headline.split('\n');
+    const lineHeight = fontSize * 1.2;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, CANVAS_WIDTH / 2, 50 + i * lineHeight);
     });
+    ctx.restore();
 
+    // Phone frame
+    ctx.fillStyle = '#1a1a1a';
+    roundRect(ctx, PHONE_X, PHONE_Y, PHONE_WIDTH, PHONE_HEIGHT, CORNER_RADIUS);
+    ctx.fill();
+
+    ctx.fillStyle = '#2d2d2d';
+    roundRect(ctx, PHONE_X + 4, PHONE_Y + 4, PHONE_WIDTH - 8, PHONE_HEIGHT - 8, CORNER_RADIUS - 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#000000';
+    roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
+    ctx.fill();
+
+    // Screenshot
+    if (screenshot) {
+      ctx.save();
+      ctx.beginPath();
+      roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
+      ctx.clip();
+
+      const imgRatio = screenshot.width / screenshot.height;
+      const screenRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
+
+      let drawWidth, drawHeight, drawX, drawY;
+
+      if (imgRatio > screenRatio) {
+        drawHeight = SCREEN_HEIGHT;
+        drawWidth = drawHeight * imgRatio;
+        drawX = SCREEN_X - (drawWidth - SCREEN_WIDTH) / 2;
+        drawY = SCREEN_Y;
+      } else {
+        drawWidth = SCREEN_WIDTH;
+        drawHeight = drawWidth / imgRatio;
+        drawX = SCREEN_X;
+        drawY = SCREEN_Y;
+      }
+
+      ctx.drawImage(screenshot, drawX, drawY, drawWidth, drawHeight);
+      ctx.restore();
+    }
+
+    // Notch
+    const notchWidth = 90;
+    const notchHeight = 28;
+    const notchX = PHONE_X + (PHONE_WIDTH - notchWidth) / 2;
+    const notchY = SCREEN_Y;
+
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.roundRect(notchX, notchY, notchWidth, notchHeight, [0, 0, 14, 14]);
+    ctx.fill();
+
+    ctx.fillStyle = '#0d2137';
+    ctx.beginPath();
+    ctx.arc(notchX + notchWidth - 20, notchY + notchHeight / 2, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#0d2137';
+    ctx.beginPath();
+    ctx.roundRect(notchX + 20, notchY + notchHeight / 2 - 2, 40, 4, 2);
+    ctx.fill();
+
+    // Download
     const link = document.createElement('a');
     link.download = `mockup-${Date.now()}.png`;
-    link.href = dataUrl;
+    link.href = exportCanvas.toDataURL('image/png');
     link.click();
-  }, []);
-
-  const isTextSelected = selectedObject?.type === 'i-text';
+  }, [backgroundColor, screenshot, headline, textColor, textOpacity, fontSize]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="mx-auto max-w-6xl">
-        <h1 className="mb-6 text-2xl font-bold">
-          📱 Mockup Editor
-        </h1>
+        <h1 className="mb-6 text-2xl font-bold">📱 Mockup Editor</h1>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
           {/* Canvas */}
@@ -397,10 +323,15 @@ export default function MockupEditor() {
               onDragOver={(e) => e.preventDefault()}
               style={{ width: 'fit-content' }}
             >
-              <canvas ref={canvasRef} className="rounded-lg shadow-xl" />
+              <canvas
+                ref={canvasRef}
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
+                className="rounded-lg shadow-xl"
+              />
             </div>
             <div className="mt-4 flex justify-center">
-              <Button onClick={exportMockup} disabled={!isReady} size="lg">
+              <Button onClick={exportMockup} size="lg">
                 ⬇️ Télécharger PNG
               </Button>
             </div>
@@ -444,12 +375,12 @@ export default function MockupEditor() {
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
-                  screenshot ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-blue-400'
+                  screenshotPreview ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-blue-400'
                 )}
               >
-                {screenshot ? (
+                {screenshotPreview ? (
                   <div className="text-center">
-                    <img src={screenshot} alt="" className="mx-auto mb-2 h-20 rounded object-contain" />
+                    <img src={screenshotPreview} alt="" className="mx-auto mb-2 h-20 rounded object-contain" />
                     <p className="text-xs text-green-600">Cliquez pour changer</p>
                   </div>
                 ) : (
@@ -468,59 +399,86 @@ export default function MockupEditor() {
             {/* Text */}
             <Card className="p-4">
               <Label className="mb-3 block font-medium">✏️ Texte</Label>
-              <Button onClick={handleAddText} variant="outline" className="w-full mb-3">
-                + Ajouter du texte
-              </Button>
+              <textarea
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+                className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                rows={3}
+                placeholder="Votre texte promotionnel"
+              />
 
-              {isTextSelected && (
-                <div className="space-y-4 border-t pt-4">
-                  <div>
-                    <Label className="mb-2 block text-sm">Couleur</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {TEXT_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => handleTextColorChange(color)}
-                          className={cn(
-                            'h-8 w-8 rounded border-2',
-                            textColor === color ? 'border-black scale-110' : 'border-gray-300'
-                          )}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                      <input
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => handleTextColorChange(e.target.value)}
-                        className="h-8 w-8 cursor-pointer rounded"
+              <div className="mt-4 space-y-4">
+                <div>
+                  <Label className="mb-2 block text-sm">Couleur</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {TEXT_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setTextColor(color)}
+                        className={cn(
+                          'h-8 w-8 rounded border-2',
+                          textColor === color ? 'border-black scale-110' : 'border-gray-300'
+                        )}
+                        style={{ backgroundColor: color }}
                       />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="mb-2 block text-sm">Opacité: {textOpacity}%</Label>
-                    <Slider
-                      value={[textOpacity]}
-                      onValueChange={handleTextOpacityChange}
-                      min={0}
-                      max={100}
-                      step={5}
+                    ))}
+                    <input
+                      type="color"
+                      value={textColor}
+                      onChange={(e) => setTextColor(e.target.value)}
+                      className="h-8 w-8 cursor-pointer rounded"
                     />
                   </div>
-
-                  <Button onClick={deleteSelected} variant="destructive" className="w-full">
-                    🗑️ Supprimer
-                  </Button>
                 </div>
-              )}
 
-              <p className="mt-3 text-xs text-gray-500">
-                Double-clic = éditer • Glisser = déplacer • Suppr = supprimer
-              </p>
+                <div>
+                  <Label className="mb-2 block text-sm">Taille: {fontSize}px</Label>
+                  <Slider
+                    value={[fontSize]}
+                    onValueChange={(v) => setFontSize(v[0])}
+                    min={20}
+                    max={60}
+                    step={2}
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-2 block text-sm">Opacité: {textOpacity}%</Label>
+                  <Slider
+                    value={[textOpacity]}
+                    onValueChange={(v) => setTextOpacity(v[0])}
+                    min={0}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+              </div>
             </Card>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+// Helper function to draw rounded rectangles
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
 }
