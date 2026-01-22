@@ -97,12 +97,12 @@ const AVAILABLE_ICONS = [
 
 // Device configurations - App Store required sizes
 const DEVICES = {
-  // iPhone 6.7" (iPhone 14 Pro Max, 15 Pro Max)
-  'iphone-6.7-portrait': { name: 'iPhone 6.7" Portrait', width: 1284, height: 2778, scale: 0.144, notch: 'dynamic-island' },
-  'iphone-6.7-landscape': { name: 'iPhone 6.7" Paysage', width: 2778, height: 1284, scale: 0.31, notch: 'dynamic-island' },
-  // iPhone 6.5" (iPhone XS Max, 11 Pro Max)
-  'iphone-6.5-portrait': { name: 'iPhone 6.5" Portrait', width: 1242, height: 2688, scale: 0.149, notch: 'notch' },
-  'iphone-6.5-landscape': { name: 'iPhone 6.5" Paysage', width: 2688, height: 1242, scale: 0.32, notch: 'notch' },
+  // App Store Required - iPhone 6.7"
+  'iphone-6.7-portrait': { name: '1284 × 2778', width: 1284, height: 2778, scale: 0.144, notch: 'dynamic-island' },
+  'iphone-6.7-landscape': { name: '2778 × 1284', width: 2778, height: 1284, scale: 0.31, notch: 'dynamic-island' },
+  // App Store Required - iPhone 6.5"
+  'iphone-6.5-portrait': { name: '1242 × 2688', width: 1242, height: 2688, scale: 0.149, notch: 'notch' },
+  'iphone-6.5-landscape': { name: '2688 × 1242', width: 2688, height: 1242, scale: 0.32, notch: 'notch' },
   // Other common sizes
   'iphone-6.1-pro': { name: 'iPhone 15 Pro', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
   'iphone-5.4': { name: 'iPhone 13 mini', width: 1080, height: 2340, scale: 0.17, notch: 'notch' },
@@ -563,6 +563,54 @@ export default function MockupEditor() {
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Canvas */}
           <Card className="p-4">
+            {/* Layer position controls - shown when element is selected */}
+            {(selectedId || isPhoneSelected) && (
+              <div className="mb-3 flex items-center justify-end gap-2">
+                <span className="text-sm text-gray-500 flex items-center gap-1">
+                  <Stack size={16} />
+                  Position :
+                </span>
+                <Button
+                  onClick={sendToBack}
+                  variant="outline"
+                  size="sm"
+                  title="Envoyer à l'arrière"
+                  disabled={isPhoneSelected}
+                >
+                  <ArrowDown size={14} />
+                  <ArrowDown size={14} className="-ml-2" />
+                </Button>
+                <Button
+                  onClick={moveBackward}
+                  variant="outline"
+                  size="sm"
+                  title="Reculer"
+                  disabled={isPhoneSelected}
+                >
+                  <ArrowDown size={16} />
+                </Button>
+                <Button
+                  onClick={moveForward}
+                  variant="outline"
+                  size="sm"
+                  title="Avancer"
+                  disabled={isPhoneSelected}
+                >
+                  <ArrowUp size={16} />
+                </Button>
+                <Button
+                  onClick={bringToFront}
+                  variant="outline"
+                  size="sm"
+                  title="Mettre au premier plan"
+                  disabled={isPhoneSelected}
+                >
+                  <ArrowUp size={14} />
+                  <ArrowUp size={14} className="-ml-2" />
+                </Button>
+              </div>
+            )}
+
             <div
               className="mx-auto rounded-lg bg-gray-200 p-3"
               onDrop={handleDrop}
@@ -1041,50 +1089,6 @@ export default function MockupEditor() {
                       />
                     </div>
 
-                    {/* Layer ordering controls */}
-                    <div>
-                      <Label className="mb-2 flex items-center gap-2 text-sm">
-                        <Stack size={16} />
-                        Position
-                      </Label>
-                      <div className="grid grid-cols-4 gap-2">
-                        <Button
-                          onClick={sendToBack}
-                          variant="outline"
-                          size="sm"
-                          title="Envoyer à l'arrière"
-                        >
-                          <ArrowDown size={14} />
-                          <ArrowDown size={14} className="-ml-2" />
-                        </Button>
-                        <Button
-                          onClick={moveBackward}
-                          variant="outline"
-                          size="sm"
-                          title="Reculer"
-                        >
-                          <ArrowDown size={16} />
-                        </Button>
-                        <Button
-                          onClick={moveForward}
-                          variant="outline"
-                          size="sm"
-                          title="Avancer"
-                        >
-                          <ArrowUp size={16} />
-                        </Button>
-                        <Button
-                          onClick={bringToFront}
-                          variant="outline"
-                          size="sm"
-                          title="Mettre au premier plan"
-                        >
-                          <ArrowUp size={14} />
-                          <ArrowUp size={14} className="-ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-
                     <Button
                       onClick={deleteSelected}
                       variant="destructive"
@@ -1166,50 +1170,6 @@ export default function MockupEditor() {
                         max={120}
                         step={4}
                       />
-                    </div>
-
-                    {/* Layer ordering controls */}
-                    <div>
-                      <Label className="mb-2 flex items-center gap-2 text-sm">
-                        <Stack size={16} />
-                        Position
-                      </Label>
-                      <div className="grid grid-cols-4 gap-2">
-                        <Button
-                          onClick={sendToBack}
-                          variant="outline"
-                          size="sm"
-                          title="Envoyer à l'arrière"
-                        >
-                          <ArrowDown size={14} />
-                          <ArrowDown size={14} className="-ml-2" />
-                        </Button>
-                        <Button
-                          onClick={moveBackward}
-                          variant="outline"
-                          size="sm"
-                          title="Reculer"
-                        >
-                          <ArrowDown size={16} />
-                        </Button>
-                        <Button
-                          onClick={moveForward}
-                          variant="outline"
-                          size="sm"
-                          title="Avancer"
-                        >
-                          <ArrowUp size={16} />
-                        </Button>
-                        <Button
-                          onClick={bringToFront}
-                          variant="outline"
-                          size="sm"
-                          title="Mettre au premier plan"
-                        >
-                          <ArrowUp size={14} />
-                          <ArrowUp size={14} className="-ml-2" />
-                        </Button>
-                      </div>
                     </div>
 
                     <Button
