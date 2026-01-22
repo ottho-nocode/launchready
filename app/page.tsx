@@ -928,15 +928,6 @@ export default function MockupEditor() {
 
                 {/* Text & Icons Layer */}
                 <Layer>
-                  {/* Debug: show fontSize on canvas */}
-                  <Text
-                    text={`Debug fontSize: ${textElements[0]?.fontSize || 'N/A'}px`}
-                    x={10}
-                    y={10}
-                    fontSize={16}
-                    fill="#FF0000"
-                    fontStyle="bold"
-                  />
                   {/* Render text elements */}
                   {textElements.map((textEl) => (
                     <Text
@@ -1280,27 +1271,6 @@ export default function MockupEditor() {
                     </div>
 
                     <div>
-                      <Label className="mb-2 block text-sm">Police</Label>
-                      <div className="grid grid-cols-2 gap-1 max-h-24 overflow-y-auto">
-                        {FONTS.map((font) => (
-                          <button
-                            key={font.name}
-                            onClick={() => updateTextElement(selectedId!, { fontFamily: font.family })}
-                            className={cn(
-                              'rounded border px-2 py-1 text-xs transition-colors',
-                              selectedTextElement.fontFamily === font.family
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-gray-200 hover:border-gray-300'
-                            )}
-                            style={{ fontFamily: font.family }}
-                          >
-                            {font.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
                       <Label className="mb-2 block text-sm">Alignement</Label>
                       <div className="grid grid-cols-4 gap-1">
                         {TEXT_ALIGNMENTS.map((alignment) => (
@@ -1349,42 +1319,19 @@ export default function MockupEditor() {
 
                     <div>
                       <Label className="mb-2 block text-sm">
-                        Taille: <span className="font-bold text-blue-600">{selectedTextElement.fontSize}px</span>
+                        Taille: {selectedTextElement.fontSize}px
                       </Label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          value={selectedTextElement.fontSize}
-                          onChange={(e) => {
-                            const newSize = Math.max(12, Math.min(80, parseInt(e.target.value) || 12));
-                            // Direct state update to bypass any issues with updateTextElement
-                            setTextElements(prev =>
-                              prev.map(el => el.id === selectedId ? { ...el, fontSize: newSize } : el)
-                            );
-                          }}
-                          min={12}
-                          max={80}
-                          className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
-                        />
-                        <span className="text-sm text-gray-500">px</span>
-                        <input
-                          type="range"
-                          value={selectedTextElement.fontSize}
-                          onChange={(e) => {
-                            const newSize = parseInt(e.target.value);
-                            setTextElements(prev =>
-                              prev.map(el => el.id === selectedId ? { ...el, fontSize: newSize } : el)
-                            );
-                          }}
-                          min={12}
-                          max={80}
-                          step={1}
-                          className="flex-1"
-                        />
-                      </div>
-                      <div className="mt-1 text-xs text-red-500">
-                        Debug: ID={selectedId}, fontSize in state={textElements.find(e => e.id === selectedId)?.fontSize}
-                      </div>
+                      <Slider
+                        value={[selectedTextElement.fontSize]}
+                        onValueChange={(v) => {
+                          setTextElements(prev =>
+                            prev.map(el => el.id === selectedId ? { ...el, fontSize: v[0] } : el)
+                          );
+                        }}
+                        min={12}
+                        max={80}
+                        step={1}
+                      />
                     </div>
                   </div>
                 )}
