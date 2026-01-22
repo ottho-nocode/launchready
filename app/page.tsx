@@ -1238,7 +1238,11 @@ export default function MockupEditor() {
                 </Button>
 
                 {selectedTextElement && (
-                  <div className="space-y-4 border-t pt-4">
+                  <div
+                    className="space-y-4 border-t pt-4"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div>
                       <Label className="mb-2 block text-sm">Contenu</Label>
                       <textarea
@@ -1247,6 +1251,7 @@ export default function MockupEditor() {
                           setEditingText(e.target.value);
                           updateTextElement(selectedId!, { text: e.target.value });
                         }}
+                        onMouseDown={(e) => e.stopPropagation()}
                         className="w-full rounded-md border border-gray-300 p-2 text-sm"
                         rows={2}
                       />
