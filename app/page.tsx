@@ -17,7 +17,78 @@ import {
   Trash,
   Download,
   DeviceTablet,
+  Star,
+  Heart,
+  Lightning,
+  Fire,
+  Sparkle,
+  CheckCircle,
+  ArrowRight,
+  Trophy,
+  Rocket,
+  Crown,
+  Gift,
+  Bell,
+  ShieldCheck,
+  Lock,
+  Eye,
+  ThumbsUp,
+  ChatCircle,
+  Envelope,
+  Phone,
+  MapPin,
+  Clock,
+  Calendar,
+  User,
+  Users,
+  Gear,
+  MagnifyingGlass,
+  House,
+  ShoppingCart,
+  CreditCard,
+  Wallet,
+  ChartBar,
+  TrendUp,
+  Smiley,
 } from '@phosphor-icons/react';
+import { renderToString } from 'react-dom/server';
+
+// Available icons for the picker
+const AVAILABLE_ICONS = [
+  { name: 'Star', icon: Star },
+  { name: 'Heart', icon: Heart },
+  { name: 'Lightning', icon: Lightning },
+  { name: 'Fire', icon: Fire },
+  { name: 'Sparkle', icon: Sparkle },
+  { name: 'CheckCircle', icon: CheckCircle },
+  { name: 'ArrowRight', icon: ArrowRight },
+  { name: 'Trophy', icon: Trophy },
+  { name: 'Rocket', icon: Rocket },
+  { name: 'Crown', icon: Crown },
+  { name: 'Gift', icon: Gift },
+  { name: 'Bell', icon: Bell },
+  { name: 'ShieldCheck', icon: ShieldCheck },
+  { name: 'Lock', icon: Lock },
+  { name: 'Eye', icon: Eye },
+  { name: 'ThumbsUp', icon: ThumbsUp },
+  { name: 'ChatCircle', icon: ChatCircle },
+  { name: 'Envelope', icon: Envelope },
+  { name: 'Phone', icon: Phone },
+  { name: 'MapPin', icon: MapPin },
+  { name: 'Clock', icon: Clock },
+  { name: 'Calendar', icon: Calendar },
+  { name: 'User', icon: User },
+  { name: 'Users', icon: Users },
+  { name: 'Gear', icon: Gear },
+  { name: 'MagnifyingGlass', icon: MagnifyingGlass },
+  { name: 'House', icon: House },
+  { name: 'ShoppingCart', icon: ShoppingCart },
+  { name: 'CreditCard', icon: CreditCard },
+  { name: 'Wallet', icon: Wallet },
+  { name: 'ChartBar', icon: ChartBar },
+  { name: 'TrendUp', icon: TrendUp },
+  { name: 'Smiley', icon: Smiley },
+];
 
 // Device configurations - varied sizes and aspect ratios
 const DEVICES = {
@@ -70,6 +141,16 @@ interface TextElement {
   draggable: boolean;
 }
 
+interface IconElement {
+  id: string;
+  iconName: string;
+  x: number;
+  y: number;
+  size: number;
+  fill: string;
+  draggable: boolean;
+}
+
 export default function MockupEditor() {
   const stageRef = useRef<Konva.Stage>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,7 +184,10 @@ export default function MockupEditor() {
       draggable: true,
     },
   ]);
+  const [iconElements, setIconElements] = useState<IconElement[]>([]);
+  const [iconImages, setIconImages] = useState<Record<string, HTMLImageElement>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<'text' | 'icon' | null>(null);
   const [editingText, setEditingText] = useState<string>('');
 
   // Device dimensions
@@ -129,9 +213,9 @@ export default function MockupEditor() {
   const notchOffsetX = (phoneWidth - notchWidth) / 2;
   const notchOffsetY = bezelWidth;
 
-  // Update text transformer when selection changes
+  // Update transformer when selection changes (text or icon)
   useEffect(() => {
-    if (selectedId && transformerRef.current && stageRef.current) {
+    if (selectedId && selectedType && transformerRef.current && stageRef.current) {
       const node = stageRef.current.findOne(`#${selectedId}`);
       if (node) {
         transformerRef.current.nodes([node]);
@@ -141,7 +225,7 @@ export default function MockupEditor() {
       transformerRef.current.nodes([]);
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [selectedId]);
+  }, [selectedId, selectedType]);
 
   // Update phone transformer when phone is selected
   useEffect(() => {
@@ -215,7 +299,68 @@ export default function MockupEditor() {
       },
     ]);
     setSelectedId(newId);
+    setSelectedType('text');
+    setIsPhoneSelected(false);
   }, []);
+
+  // Create icon image from Phosphor icon
+  const createIconImage = useCallback((iconName: string, color: string, size: number): Promise<HTMLImageElement> => {
+    return new Promise((resolve) => {
+      const iconData = AVAILABLE_ICONS.find(i => i.name === iconName);
+      if (!iconData) return;
+
+      const IconComponent = iconData.icon;
+      const svgString = renderToString(
+        <IconComponent size={size} color={color} weight="fill" />
+      );
+
+      const img = new window.Image();
+      img.onload = () => resolve(img);
+      img.src = `data:image/svg+xml;base64,${btoa(svgString)}`;
+    });
+  }, []);
+
+  // Add new icon element
+  const addIconElement = useCallback(async (iconName: string) => {
+    const newId = `icon-${Date.now()}`;
+    const color = '#FFFFFF';
+    const size = 48;
+
+    const img = await createIconImage(iconName, color, size);
+    setIconImages(prev => ({ ...prev, [newId]: img }));
+
+    setIconElements((prev) => [
+      ...prev,
+      {
+        id: newId,
+        iconName,
+        x: CANVAS_WIDTH / 2,
+        y: 150 + prev.length * 60,
+        size,
+        fill: color,
+        draggable: true,
+      },
+    ]);
+    setSelectedId(newId);
+    setSelectedType('icon');
+    setIsPhoneSelected(false);
+  }, [createIconImage]);
+
+  // Update icon element
+  const updateIconElement = useCallback(async (id: string, updates: Partial<IconElement>) => {
+    setIconElements((prev) =>
+      prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
+    );
+
+    // Regenerate image if color or size changed
+    const element = iconElements.find(el => el.id === id);
+    if (element && (updates.fill || updates.size)) {
+      const newColor = updates.fill || element.fill;
+      const newSize = updates.size || element.size;
+      const img = await createIconImage(element.iconName, newColor, newSize);
+      setIconImages(prev => ({ ...prev, [id]: img }));
+    }
+  }, [iconElements, createIconImage]);
 
   // Update text element
   const updateTextElement = useCallback((id: string, updates: Partial<TextElement>) => {
@@ -224,13 +369,23 @@ export default function MockupEditor() {
     );
   }, []);
 
-  // Delete selected text
+  // Delete selected element (text or icon)
   const deleteSelected = useCallback(() => {
     if (selectedId) {
-      setTextElements((prev) => prev.filter((el) => el.id !== selectedId));
+      if (selectedType === 'text') {
+        setTextElements((prev) => prev.filter((el) => el.id !== selectedId));
+      } else if (selectedType === 'icon') {
+        setIconElements((prev) => prev.filter((el) => el.id !== selectedId));
+        setIconImages((prev) => {
+          const newImages = { ...prev };
+          delete newImages[selectedId];
+          return newImages;
+        });
+      }
       setSelectedId(null);
+      setSelectedType(null);
     }
-  }, [selectedId]);
+  }, [selectedId, selectedType]);
 
   // Handle text drag end
   const handleDragEnd = useCallback((e: Konva.KonvaEventObject<DragEvent>, id: string) => {
@@ -241,6 +396,7 @@ export default function MockupEditor() {
   const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     if (e.target === e.target.getStage()) {
       setSelectedId(null);
+      setSelectedType(null);
       setIsPhoneSelected(false);
     }
   }, []);
@@ -267,8 +423,9 @@ export default function MockupEditor() {
     }, 100);
   }, []);
 
-  // Get selected text element
-  const selectedElement = textElements.find((el) => el.id === selectedId);
+  // Get selected elements
+  const selectedTextElement = selectedType === 'text' ? textElements.find((el) => el.id === selectedId) : null;
+  const selectedIconElement = selectedType === 'icon' ? iconElements.find((el) => el.id === selectedId) : null;
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -449,7 +606,7 @@ export default function MockupEditor() {
                   />
                 </Layer>
 
-                {/* Text Layer */}
+                {/* Text & Icons Layer */}
                 <Layer>
                   {textElements.map((el) => (
                     <Text
@@ -468,10 +625,12 @@ export default function MockupEditor() {
                       draggable={el.draggable}
                       onClick={() => {
                         setSelectedId(el.id);
+                        setSelectedType('text');
                         setIsPhoneSelected(false);
                       }}
                       onTap={() => {
                         setSelectedId(el.id);
+                        setSelectedType('text');
                         setIsPhoneSelected(false);
                       }}
                       onDragEnd={(e) => handleDragEnd(e, el.id)}
@@ -488,10 +647,56 @@ export default function MockupEditor() {
                       }}
                     />
                   ))}
+                  {iconElements.map((el) => (
+                    iconImages[el.id] && (
+                      <KonvaImage
+                        key={el.id}
+                        id={el.id}
+                        image={iconImages[el.id]}
+                        x={el.x}
+                        y={el.y}
+                        width={el.size}
+                        height={el.size}
+                        offsetX={el.size / 2}
+                        offsetY={el.size / 2}
+                        draggable={el.draggable}
+                        onClick={() => {
+                          setSelectedId(el.id);
+                          setSelectedType('icon');
+                          setIsPhoneSelected(false);
+                        }}
+                        onTap={() => {
+                          setSelectedId(el.id);
+                          setSelectedType('icon');
+                          setIsPhoneSelected(false);
+                        }}
+                        onDragEnd={(e) => {
+                          setIconElements(prev =>
+                            prev.map(icon =>
+                              icon.id === el.id
+                                ? { ...icon, x: e.target.x(), y: e.target.y() }
+                                : icon
+                            )
+                          );
+                        }}
+                        onTransformEnd={(e) => {
+                          const node = e.target;
+                          const newSize = Math.max(16, el.size * node.scaleX());
+                          updateIconElement(el.id, {
+                            x: node.x(),
+                            y: node.y(),
+                            size: newSize,
+                          });
+                          node.scaleX(1);
+                          node.scaleY(1);
+                        }}
+                      />
+                    )
+                  ))}
                   <Transformer
                     ref={transformerRef}
                     boundBoxFunc={(oldBox, newBox) => {
-                      if (newBox.width < 50 || newBox.height < 20) {
+                      if (newBox.width < 20 || newBox.height < 20) {
                         return oldBox;
                       }
                       return newBox;
@@ -646,7 +851,7 @@ export default function MockupEditor() {
                 Ajouter du texte
               </Button>
 
-              {selectedElement && (
+              {selectedTextElement && (
                 <div className="space-y-4 border-t pt-4">
                   <div>
                     <Label className="mb-2 block text-sm">Contenu</Label>
@@ -670,7 +875,7 @@ export default function MockupEditor() {
                           onClick={() => updateTextElement(selectedId!, { fill: color })}
                           className={cn(
                             'h-8 w-8 rounded border-2',
-                            selectedElement.fill === color
+                            selectedTextElement.fill === color
                               ? 'border-black scale-110'
                               : 'border-gray-300'
                           )}
@@ -679,7 +884,7 @@ export default function MockupEditor() {
                       ))}
                       <input
                         type="color"
-                        value={selectedElement.fill}
+                        value={selectedTextElement.fill}
                         onChange={(e) =>
                           updateTextElement(selectedId!, { fill: e.target.value })
                         }
@@ -690,10 +895,10 @@ export default function MockupEditor() {
 
                   <div>
                     <Label className="mb-2 block text-sm">
-                      Taille: {selectedElement.fontSize}px
+                      Taille: {selectedTextElement.fontSize}px
                     </Label>
                     <Slider
-                      value={[selectedElement.fontSize]}
+                      value={[selectedTextElement.fontSize]}
                       onValueChange={(v) =>
                         updateTextElement(selectedId!, { fontSize: v[0] })
                       }
@@ -716,6 +921,88 @@ export default function MockupEditor() {
 
               <p className="mt-3 text-xs text-gray-500">
                 Cliquez sur un texte pour le sélectionner • Glissez pour déplacer
+              </p>
+            </Card>
+
+            {/* Icons */}
+            <Card className="p-4">
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <Star size={18} weight="duotone" />
+                Icônes
+              </Label>
+              <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto mb-3">
+                {AVAILABLE_ICONS.map((iconData) => {
+                  const IconComp = iconData.icon;
+                  return (
+                    <button
+                      key={iconData.name}
+                      onClick={() => addIconElement(iconData.name)}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                      title={iconData.name}
+                    >
+                      <IconComp size={20} weight="fill" />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedIconElement && (
+                <div className="space-y-4 border-t pt-4">
+                  <div>
+                    <Label className="mb-2 block text-sm">Couleur</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {TEXT_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => updateIconElement(selectedId!, { fill: color })}
+                          className={cn(
+                            'h-8 w-8 rounded border-2',
+                            selectedIconElement.fill === color
+                              ? 'border-black scale-110'
+                              : 'border-gray-300'
+                          )}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        value={selectedIconElement.fill}
+                        onChange={(e) =>
+                          updateIconElement(selectedId!, { fill: e.target.value })
+                        }
+                        className="h-8 w-8 cursor-pointer rounded"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block text-sm">
+                      Taille: {selectedIconElement.size}px
+                    </Label>
+                    <Slider
+                      value={[selectedIconElement.size]}
+                      onValueChange={(v) =>
+                        updateIconElement(selectedId!, { size: v[0] })
+                      }
+                      min={16}
+                      max={120}
+                      step={4}
+                    />
+                  </div>
+
+                  <Button
+                    onClick={deleteSelected}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    <Trash size={16} className="mr-2" />
+                    Supprimer
+                  </Button>
+                </div>
+              )}
+
+              <p className="mt-3 text-xs text-gray-500">
+                Cliquez sur une icône pour l'ajouter au canvas
               </p>
             </Card>
           </div>
