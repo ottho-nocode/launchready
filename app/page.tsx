@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import dynamic from 'next/dynamic';
 
 // Preset background colors
 const BACKGROUND_COLORS = [
@@ -30,27 +29,6 @@ const TEXT_COLORS = [
   '#DC2626',
   '#16A34A',
 ];
-
-// Phone SVG as data URL (iPhone style frame)
-const createPhoneSVG = (width: number, height: number) => {
-  const svg = `
-    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-      <!-- Outer frame -->
-      <rect x="0" y="0" width="${width}" height="${height}" rx="50" fill="#1a1a1a"/>
-      <!-- Bezel -->
-      <rect x="6" y="6" width="${width - 12}" height="${height - 12}" rx="46" fill="#2d2d2d"/>
-      <!-- Screen area (will be transparent) -->
-      <rect x="14" y="14" width="${width - 28}" height="${height - 28}" rx="40" fill="#000"/>
-      <!-- Notch -->
-      <rect x="${(width - width * 0.35) / 2}" y="14" width="${width * 0.35}" height="34" rx="17" fill="#1a1a1a"/>
-      <!-- Camera -->
-      <circle cx="${(width - width * 0.35) / 2 + width * 0.35 - 22}" cy="31" r="8" fill="#0d2137"/>
-      <!-- Speaker -->
-      <rect x="${(width - 60) / 2}" y="22" width="60" height="6" rx="3" fill="#0d2137"/>
-    </svg>
-  `;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-};
 
 export default function MockupEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -128,7 +106,8 @@ export default function MockupEditor() {
     const handleKeyDown = (e: KeyboardEvent) => {
       const active = canvas.getActiveObject();
       if (!active) return;
-      const isEditing = active.isEditing;
+      // Check if text is being edited (only IText has isEditing)
+      const isEditing = 'isEditing' in active && (active as any).isEditing;
       if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing) {
         canvas.remove(active);
         canvas.discardActiveObject();
@@ -161,21 +140,104 @@ export default function MockupEditor() {
     }
   };
 
-  // Add phone frame using SVG image
-  const addPhoneFrame = async (canvas: any, fabricModule: any) => {
-    const phoneSvgUrl = createPhoneSVG(PHONE_WIDTH, PHONE_HEIGHT);
+  // Add phone frame using Fabric shapes grouped together
+  const addPhoneFrame = (canvas: any, fabricModule: any) => {
+    const cornerRadius = 50;
+    const bezelWidth = 6;
+    const screenPadding = 14;
 
-    fabricModule.Image.fromURL(phoneSvgUrl).then((phoneImg: any) => {
-      phoneImg.set({
+    // Outer frame (dark gray)
+    const outerFrame = new fabricModule.Rect({
+      left: 0,
+      top: 0,
+      width: PHONE_WIDTH,
+      height: PHONE_HEIGHT,
+      rx: cornerRadius,
+      ry: cornerRadius,
+      fill: '#1a1a1a',
+      selectable: false,
+      evented: false,
+    });
+
+    // Bezel (slightly lighter)
+    const bezel = new fabricModule.Rect({
+      left: bezelWidth,
+      top: bezelWidth,
+      width: PHONE_WIDTH - bezelWidth * 2,
+      height: PHONE_HEIGHT - bezelWidth * 2,
+      rx: cornerRadius - bezelWidth,
+      ry: cornerRadius - bezelWidth,
+      fill: '#2d2d2d',
+      selectable: false,
+      evented: false,
+    });
+
+    // Screen (black)
+    const screen = new fabricModule.Rect({
+      left: screenPadding,
+      top: screenPadding,
+      width: PHONE_WIDTH - screenPadding * 2,
+      height: PHONE_HEIGHT - screenPadding * 2,
+      rx: cornerRadius - screenPadding,
+      ry: cornerRadius - screenPadding,
+      fill: '#000000',
+      selectable: false,
+      evented: false,
+    });
+
+    // Notch
+    const notchWidth = PHONE_WIDTH * 0.35;
+    const notchHeight = 34;
+    const notchX = (PHONE_WIDTH - notchWidth) / 2;
+    const notch = new fabricModule.Rect({
+      left: notchX,
+      top: screenPadding,
+      width: notchWidth,
+      height: notchHeight,
+      rx: 17,
+      ry: 17,
+      fill: '#1a1a1a',
+      selectable: false,
+      evented: false,
+    });
+
+    // Camera
+    const camera = new fabricModule.Circle({
+      left: notchX + notchWidth - 35,
+      top: screenPadding + notchHeight / 2 - 8,
+      radius: 8,
+      fill: '#0d2137',
+      selectable: false,
+      evented: false,
+    });
+
+    // Speaker
+    const speaker = new fabricModule.Rect({
+      left: (PHONE_WIDTH - 60) / 2,
+      top: screenPadding + 8,
+      width: 60,
+      height: 6,
+      rx: 3,
+      ry: 3,
+      fill: '#0d2137',
+      selectable: false,
+      evented: false,
+    });
+
+    // Group all phone elements
+    const phoneGroup = new fabricModule.Group(
+      [outerFrame, bezel, screen, notch, camera, speaker],
+      {
         left: PHONE_X,
         top: PHONE_Y,
         selectable: false,
         evented: false,
         name: 'phoneFrame',
-      });
-      canvas.add(phoneImg);
-      canvas.renderAll();
-    });
+      }
+    );
+
+    canvas.add(phoneGroup);
+    canvas.renderAll();
   };
 
   // Add text
@@ -210,8 +272,13 @@ export default function MockupEditor() {
         const canvas = fabricRef.current;
 
         // Remove existing screenshot
-        const existing = canvas.getObjects().find((obj: any) => obj.name === 'screenshot');
-        if (existing) canvas.remove(existing);
+        const objects = canvas.getObjects();
+        for (const obj of objects) {
+          if ((obj as any).name === 'screenshot') {
+            canvas.remove(obj);
+            break;
+          }
+        }
 
         // Scale to fit screen area
         const scaleX = SCREEN_WIDTH / img.width;
@@ -241,11 +308,10 @@ export default function MockupEditor() {
           absolutePositioned: true,
         });
 
-        // Add behind phone frame
-        const phoneFrame = canvas.getObjects().find((obj: any) => obj.name === 'phoneFrame');
-        if (phoneFrame) {
-          const phoneIndex = canvas.getObjects().indexOf(phoneFrame);
-          canvas.insertAt(phoneIndex, img);
+        // Find phone frame and insert screenshot before it (behind)
+        const phoneFrameIndex = objects.findIndex((obj: any) => (obj as any).name === 'phoneFrame');
+        if (phoneFrameIndex >= 0) {
+          canvas.insertAt(phoneFrameIndex, img);
         } else {
           canvas.add(img);
         }
