@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/app-store';
 import { ScreenshotThumbnail } from './screenshot-thumbnail';
 
 export function ScreenshotGrid() {
-  const { screenshots, removeScreenshot } = useAppStore();
+  const { screenshots, removeScreenshot, updateScreenshotDevice } = useAppStore();
 
   if (screenshots.length === 0) {
     return null;
@@ -17,6 +17,9 @@ export function ScreenshotGrid() {
           key={screenshot.id}
           screenshot={screenshot}
           onRemove={() => removeScreenshot(screenshot.id)}
+          onDeviceChange={(deviceType) =>
+            updateScreenshotDevice(screenshot.id, deviceType)
+          }
         />
       ))}
     </div>

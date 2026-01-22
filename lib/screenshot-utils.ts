@@ -1,12 +1,20 @@
 import type { DeviceType, Screenshot } from '@/types/app';
 
+// Official App Store Connect screenshot dimensions
 const DEVICE_DIMENSIONS: Record<DeviceType, { width: number; height: number }> = {
-  'iphone-6.7': { width: 1290, height: 2796 },
-  'iphone-6.5': { width: 1284, height: 2778 },
-  'iphone-5.5': { width: 1242, height: 2208 },
-  'ipad-12.9': { width: 2048, height: 2732 },
+  'iphone-6.7': { width: 1290, height: 2796 }, // iPhone 14 Pro Max, 15 Pro Max
+  'iphone-6.5': { width: 1242, height: 2688 }, // iPhone 11 Pro Max, XS Max
+  'iphone-5.5': { width: 1242, height: 2208 }, // iPhone 8 Plus, 7 Plus, 6s Plus
+  'ipad-12.9': { width: 2048, height: 2732 },  // iPad Pro 12.9"
   unknown: { width: 0, height: 0 },
 };
+
+export const DEVICE_OPTIONS: { value: DeviceType; label: string }[] = [
+  { value: 'iphone-6.7', label: 'iPhone 6.7"' },
+  { value: 'iphone-6.5', label: 'iPhone 6.5"' },
+  { value: 'iphone-5.5', label: 'iPhone 5.5"' },
+  { value: 'ipad-12.9', label: 'iPad 12.9"' },
+];
 
 export function detectDeviceType(width: number, height: number): DeviceType {
   // Normalize to portrait orientation

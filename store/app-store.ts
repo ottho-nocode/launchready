@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type {
   AppStep,
   DeviceColor,
+  DeviceType,
   ExportOptions,
   GeneratedTexts,
   Language,
@@ -42,6 +43,7 @@ interface AppState {
   removeScreenshot: (id: string) => void;
   reorderScreenshots: (fromIndex: number, toIndex: number) => void;
   updateScreenshotMockup: (id: string, mockupUrl: string) => void;
+  updateScreenshotDevice: (id: string, deviceType: DeviceType) => void;
 
   // Actions - Generated texts
   setGeneratedTexts: (texts: GeneratedTexts) => void;
@@ -126,6 +128,13 @@ export const useAppStore = create<AppState>((set) => ({
     set((state) => ({
       screenshots: state.screenshots.map((s) =>
         s.id === id ? { ...s, mockupUrl } : s
+      ),
+    })),
+
+  updateScreenshotDevice: (id, deviceType) =>
+    set((state) => ({
+      screenshots: state.screenshots.map((s) =>
+        s.id === id ? { ...s, deviceType } : s
       ),
     })),
 
