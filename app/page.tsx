@@ -95,20 +95,26 @@ const AVAILABLE_ICONS = [
   { name: 'Smiley', icon: Smiley },
 ];
 
-// Device configurations - App Store required sizes
+// Export formats - App Store required image sizes
+const EXPORT_FORMATS = {
+  '1242x2688': { name: '1242 × 2688', width: 1242, height: 2688 },
+  '2688x1242': { name: '2688 × 1242', width: 2688, height: 1242 },
+  '1284x2778': { name: '1284 × 2778', width: 1284, height: 2778 },
+  '2778x1284': { name: '2778 × 1284', width: 2778, height: 1284 },
+};
+
+type ExportFormat = keyof typeof EXPORT_FORMATS;
+
+// Device configurations - phone models
 const DEVICES = {
-  // App Store Required - iPhone 6.7"
-  'iphone-6.7-portrait': { name: '1284 × 2778', width: 1284, height: 2778, scale: 0.144, notch: 'dynamic-island' },
-  'iphone-6.7-landscape': { name: '2778 × 1284', width: 2778, height: 1284, scale: 0.31, notch: 'dynamic-island' },
-  // App Store Required - iPhone 6.5"
-  'iphone-6.5-portrait': { name: '1242 × 2688', width: 1242, height: 2688, scale: 0.149, notch: 'notch' },
-  'iphone-6.5-landscape': { name: '2688 × 1242', width: 2688, height: 1242, scale: 0.32, notch: 'notch' },
-  // Other common sizes
-  'iphone-6.1-pro': { name: 'iPhone 15 Pro', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
-  'iphone-5.4': { name: 'iPhone 13 mini', width: 1080, height: 2340, scale: 0.17, notch: 'notch' },
+  'iphone-15-pro-max': { name: 'iPhone 15 Pro Max', width: 1290, height: 2796, scale: 0.14, notch: 'dynamic-island' },
+  'iphone-15-pro': { name: 'iPhone 15 Pro', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
+  'iphone-15': { name: 'iPhone 15', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
+  'iphone-14': { name: 'iPhone 14', width: 1170, height: 2532, scale: 0.157, notch: 'notch' },
+  'iphone-13-mini': { name: 'iPhone 13 mini', width: 1080, height: 2340, scale: 0.17, notch: 'notch' },
   'iphone-se': { name: 'iPhone SE', width: 750, height: 1334, scale: 0.28, notch: 'none' },
-  'ipad-12.9': { name: 'iPad Pro 12.9"', width: 2048, height: 2732, scale: 0.14, notch: 'none' },
-  'ipad-11': { name: 'iPad Pro 11"', width: 1668, height: 2388, scale: 0.16, notch: 'none' },
+  'ipad-pro-12.9': { name: 'iPad Pro 12.9"', width: 2048, height: 2732, scale: 0.14, notch: 'none' },
+  'ipad-pro-11': { name: 'iPad Pro 11"', width: 1668, height: 2388, scale: 0.16, notch: 'none' },
 };
 
 type DeviceType = keyof typeof DEVICES;
@@ -199,13 +205,16 @@ export default function MockupEditor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
 
-  // Canvas dimensions
-  const CANVAS_WIDTH = 400;
-  const CANVAS_HEIGHT = 800;
-  const EXPORT_MULTIPLIER = 3.1;
-
   // State
-  const [device, setDevice] = useState<DeviceType>('iphone-6.7-portrait');
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('1242x2688');
+  const [device, setDevice] = useState<DeviceType>('iphone-15-pro-max');
+
+  // Canvas dimensions based on export format (preview scale)
+  const exportConfig = EXPORT_FORMATS[exportFormat];
+  const isLandscape = exportConfig.width > exportConfig.height;
+  const PREVIEW_SCALE = isLandscape ? 0.3 : 0.3;
+  const CANVAS_WIDTH = Math.round(exportConfig.width * PREVIEW_SCALE);
+  const CANVAS_HEIGHT = Math.round(exportConfig.height * PREVIEW_SCALE);
   const [background, setBackground] = useState(BACKGROUNDS[0]);
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
@@ -520,27 +529,31 @@ export default function MockupEditor() {
     }
   }, []);
 
-  // Export PNG
+  // Export PNG at exact App Store dimensions
   const exportMockup = useCallback(() => {
     if (!stageRef.current) return;
 
     // Deselect before export
     setSelectedId(null);
+    setIsPhoneSelected(false);
 
     setTimeout(() => {
+      // Calculate pixel ratio to get exact export dimensions
+      const pixelRatio = exportConfig.width / CANVAS_WIDTH;
+
       const uri = stageRef.current?.toDataURL({
-        pixelRatio: EXPORT_MULTIPLIER,
+        pixelRatio,
         mimeType: 'image/png',
       });
 
       if (uri) {
         const link = document.createElement('a');
-        link.download = `mockup-${Date.now()}.png`;
+        link.download = `mockup-${exportConfig.width}x${exportConfig.height}-${Date.now()}.png`;
         link.href = uri;
         link.click();
       }
     }, 100);
-  }, []);
+  }, [exportConfig, CANVAS_WIDTH]);
 
   // Get selected elements
   const selectedTextElement = selectedType === 'text' ? textElements.find((el) => el.id === selectedId) : null;
@@ -895,11 +908,34 @@ export default function MockupEditor() {
 
           {/* Controls */}
           <div className="space-y-4">
+            {/* Export Format Selection */}
+            <CollapsibleCard
+              title="Format d'export"
+              icon={<Download size={18} weight="duotone" />}
+              defaultOpen={true}
+            >
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                {Object.entries(EXPORT_FORMATS).map(([key, config]) => (
+                  <button
+                    key={key}
+                    onClick={() => setExportFormat(key as ExportFormat)}
+                    className={cn(
+                      'rounded-lg border-2 px-3 py-2 text-center text-sm font-medium transition-colors',
+                      exportFormat === key
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    )}
+                  >
+                    {config.name}
+                  </button>
+                ))}
+              </div>
+            </CollapsibleCard>
+
             {/* Device Selection */}
             <CollapsibleCard
               title="Device"
               icon={<DeviceMobile size={18} weight="duotone" />}
-              defaultOpen={true}
             >
               <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto mt-3">
                 {Object.entries(DEVICES).map(([key, config]) => (
