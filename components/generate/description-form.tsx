@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,14 +13,14 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppStore } from '@/store/app-store';
-import type { Language } from '@/types/app';
+import type { GeneratedTexts, Language } from '@/types/app';
 
 const MIN_CHARS = 50;
 
 const LANGUAGES: { value: Language; label: string }[] = [
-  { value: 'fr', label: 'Fran\u00e7ais' },
+  { value: 'fr', label: 'Français' },
   { value: 'en', label: 'English' },
-  { value: 'es', label: 'Espa\u00f1ol' },
+  { value: 'es', label: 'Español' },
   { value: 'de', label: 'Deutsch' },
 ];
 
@@ -30,16 +31,43 @@ export function DescriptionForm() {
     isGeneratingTexts,
     setAppDescription,
     setLanguage,
+    setIsGeneratingTexts,
+    setGeneratedTexts,
+    setCurrentStep,
   } = useAppStore();
+
+  const [error, setError] = useState<string | null>(null);
 
   const charCount = appDescription.length;
   const isValid = charCount >= MIN_CHARS;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
-    // TODO: Trigger text generation (will be implemented in STORY-2.2)
-    console.log('Generate texts for:', { appDescription, language });
+    if (!isValid || isGeneratingTexts) return;
+
+    setError(null);
+    setIsGeneratingTexts(true);
+
+    try {
+      const response = await fetch('/api/generate-texts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: appDescription, language }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to generate texts');
+      }
+
+      const texts: GeneratedTexts = await response.json();
+      setGeneratedTexts(texts);
+      setCurrentStep('customize');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsGeneratingTexts(false);
+    }
   };
 
   return (
@@ -92,10 +120,13 @@ export function DescriptionForm() {
           </div>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className="flex-col items-stretch gap-4 sm:flex-row sm:items-center">
           <Button type="submit" disabled={!isValid || isGeneratingTexts} className="w-full sm:w-auto">
             {isGeneratingTexts ? 'Generating...' : 'Generate Texts'}
           </Button>
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
         </CardFooter>
       </form>
     </Card>
