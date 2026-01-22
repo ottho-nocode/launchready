@@ -1,6 +1,8 @@
 import sharp from 'sharp';
+import path from 'path';
 import type { DeviceColor, DeviceType, MockupTemplate } from '@/types/app';
 import { getDeviceColors, getDeviceFrame } from './device-frames';
+import { getTemplateConfig, hasImageTemplate } from './template-config';
 
 export interface MockupOptions {
   deviceType: DeviceType;
@@ -69,11 +71,18 @@ export async function generateMockup(
 
 /**
  * Template: Frame - Device frame with screenshot inside
+ * Uses image template if available, otherwise generates programmatically
  */
 async function renderFrameTemplate(
   screenshotBuffer: Buffer,
   options: MockupOptions
 ): Promise<Buffer> {
+  // Check if we have an image template for this device
+  if (hasImageTemplate(options.deviceType)) {
+    return renderImageTemplate(screenshotBuffer, options);
+  }
+
+  // Fallback to programmatic generation
   const frame = getDeviceFrame(options.deviceType)!;
   const colors = getDeviceColors(options.deviceColor);
 
@@ -119,6 +128,125 @@ async function renderFrameTemplate(
     ])
     .png()
     .toBuffer();
+}
+
+/**
+ * Template: Image-based - Uses a pre-made template image
+ */
+async function renderImageTemplate(
+  screenshotBuffer: Buffer,
+  options: MockupOptions
+): Promise<Buffer> {
+  const config = getTemplateConfig(options.deviceType)!;
+
+  // Load the template image
+  const templatePath = path.join(process.cwd(), 'public', config.imagePath);
+  const templateBuffer = await sharp(templatePath).png().toBuffer();
+
+  // Resize screenshot to fit the screen area
+  const resizedScreenshot = await sharp(screenshotBuffer)
+    .resize(config.screen.width, config.screen.height, {
+      fit: 'cover',
+      position: 'top',
+    })
+    .png()
+    .toBuffer();
+
+  // Create text overlay SVG if headline provided
+  const composites: sharp.OverlayOptions[] = [
+    {
+      input: resizedScreenshot,
+      top: config.screen.y,
+      left: config.screen.x,
+    },
+  ];
+
+  // Add headline text if provided
+  if (options.headline) {
+    const textSvg = createImageTemplateTextSvg(
+      config.width,
+      config.text,
+      options.headline,
+      options.fontFamily
+    );
+    composites.push({
+      input: Buffer.from(textSvg),
+      top: 0,
+      left: 0,
+    });
+  }
+
+  // Composite: template + screenshot + text
+  return sharp(templateBuffer)
+    .composite(composites)
+    .png()
+    .toBuffer();
+}
+
+/**
+ * Create text SVG for image template
+ */
+function createImageTemplateTextSvg(
+  width: number,
+  textConfig: {
+    x: number;
+    y: number;
+    maxWidth: number;
+    fontSize: number;
+    lineHeight: number;
+    color: string;
+    fontWeight: string;
+  },
+  headline: string,
+  fontFamily?: string
+): string {
+  // Split headline into lines
+  const words = headline.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    // Rough estimate: 0.6 chars per fontSize unit
+    const estimatedWidth = testLine.length * textConfig.fontSize * 0.5;
+
+    if (estimatedWidth <= textConfig.maxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+
+  // Escape special characters
+  const escapedLines = lines.map(line =>
+    line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+  );
+
+  // Create text elements
+  const textElements = escapedLines
+    .map((line, i) =>
+      `<text x="${textConfig.x}" y="${textConfig.y + i * textConfig.lineHeight}"
+            font-family="'${fontFamily || 'Inter'}', 'SF Pro Display', system-ui, sans-serif"
+            font-size="${textConfig.fontSize}"
+            font-weight="${textConfig.fontWeight}"
+            fill="${textConfig.color}"
+            text-anchor="middle"
+            dominant-baseline="middle">${line}</text>`
+    )
+    .join('\n  ');
+
+  return `
+<svg width="${width}" height="${textConfig.y + lines.length * textConfig.lineHeight + 100}" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+  </style>
+  ${textElements}
+</svg>`;
 }
 
 /**
