@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppStore } from '@/store/app-store';
@@ -58,7 +59,6 @@ export function GeneratedTextsDisplay() {
     language,
     updateText,
     clearGeneratedTexts,
-    setCurrentStep,
   } = useAppStore();
 
   const [regeneratingField, setRegeneratingField] = useState<keyof GeneratedTexts | null>(null);
@@ -97,11 +97,6 @@ export function GeneratedTextsDisplay() {
 
   const handleBack = () => {
     clearGeneratedTexts();
-    setCurrentStep('input');
-  };
-
-  const handleContinue = () => {
-    setCurrentStep('preview');
   };
 
   return (
@@ -128,7 +123,9 @@ export function GeneratedTextsDisplay() {
         <Button variant="outline" onClick={handleBack}>
           Start Over
         </Button>
-        <Button onClick={handleContinue}>Continue to Preview</Button>
+        <Button asChild>
+          <Link href="/screenshots">Continue to Screenshots</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
