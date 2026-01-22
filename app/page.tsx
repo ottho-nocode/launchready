@@ -147,6 +147,27 @@ const BACKGROUNDS = [
 
 const TEXT_COLORS = ['#FFFFFF', '#FEF3C7', '#000000', '#2563EB', '#DC2626', '#16A34A'];
 
+// Google Fonts available for text
+const FONTS = [
+  { name: 'Inter', family: 'var(--font-inter), Inter, sans-serif' },
+  { name: 'Poppins', family: 'var(--font-poppins), Poppins, sans-serif' },
+  { name: 'Roboto', family: 'var(--font-roboto), Roboto, sans-serif' },
+  { name: 'Montserrat', family: 'var(--font-montserrat), Montserrat, sans-serif' },
+  { name: 'Open Sans', family: 'var(--font-open-sans), Open Sans, sans-serif' },
+  { name: 'Playfair', family: 'var(--font-playfair), Playfair Display, serif' },
+  { name: 'Lato', family: 'var(--font-lato), Lato, sans-serif' },
+  { name: 'Oswald', family: 'var(--font-oswald), Oswald, sans-serif' },
+  { name: 'Raleway', family: 'var(--font-raleway), Raleway, sans-serif' },
+  { name: 'Ubuntu', family: 'var(--font-ubuntu), Ubuntu, sans-serif' },
+];
+
+const TEXT_ALIGNMENTS = [
+  { value: 'left', label: 'Gauche' },
+  { value: 'center', label: 'Centre' },
+  { value: 'right', label: 'Droite' },
+  { value: 'justify', label: 'Justifié' },
+];
+
 interface TextElement {
   id: string;
   text: string;
@@ -154,6 +175,7 @@ interface TextElement {
   y: number;
   fontSize: number;
   fill: string;
+  fontFamily: string;
   fontStyle: string;
   align: string;
   width: number;
@@ -241,6 +263,7 @@ export default function MockupEditor() {
       y: 50,
       fontSize: 32,
       fill: '#FFFFFF',
+      fontFamily: FONTS[0].family,
       fontStyle: 'bold',
       align: 'center',
       width: 350,
@@ -350,31 +373,6 @@ export default function MockupEditor() {
     }
   }, []);
 
-  // Add new text element
-  const addTextElement = useCallback(() => {
-    const newId = `text-${Date.now()}`;
-    setTextElements((prev) => [
-      ...prev,
-      {
-        id: newId,
-        text: 'Nouveau texte',
-        x: CANVAS_WIDTH / 2,
-        y: 120 + prev.length * 50,
-        fontSize: 24,
-        fill: '#FFFFFF',
-        fontStyle: 'bold',
-        align: 'center',
-        width: 300,
-        draggable: true,
-        zIndex: nextZIndex,
-      },
-    ]);
-    setNextZIndex(prev => prev + 1);
-    setSelectedId(newId);
-    setSelectedType('text');
-    setIsPhoneSelected(false);
-  }, [nextZIndex]);
-
   // Save state to history
   const saveToHistory = useCallback(() => {
     if (isUndoingRef.current) return;
@@ -393,6 +391,33 @@ export default function MockupEditor() {
     });
     setHistoryIndex(prev => Math.min(prev + 1, 49));
   }, [textElements, iconElements, historyIndex]);
+
+  // Add new text element
+  const addTextElement = useCallback(() => {
+    saveToHistory();
+    const newId = `text-${Date.now()}`;
+    setTextElements((prev) => [
+      ...prev,
+      {
+        id: newId,
+        text: 'Nouveau texte',
+        x: CANVAS_WIDTH / 2,
+        y: 120 + prev.length * 50,
+        fontSize: 24,
+        fill: '#FFFFFF',
+        fontFamily: FONTS[0].family,
+        fontStyle: 'bold',
+        align: 'center',
+        width: 300,
+        draggable: true,
+        zIndex: nextZIndex,
+      },
+    ]);
+    setNextZIndex(prev => prev + 1);
+    setSelectedId(newId);
+    setSelectedType('text');
+    setIsPhoneSelected(false);
+  }, [nextZIndex, saveToHistory]);
 
   // Undo
   const undo = useCallback(() => {
@@ -679,7 +704,7 @@ export default function MockupEditor() {
                 </Button>
               </div>
 
-              {/* Layer position controls - shown when element is selected */}
+              {/* Layer position controls and delete - shown when element is selected */}
               {selectedId && selectedType && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500 flex items-center gap-1">
@@ -719,6 +744,15 @@ export default function MockupEditor() {
                   >
                     <ArrowUp size={14} />
                     <ArrowUp size={14} className="-ml-2" />
+                  </Button>
+                  <div className="w-px h-6 bg-gray-300 mx-1" />
+                  <Button
+                    onClick={deleteSelected}
+                    variant="destructive"
+                    size="sm"
+                    title="Supprimer"
+                  >
+                    <Trash size={16} />
                   </Button>
                 </div>
               )}
@@ -907,7 +941,7 @@ export default function MockupEditor() {
                           fontSize={textEl.fontSize}
                           fill={textEl.fill}
                           fontStyle={textEl.fontStyle}
-                          fontFamily="Inter, system-ui, sans-serif"
+                          fontFamily={textEl.fontFamily}
                           align={textEl.align}
                           width={textEl.width}
                           offsetX={textEl.width / 2}
@@ -928,8 +962,8 @@ export default function MockupEditor() {
                             updateTextElement(textEl.id, {
                               x: node.x(),
                               y: node.y(),
-                              width: Math.max(50, node.width() * node.scaleX()),
-                              fontSize: Math.max(12, textEl.fontSize * node.scaleY()),
+                              width: Math.round(Math.max(50, node.width() * node.scaleX())),
+                              fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
                             });
                             node.scaleX(1);
                             node.scaleY(1);
@@ -1240,6 +1274,47 @@ export default function MockupEditor() {
                     </div>
 
                     <div>
+                      <Label className="mb-2 block text-sm">Police</Label>
+                      <div className="grid grid-cols-2 gap-1 max-h-24 overflow-y-auto">
+                        {FONTS.map((font) => (
+                          <button
+                            key={font.name}
+                            onClick={() => updateTextElement(selectedId!, { fontFamily: font.family })}
+                            className={cn(
+                              'rounded border px-2 py-1 text-xs transition-colors',
+                              selectedTextElement.fontFamily === font.family
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-200 hover:border-gray-300'
+                            )}
+                            style={{ fontFamily: font.family }}
+                          >
+                            {font.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">Alignement</Label>
+                      <div className="grid grid-cols-4 gap-1">
+                        {TEXT_ALIGNMENTS.map((alignment) => (
+                          <button
+                            key={alignment.value}
+                            onClick={() => updateTextElement(selectedId!, { align: alignment.value })}
+                            className={cn(
+                              'rounded border px-2 py-1.5 text-xs transition-colors',
+                              selectedTextElement.align === alignment.value
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-200 hover:border-gray-300'
+                            )}
+                          >
+                            {alignment.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
                       <Label className="mb-2 block text-sm">Couleur</Label>
                       <div className="flex flex-wrap gap-2">
                         {TEXT_COLORS.map((color) => (
@@ -1268,27 +1343,18 @@ export default function MockupEditor() {
 
                     <div>
                       <Label className="mb-2 block text-sm">
-                        Taille: {selectedTextElement.fontSize}px
+                        Taille: {Math.round(selectedTextElement.fontSize)}px
                       </Label>
                       <Slider
                         value={[selectedTextElement.fontSize]}
                         onValueChange={(v) =>
-                          updateTextElement(selectedId!, { fontSize: v[0] })
+                          updateTextElement(selectedId!, { fontSize: Math.round(v[0]) })
                         }
                         min={12}
-                        max={60}
+                        max={80}
                         step={1}
                       />
                     </div>
-
-                    <Button
-                      onClick={deleteSelected}
-                      variant="destructive"
-                      className="w-full"
-                    >
-                      <Trash size={16} className="mr-2" />
-                      Supprimer
-                    </Button>
                   </div>
                 )}
 
@@ -1351,12 +1417,12 @@ export default function MockupEditor() {
 
                     <div>
                       <Label className="mb-2 block text-sm">
-                        Taille: {selectedIconElement.size}px
+                        Taille: {Math.round(selectedIconElement.size)}px
                       </Label>
                       <Slider
                         value={[selectedIconElement.size]}
                         onValueChange={(v) =>
-                          updateIconElement(selectedId!, { size: v[0] })
+                          updateIconElement(selectedId!, { size: Math.round(v[0]) })
                         }
                         min={16}
                         max={120}
@@ -1398,15 +1464,6 @@ export default function MockupEditor() {
                         ))}
                       </div>
                     </div>
-
-                    <Button
-                      onClick={deleteSelected}
-                      variant="destructive"
-                      className="w-full"
-                    >
-                      <Trash size={16} className="mr-2" />
-                      Supprimer
-                    </Button>
                   </div>
                 )}
 
