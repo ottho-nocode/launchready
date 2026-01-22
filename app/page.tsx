@@ -3,9 +3,18 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import {
+  Trash,
+  Plus,
+  TextT,
+  Download,
+  Image as ImageIcon,
+  Palette,
+  Eye,
+} from '@phosphor-icons/react';
 import * as fabric from 'fabric';
 
 // Preset background colors
@@ -21,31 +30,39 @@ const BACKGROUND_COLORS = [
   '#F5F5F4', // Light gray
 ];
 
+// Text colors
+const TEXT_COLORS = [
+  '#FFFFFF', // White
+  '#FEF3C7', // Cream
+  '#000000', // Black
+  '#2563EB', // Blue
+  '#DC2626', // Red
+  '#16A34A', // Green
+];
+
 export default function MockupEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
-  const phoneGroupRef = useRef<fabric.Group | null>(null);
-  const screenshotRef = useRef<fabric.Image | null>(null);
-  const textRef = useRef<fabric.IText | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [backgroundColor, setBackgroundColor] = useState('#2563EB');
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
+  const [textColor, setTextColor] = useState('#FFFFFF');
+  const [textOpacity, setTextOpacity] = useState(100);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Canvas dimensions (iPhone 6.5" aspect ratio)
+  // Canvas dimensions (iPhone 6.5" aspect ratio scaled down for display)
   const CANVAS_WIDTH = 414;
   const CANVAS_HEIGHT = 896;
   const EXPORT_SCALE = 3; // Export at 1242x2688
 
-  // Phone dimensions relative to canvas
-  const PHONE_WIDTH = CANVAS_WIDTH * 0.85;
-  const PHONE_HEIGHT = CANVAS_HEIGHT * 0.78;
-  const PHONE_X = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
-  const PHONE_Y = CANVAS_HEIGHT * 0.20;
-  const PHONE_RADIUS = 35;
-  const PHONE_BEZEL = 8;
+  // Phone dimensions
+  const PHONE_WIDTH = 340;
+  const PHONE_HEIGHT = 700;
+  const PHONE_RADIUS = 40;
+  const BEZEL = 12;
+  const NOTCH_HEIGHT = 30;
 
   // Initialize Fabric canvas
   useEffect(() => {
@@ -56,23 +73,62 @@ export default function MockupEditor() {
       height: CANVAS_HEIGHT,
       backgroundColor: backgroundColor,
       selection: true,
+      preserveObjectStacking: true,
     });
 
     fabricRef.current = canvas;
 
-    // Create phone frame
-    createPhoneFrame(canvas);
+    // Add phone frame
+    addPhoneFrame(canvas);
 
-    // Create default editable text
-    createEditableText(canvas);
+    // Add default text
+    addText(canvas, 'Votre texte\npromotionnel', 50);
+
+    // Listen for selection changes
+    canvas.on('selection:created', (e) => {
+      setSelectedObject(e.selected?.[0] || null);
+      updateTextControls(e.selected?.[0]);
+    });
+    canvas.on('selection:updated', (e) => {
+      setSelectedObject(e.selected?.[0] || null);
+      updateTextControls(e.selected?.[0]);
+    });
+    canvas.on('selection:cleared', () => {
+      setSelectedObject(null);
+    });
+
+    // Keyboard delete
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const active = canvas.getActiveObject();
+      const isEditing = active && 'isEditing' in active && (active as fabric.IText).isEditing;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing) {
+        if (active && active.type !== 'group') {
+          canvas.remove(active);
+          canvas.discardActiveObject();
+          canvas.renderAll();
+          setSelectedObject(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
 
     setIsReady(true);
 
     return () => {
+      window.removeEventListener('keydown', handleKeyDown);
       canvas.dispose();
       fabricRef.current = null;
     };
   }, []);
+
+  // Update text controls when selection changes
+  const updateTextControls = (obj: fabric.Object | undefined) => {
+    if (obj && obj.type === 'i-text') {
+      const textObj = obj as fabric.IText;
+      setTextColor(textObj.fill as string || '#FFFFFF');
+      setTextOpacity(Math.round((textObj.opacity || 1) * 100));
+    }
+  };
 
   // Update background color
   useEffect(() => {
@@ -81,87 +137,92 @@ export default function MockupEditor() {
     fabricRef.current.renderAll();
   }, [backgroundColor]);
 
-  // Create phone frame group
-  const createPhoneFrame = (canvas: fabric.Canvas) => {
+  // Add phone frame to canvas
+  const addPhoneFrame = (canvas: fabric.Canvas) => {
+    const phoneX = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
+    const phoneY = 180;
+
     // Phone outer frame
     const phoneFrame = new fabric.Rect({
-      left: 0,
-      top: 0,
+      left: phoneX,
+      top: phoneY,
       width: PHONE_WIDTH,
       height: PHONE_HEIGHT,
       rx: PHONE_RADIUS,
       ry: PHONE_RADIUS,
       fill: '#1a1a1a',
       selectable: false,
+      evented: false,
+      name: 'phoneFrame',
     });
 
     // Phone bezel
     const phoneBezel = new fabric.Rect({
-      left: 4,
-      top: 4,
+      left: phoneX + 4,
+      top: phoneY + 4,
       width: PHONE_WIDTH - 8,
       height: PHONE_HEIGHT - 8,
       rx: PHONE_RADIUS - 4,
       ry: PHONE_RADIUS - 4,
-      fill: '#2a2a2a',
+      fill: '#2d2d2d',
       selectable: false,
+      evented: false,
+      name: 'phoneBezel',
     });
 
-    // Phone screen (black background for screenshot)
-    const phoneScreen = new fabric.Rect({
-      left: PHONE_BEZEL,
-      top: PHONE_BEZEL,
-      width: PHONE_WIDTH - PHONE_BEZEL * 2,
-      height: PHONE_HEIGHT - PHONE_BEZEL * 2,
-      rx: PHONE_RADIUS - PHONE_BEZEL,
-      ry: PHONE_RADIUS - PHONE_BEZEL,
+    // Phone screen background
+    const screenBg = new fabric.Rect({
+      left: phoneX + BEZEL,
+      top: phoneY + BEZEL,
+      width: PHONE_WIDTH - BEZEL * 2,
+      height: PHONE_HEIGHT - BEZEL * 2,
+      rx: PHONE_RADIUS - BEZEL,
+      ry: PHONE_RADIUS - BEZEL,
       fill: '#000000',
       selectable: false,
+      evented: false,
+      name: 'screenBg',
     });
 
     // Notch
     const notchWidth = PHONE_WIDTH * 0.35;
     const notch = new fabric.Rect({
-      left: (PHONE_WIDTH - notchWidth) / 2,
-      top: PHONE_BEZEL,
+      left: phoneX + (PHONE_WIDTH - notchWidth) / 2,
+      top: phoneY + BEZEL - 2,
       width: notchWidth,
-      height: 25,
-      rx: 12,
-      ry: 12,
+      height: NOTCH_HEIGHT,
+      rx: 15,
+      ry: 15,
       fill: '#1a1a1a',
       selectable: false,
+      evented: false,
+      name: 'notch',
     });
 
-    // Camera dot
+    // Camera
     const camera = new fabric.Circle({
-      left: (PHONE_WIDTH - notchWidth) / 2 + notchWidth - 25,
-      top: PHONE_BEZEL + 8,
-      radius: 5,
-      fill: '#1a3a5c',
-      selectable: false,
-    });
-
-    // Group all phone elements
-    const phoneGroup = new fabric.Group([phoneFrame, phoneBezel, phoneScreen, notch, camera], {
-      left: PHONE_X,
-      top: PHONE_Y,
+      left: phoneX + (PHONE_WIDTH - notchWidth) / 2 + notchWidth - 28,
+      top: phoneY + BEZEL + 6,
+      radius: 6,
+      fill: '#0a1929',
       selectable: false,
       evented: false,
+      name: 'camera',
     });
 
-    canvas.add(phoneGroup);
-    phoneGroupRef.current = phoneGroup;
+    canvas.add(phoneFrame, phoneBezel, screenBg, notch, camera);
   };
 
-  // Create editable text
-  const createEditableText = (canvas: fabric.Canvas) => {
-    const text = new fabric.IText('Votre texte\npromotionnel', {
+  // Add text to canvas
+  const addText = (canvas: fabric.Canvas, content: string, top: number) => {
+    const text = new fabric.IText(content, {
       left: CANVAS_WIDTH / 2,
-      top: 60,
-      fontSize: 32,
-      fontFamily: 'Inter, SF Pro Display, system-ui, sans-serif',
-      fontWeight: 'bold',
-      fill: '#FEF3C7',
+      top: top,
+      fontSize: 36,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '700',
+      fill: textColor,
+      opacity: textOpacity / 100,
       textAlign: 'center',
       originX: 'center',
       originY: 'top',
@@ -170,7 +231,9 @@ export default function MockupEditor() {
     });
 
     canvas.add(text);
-    textRef.current = text;
+    canvas.setActiveObject(text);
+    canvas.renderAll();
+    return text;
   };
 
   // Handle screenshot upload
@@ -183,58 +246,54 @@ export default function MockupEditor() {
       const dataUrl = event.target?.result as string;
       setScreenshot(dataUrl);
 
-      // Load image into fabric
       fabric.Image.fromURL(dataUrl).then((img) => {
         const canvas = fabricRef.current!;
 
-        // Remove previous screenshot
-        if (screenshotRef.current) {
-          canvas.remove(screenshotRef.current);
+        // Remove previous screenshot if exists
+        const existingScreenshot = canvas.getObjects().find(obj => (obj as any).name === 'screenshot');
+        if (existingScreenshot) {
+          canvas.remove(existingScreenshot);
         }
 
-        // Calculate screen area
-        const screenX = PHONE_X + PHONE_BEZEL;
-        const screenY = PHONE_Y + PHONE_BEZEL + 25; // +25 for notch
-        const screenWidth = PHONE_WIDTH - PHONE_BEZEL * 2;
-        const screenHeight = PHONE_HEIGHT - PHONE_BEZEL * 2 - 25;
+        // Calculate screen area inside phone
+        const phoneX = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
+        const phoneY = 180;
+        const screenX = phoneX + BEZEL;
+        const screenY = phoneY + BEZEL + NOTCH_HEIGHT;
+        const screenWidth = PHONE_WIDTH - BEZEL * 2;
+        const screenHeight = PHONE_HEIGHT - BEZEL * 2 - NOTCH_HEIGHT;
 
-        // Scale image to fit screen
+        // Scale image to cover screen area
         const scaleX = screenWidth / img.width!;
         const scaleY = screenHeight / img.height!;
         const scale = Math.max(scaleX, scaleY);
 
         img.set({
-          left: screenX,
+          left: screenX + screenWidth / 2,
           top: screenY,
           scaleX: scale,
           scaleY: scale,
+          originX: 'center',
+          originY: 'top',
           selectable: false,
           evented: false,
+          name: 'screenshot',
         });
 
-        // Clip to screen bounds
+        // Clip to screen area with rounded corners
         img.clipPath = new fabric.Rect({
           left: screenX,
           top: screenY,
           width: screenWidth,
           height: screenHeight,
-          rx: PHONE_RADIUS - PHONE_BEZEL,
-          ry: PHONE_RADIUS - PHONE_BEZEL,
+          rx: PHONE_RADIUS - BEZEL - 5,
+          ry: PHONE_RADIUS - BEZEL - 5,
           absolutePositioned: true,
         });
 
-        canvas.add(img);
-        screenshotRef.current = img;
-
-        // Ensure proper layer order
-        if (phoneGroupRef.current) {
-          canvas.bringObjectToFront(phoneGroupRef.current);
-          // But keep notch on top
-        }
-        if (textRef.current) {
-          canvas.bringObjectToFront(textRef.current);
-        }
-
+        // Insert screenshot after screen background but before notch
+        const screenBgIndex = canvas.getObjects().findIndex(obj => (obj as any).name === 'screenBg');
+        canvas.insertAt(screenBgIndex + 1, img);
         canvas.renderAll();
       });
     };
@@ -246,17 +305,57 @@ export default function MockupEditor() {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      // Create a fake event to reuse the upload handler
-      const fakeEvent = {
-        target: { files: [file] },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      handleScreenshotUpload(fakeEvent);
+      const input = fileInputRef.current;
+      if (input) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     }
-  }, [handleScreenshotUpload]);
+  }, []);
+
+  // Delete selected object
+  const deleteSelected = useCallback(() => {
+    if (!fabricRef.current || !selectedObject) return;
+    fabricRef.current.remove(selectedObject);
+    fabricRef.current.discardActiveObject();
+    fabricRef.current.renderAll();
+    setSelectedObject(null);
+  }, [selectedObject]);
+
+  // Add new text element
+  const handleAddText = useCallback(() => {
+    if (!fabricRef.current) return;
+    addText(fabricRef.current, 'Nouveau texte', 100);
+  }, [textColor, textOpacity]);
+
+  // Update text color
+  const handleTextColorChange = useCallback((color: string) => {
+    setTextColor(color);
+    if (selectedObject && selectedObject.type === 'i-text') {
+      (selectedObject as fabric.IText).set('fill', color);
+      fabricRef.current?.renderAll();
+    }
+  }, [selectedObject]);
+
+  // Update text opacity
+  const handleTextOpacityChange = useCallback((value: number[]) => {
+    const opacity = value[0];
+    setTextOpacity(opacity);
+    if (selectedObject && selectedObject.type === 'i-text') {
+      selectedObject.set('opacity', opacity / 100);
+      fabricRef.current?.renderAll();
+    }
+  }, [selectedObject]);
 
   // Export as PNG
   const exportMockup = useCallback(() => {
     if (!fabricRef.current) return;
+
+    // Deselect all before export
+    fabricRef.current.discardActiveObject();
+    fabricRef.current.renderAll();
 
     const dataUrl = fabricRef.current.toDataURL({
       format: 'png',
@@ -269,48 +368,31 @@ export default function MockupEditor() {
     link.click();
   }, []);
 
-  // Add new text
-  const addNewText = useCallback(() => {
-    if (!fabricRef.current) return;
-
-    const text = new fabric.IText('Nouveau texte', {
-      left: CANVAS_WIDTH / 2,
-      top: 120,
-      fontSize: 24,
-      fontFamily: 'Inter, SF Pro Display, system-ui, sans-serif',
-      fontWeight: 'bold',
-      fill: '#FFFFFF',
-      textAlign: 'center',
-      originX: 'center',
-      originY: 'top',
-      editable: true,
-      selectable: true,
-    });
-
-    fabricRef.current.add(text);
-    fabricRef.current.setActiveObject(text);
-    fabricRef.current.renderAll();
-  }, []);
+  const isTextSelected = selectedObject?.type === 'i-text';
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="mx-auto max-w-6xl">
-        <h1 className="mb-6 text-2xl font-bold">Mockup Editor</h1>
+        <h1 className="mb-6 text-2xl font-bold flex items-center gap-2">
+          <ImageIcon size={28} weight="duotone" />
+          Mockup Editor
+        </h1>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Canvas Area */}
-          <Card className="overflow-hidden p-4">
+          <Card className="p-4">
             <div
-              className="mx-auto flex items-center justify-center rounded-lg bg-gray-200 p-4"
+              className="mx-auto rounded-lg bg-gray-200 p-4"
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
-              style={{ maxWidth: CANVAS_WIDTH + 32 }}
+              style={{ width: 'fit-content' }}
             >
-              <canvas ref={canvasRef} className="rounded-lg shadow-lg" />
+              <canvas ref={canvasRef} className="rounded-lg shadow-xl" />
             </div>
 
-            <div className="mt-4 flex justify-center gap-4">
-              <Button onClick={exportMockup} disabled={!isReady}>
+            <div className="mt-4 flex justify-center gap-3">
+              <Button onClick={exportMockup} disabled={!isReady} className="gap-2">
+                <Download size={20} weight="bold" />
                 Telecharger PNG
               </Button>
             </div>
@@ -320,7 +402,10 @@ export default function MockupEditor() {
           <div className="space-y-4">
             {/* Background Color */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">Couleur de fond</Label>
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <Palette size={20} weight="duotone" />
+                Couleur de fond
+              </Label>
               <div className="grid grid-cols-5 gap-2">
                 {BACKGROUND_COLORS.map((color) => (
                   <button
@@ -330,7 +415,7 @@ export default function MockupEditor() {
                       'h-10 w-10 rounded-lg border-2 transition-all',
                       backgroundColor === color
                         ? 'border-black ring-2 ring-black/20 scale-110'
-                        : 'border-transparent hover:scale-105'
+                        : 'border-gray-300 hover:scale-105'
                     )}
                     style={{ backgroundColor: color }}
                   />
@@ -349,14 +434,17 @@ export default function MockupEditor() {
 
             {/* Screenshot Upload */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">Screenshot</Label>
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <ImageIcon size={20} weight="duotone" />
+                Screenshot
+              </Label>
               <div
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
                   screenshot
-                    ? 'border-green-300 bg-green-50'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                 )}
               >
                 {screenshot ? (
@@ -364,13 +452,13 @@ export default function MockupEditor() {
                     <img
                       src={screenshot}
                       alt="Screenshot"
-                      className="mx-auto mb-2 h-20 rounded object-contain"
+                      className="mx-auto mb-2 h-24 rounded object-contain"
                     />
                     <p className="text-xs text-green-600">Cliquez pour changer</p>
                   </div>
                 ) : (
                   <>
-                    <div className="text-2xl">📱</div>
+                    <ImageIcon size={32} className="mb-2 text-gray-400" />
                     <p className="text-sm text-gray-600">Glissez ou cliquez</p>
                   </>
                 )}
@@ -386,25 +474,88 @@ export default function MockupEditor() {
 
             {/* Text Controls */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">Texte</Label>
-              <Button onClick={addNewText} variant="outline" className="w-full">
-                + Ajouter du texte
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <TextT size={20} weight="duotone" />
+                Texte
+              </Label>
+
+              <Button onClick={handleAddText} variant="outline" className="w-full gap-2 mb-4">
+                <Plus size={18} weight="bold" />
+                Ajouter du texte
               </Button>
-              <p className="mt-2 text-xs text-gray-500">
-                Double-cliquez sur le texte pour l&apos;editer.
-                Glissez pour le deplacer.
+
+              {isTextSelected && (
+                <div className="space-y-4 border-t pt-4">
+                  {/* Text Color */}
+                  <div>
+                    <Label className="mb-2 flex items-center gap-2 text-sm">
+                      <Palette size={16} />
+                      Couleur du texte
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {TEXT_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => handleTextColorChange(color)}
+                          className={cn(
+                            'h-8 w-8 rounded-md border-2 transition-all',
+                            textColor === color
+                              ? 'border-black scale-110'
+                              : 'border-gray-300 hover:scale-105'
+                          )}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        value={textColor}
+                        onChange={(e) => handleTextColorChange(e.target.value)}
+                        className="h-8 w-8 cursor-pointer rounded border-0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Text Opacity */}
+                  <div>
+                    <Label className="mb-2 flex items-center gap-2 text-sm">
+                      <Eye size={16} />
+                      Opacite: {textOpacity}%
+                    </Label>
+                    <Slider
+                      value={[textOpacity]}
+                      onValueChange={handleTextOpacityChange}
+                      min={0}
+                      max={100}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Delete */}
+                  <Button
+                    onClick={deleteSelected}
+                    variant="destructive"
+                    className="w-full gap-2"
+                  >
+                    <Trash size={18} weight="bold" />
+                    Supprimer le texte
+                  </Button>
+                </div>
+              )}
+
+              <p className="mt-3 text-xs text-gray-500">
+                Double-cliquez pour editer. Glissez pour deplacer.
+                {!isTextSelected && ' Selectionnez un texte pour plus d\'options.'}
               </p>
             </Card>
 
             {/* Instructions */}
             <Card className="bg-blue-50 p-4">
-              <h3 className="mb-2 font-medium text-blue-900">Instructions</h3>
+              <h3 className="mb-2 font-medium text-blue-900">Raccourcis</h3>
               <ul className="space-y-1 text-sm text-blue-800">
-                <li>• Uploadez votre screenshot</li>
-                <li>• Choisissez la couleur de fond</li>
-                <li>• Double-cliquez pour editer le texte</li>
-                <li>• Glissez le texte pour le positionner</li>
-                <li>• Telechargez en PNG (1242x2688)</li>
+                <li><kbd className="bg-blue-100 px-1 rounded">Suppr</kbd> Supprimer l&apos;element</li>
+                <li><kbd className="bg-blue-100 px-1 rounded">Double-clic</kbd> Editer le texte</li>
+                <li><kbd className="bg-blue-100 px-1 rounded">Echap</kbd> Deselectionner</li>
               </ul>
             </Card>
           </div>
