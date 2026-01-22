@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import * as fabric from 'fabric';
 
 // Preset background colors
 const BACKGROUND_COLORS = [
@@ -32,14 +33,13 @@ const TEXT_COLORS = [
 
 export default function MockupEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricRef = useRef<any>(null);
+  const fabricRef = useRef<fabric.Canvas | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [fabric, setFabric] = useState<any>(null);
   const [backgroundColor, setBackgroundColor] = useState('#2563EB');
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [selectedObject, setSelectedObject] = useState<any>(null);
+  const [selectedObject, setSelectedObject] = useState<fabric.FabricObject | null>(null);
   const [textColor, setTextColor] = useState('#FFFFFF');
   const [textOpacity, setTextOpacity] = useState(100);
 
@@ -62,16 +62,9 @@ export default function MockupEditor() {
   const SCREEN_WIDTH = PHONE_WIDTH - SCREEN_PADDING * 2;
   const SCREEN_HEIGHT = PHONE_HEIGHT - SCREEN_PADDING * 2 - NOTCH_HEIGHT;
 
-  // Load Fabric.js dynamically (client-side only)
+  // Initialize canvas
   useEffect(() => {
-    import('fabric').then((fabricModule) => {
-      setFabric(fabricModule);
-    });
-  }, []);
-
-  // Initialize canvas when fabric is loaded
-  useEffect(() => {
-    if (!fabric || !canvasRef.current || fabricRef.current) return;
+    if (!canvasRef.current || fabricRef.current) return;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
       width: CANVAS_WIDTH,
@@ -84,17 +77,17 @@ export default function MockupEditor() {
     fabricRef.current = canvas;
 
     // Add phone frame
-    addPhoneFrame(canvas, fabric);
+    addPhoneFrame(canvas);
 
     // Add default text
-    addText(canvas, fabric, 'Votre texte\npromotionnel', 50);
+    addText(canvas, 'Votre texte\npromotionnel', 50);
 
     // Selection events
-    canvas.on('selection:created', (e: any) => {
+    canvas.on('selection:created', (e) => {
       setSelectedObject(e.selected?.[0] || null);
       updateTextControls(e.selected?.[0]);
     });
-    canvas.on('selection:updated', (e: any) => {
+    canvas.on('selection:updated', (e) => {
       setSelectedObject(e.selected?.[0] || null);
       updateTextControls(e.selected?.[0]);
     });
@@ -107,7 +100,7 @@ export default function MockupEditor() {
       const active = canvas.getActiveObject();
       if (!active) return;
       // Check if text is being edited (only IText has isEditing)
-      const isEditing = 'isEditing' in active && (active as any).isEditing;
+      const isEditing = 'isEditing' in active && (active as fabric.IText).isEditing;
       if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing) {
         canvas.remove(active);
         canvas.discardActiveObject();
@@ -124,7 +117,7 @@ export default function MockupEditor() {
       canvas.dispose();
       fabricRef.current = null;
     };
-  }, [fabric]);
+  }, []);
 
   // Update background
   useEffect(() => {
@@ -133,21 +126,22 @@ export default function MockupEditor() {
     fabricRef.current.renderAll();
   }, [backgroundColor]);
 
-  const updateTextControls = (obj: any) => {
+  const updateTextControls = (obj: fabric.FabricObject | undefined) => {
     if (obj && obj.type === 'i-text') {
-      setTextColor(obj.fill || '#FFFFFF');
-      setTextOpacity(Math.round((obj.opacity || 1) * 100));
+      const textObj = obj as fabric.IText;
+      setTextColor((textObj.fill as string) || '#FFFFFF');
+      setTextOpacity(Math.round((textObj.opacity || 1) * 100));
     }
   };
 
   // Add phone frame using Fabric shapes grouped together
-  const addPhoneFrame = (canvas: any, fabricModule: any) => {
+  const addPhoneFrame = (canvas: fabric.Canvas) => {
     const cornerRadius = 50;
     const bezelWidth = 6;
     const screenPadding = 14;
 
     // Outer frame (dark gray)
-    const outerFrame = new fabricModule.Rect({
+    const outerFrame = new fabric.Rect({
       left: 0,
       top: 0,
       width: PHONE_WIDTH,
@@ -160,7 +154,7 @@ export default function MockupEditor() {
     });
 
     // Bezel (slightly lighter)
-    const bezel = new fabricModule.Rect({
+    const bezel = new fabric.Rect({
       left: bezelWidth,
       top: bezelWidth,
       width: PHONE_WIDTH - bezelWidth * 2,
@@ -173,7 +167,7 @@ export default function MockupEditor() {
     });
 
     // Screen (black)
-    const screen = new fabricModule.Rect({
+    const screen = new fabric.Rect({
       left: screenPadding,
       top: screenPadding,
       width: PHONE_WIDTH - screenPadding * 2,
@@ -189,7 +183,7 @@ export default function MockupEditor() {
     const notchWidth = PHONE_WIDTH * 0.35;
     const notchHeight = 34;
     const notchX = (PHONE_WIDTH - notchWidth) / 2;
-    const notch = new fabricModule.Rect({
+    const notch = new fabric.Rect({
       left: notchX,
       top: screenPadding,
       width: notchWidth,
@@ -202,7 +196,7 @@ export default function MockupEditor() {
     });
 
     // Camera
-    const camera = new fabricModule.Circle({
+    const camera = new fabric.Circle({
       left: notchX + notchWidth - 35,
       top: screenPadding + notchHeight / 2 - 8,
       radius: 8,
@@ -212,7 +206,7 @@ export default function MockupEditor() {
     });
 
     // Speaker
-    const speaker = new fabricModule.Rect({
+    const speaker = new fabric.Rect({
       left: (PHONE_WIDTH - 60) / 2,
       top: screenPadding + 8,
       width: 60,
@@ -225,24 +219,24 @@ export default function MockupEditor() {
     });
 
     // Group all phone elements
-    const phoneGroup = new fabricModule.Group(
+    const phoneGroup = new fabric.Group(
       [outerFrame, bezel, screen, notch, camera, speaker],
       {
         left: PHONE_X,
         top: PHONE_Y,
         selectable: false,
         evented: false,
-        name: 'phoneFrame',
       }
     );
+    (phoneGroup as any).name = 'phoneFrame';
 
     canvas.add(phoneGroup);
     canvas.renderAll();
   };
 
   // Add text
-  const addText = (canvas: any, fabricModule: any, content: string, top: number) => {
-    const text = new fabricModule.IText(content, {
+  const addText = (canvas: fabric.Canvas, content: string, top: number) => {
+    const text = new fabric.IText(content, {
       left: CANVAS_WIDTH / 2,
       top: top,
       fontSize: 36,
@@ -261,15 +255,16 @@ export default function MockupEditor() {
   // Handle screenshot upload
   const handleScreenshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !fabricRef.current || !fabric) return;
+    if (!file || !fabricRef.current) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       setScreenshot(dataUrl);
 
-      fabric.Image.fromURL(dataUrl).then((img: any) => {
+      fabric.FabricImage.fromURL(dataUrl).then((img) => {
         const canvas = fabricRef.current;
+        if (!canvas) return;
 
         // Remove existing screenshot
         const objects = canvas.getObjects();
@@ -281,8 +276,8 @@ export default function MockupEditor() {
         }
 
         // Scale to fit screen area
-        const scaleX = SCREEN_WIDTH / img.width;
-        const scaleY = SCREEN_HEIGHT / img.height;
+        const scaleX = SCREEN_WIDTH / (img.width || 1);
+        const scaleY = SCREEN_HEIGHT / (img.height || 1);
         const scale = Math.max(scaleX, scaleY);
 
         img.set({
@@ -294,8 +289,8 @@ export default function MockupEditor() {
           originY: 'top',
           selectable: false,
           evented: false,
-          name: 'screenshot',
         });
+        (img as any).name = 'screenshot';
 
         // Clip to screen area
         img.clipPath = new fabric.Rect({
@@ -309,7 +304,7 @@ export default function MockupEditor() {
         });
 
         // Find phone frame and insert screenshot before it (behind)
-        const phoneFrameIndex = objects.findIndex((obj: any) => (obj as any).name === 'phoneFrame');
+        const phoneFrameIndex = objects.findIndex((obj) => (obj as any).name === 'phoneFrame');
         if (phoneFrameIndex >= 0) {
           canvas.insertAt(phoneFrameIndex, img);
         } else {
@@ -319,7 +314,7 @@ export default function MockupEditor() {
       });
     };
     reader.readAsDataURL(file);
-  }, [fabric]);
+  }, []);
 
   // Drag and drop
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -344,15 +339,15 @@ export default function MockupEditor() {
 
   // Add new text
   const handleAddText = useCallback(() => {
-    if (!fabricRef.current || !fabric) return;
-    addText(fabricRef.current, fabric, 'Nouveau texte', 100);
-  }, [fabric]);
+    if (!fabricRef.current) return;
+    addText(fabricRef.current, 'Nouveau texte', 100);
+  }, []);
 
   // Update text color
   const handleTextColorChange = useCallback((color: string) => {
     setTextColor(color);
-    if (selectedObject?.type === 'i-text') {
-      selectedObject.set('fill', color);
+    if (selectedObject && selectedObject.type === 'i-text') {
+      (selectedObject as fabric.IText).set('fill', color);
       fabricRef.current?.renderAll();
     }
   }, [selectedObject]);
@@ -361,8 +356,8 @@ export default function MockupEditor() {
   const handleTextOpacityChange = useCallback((value: number[]) => {
     const opacity = value[0];
     setTextOpacity(opacity);
-    if (selectedObject?.type === 'i-text') {
-      selectedObject.set('opacity', opacity / 100);
+    if (selectedObject && selectedObject.type === 'i-text') {
+      (selectedObject as fabric.IText).set('opacity', opacity / 100);
       fabricRef.current?.renderAll();
     }
   }, [selectedObject]);
