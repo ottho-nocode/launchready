@@ -50,6 +50,11 @@ import {
   ChartBar,
   TrendUp,
   Smiley,
+  CaretDown,
+  CaretUp,
+  ArrowUp,
+  ArrowDown,
+  Stack,
 } from '@phosphor-icons/react';
 import { renderToString } from 'react-dom/server';
 
@@ -139,6 +144,7 @@ interface TextElement {
   align: string;
   width: number;
   draggable: boolean;
+  zIndex: number;
 }
 
 interface IconElement {
@@ -149,6 +155,38 @@ interface IconElement {
   size: number;
   fill: string;
   draggable: boolean;
+  zIndex: number;
+}
+
+// Collapsible card component
+function CollapsibleCard({
+  title,
+  icon,
+  children,
+  defaultOpen = false
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+      >
+        <Label className="flex items-center gap-2 font-medium cursor-pointer">
+          {icon}
+          {title}
+        </Label>
+        {isOpen ? <CaretUp size={18} /> : <CaretDown size={18} />}
+      </button>
+      {isOpen && <div className="px-4 pb-4 border-t">{children}</div>}
+    </Card>
+  );
 }
 
 export default function MockupEditor() {
@@ -182,8 +220,10 @@ export default function MockupEditor() {
       align: 'center',
       width: 350,
       draggable: true,
+      zIndex: 1,
     },
   ]);
+  const [nextZIndex, setNextZIndex] = useState(2);
   const [iconElements, setIconElements] = useState<IconElement[]>([]);
   const [iconImages, setIconImages] = useState<Record<string, HTMLImageElement>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -296,12 +336,14 @@ export default function MockupEditor() {
         align: 'center',
         width: 300,
         draggable: true,
+        zIndex: nextZIndex,
       },
     ]);
+    setNextZIndex(prev => prev + 1);
     setSelectedId(newId);
     setSelectedType('text');
     setIsPhoneSelected(false);
-  }, []);
+  }, [nextZIndex]);
 
   // Create icon image from Phosphor icon
   const createIconImage = useCallback((iconName: string, color: string, size: number): Promise<HTMLImageElement> => {
@@ -339,12 +381,84 @@ export default function MockupEditor() {
         size,
         fill: color,
         draggable: true,
+        zIndex: nextZIndex,
       },
     ]);
+    setNextZIndex(prev => prev + 1);
     setSelectedId(newId);
     setSelectedType('icon');
     setIsPhoneSelected(false);
-  }, [createIconImage]);
+  }, [createIconImage, nextZIndex]);
+
+  // Move element forward (higher z-index)
+  const moveForward = useCallback(() => {
+    if (!selectedId || !selectedType) return;
+
+    if (selectedType === 'text') {
+      setTextElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: el.zIndex + 1 } : el
+      ));
+    } else if (selectedType === 'icon') {
+      setIconElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: el.zIndex + 1 } : el
+      ));
+    }
+  }, [selectedId, selectedType]);
+
+  // Move element backward (lower z-index)
+  const moveBackward = useCallback(() => {
+    if (!selectedId || !selectedType) return;
+
+    if (selectedType === 'text') {
+      setTextElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: Math.max(0, el.zIndex - 1) } : el
+      ));
+    } else if (selectedType === 'icon') {
+      setIconElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: Math.max(0, el.zIndex - 1) } : el
+      ));
+    }
+  }, [selectedId, selectedType]);
+
+  // Bring to front
+  const bringToFront = useCallback(() => {
+    if (!selectedId || !selectedType) return;
+
+    const maxZ = Math.max(
+      ...textElements.map(el => el.zIndex),
+      ...iconElements.map(el => el.zIndex),
+      0
+    );
+
+    if (selectedType === 'text') {
+      setTextElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: maxZ + 1 } : el
+      ));
+    } else if (selectedType === 'icon') {
+      setIconElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: maxZ + 1 } : el
+      ));
+    }
+    setNextZIndex(maxZ + 2);
+  }, [selectedId, selectedType, textElements, iconElements]);
+
+  // Send to back
+  const sendToBack = useCallback(() => {
+    if (!selectedId || !selectedType) return;
+
+    // Decrease all other elements' z-index
+    if (selectedType === 'text') {
+      setTextElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: 0 } : { ...el, zIndex: el.zIndex + 1 }
+      ));
+      setIconElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+    } else if (selectedType === 'icon') {
+      setIconElements(prev => prev.map(el =>
+        el.id === selectedId ? { ...el, zIndex: 0 } : { ...el, zIndex: el.zIndex + 1 }
+      ));
+      setTextElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+    }
+  }, [selectedId, selectedType]);
 
   // Update icon element
   const updateIconElement = useCallback(async (id: string, updates: Partial<IconElement>) => {
@@ -426,6 +540,12 @@ export default function MockupEditor() {
   // Get selected elements
   const selectedTextElement = selectedType === 'text' ? textElements.find((el) => el.id === selectedId) : null;
   const selectedIconElement = selectedType === 'icon' ? iconElements.find((el) => el.id === selectedId) : null;
+
+  // Combine and sort all elements by z-index for rendering
+  const sortedElements = [
+    ...textElements.map(el => ({ ...el, type: 'text' as const })),
+    ...iconElements.map(el => ({ ...el, type: 'icon' as const })),
+  ].sort((a, b) => a.zIndex - b.zIndex);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -606,93 +726,99 @@ export default function MockupEditor() {
                   />
                 </Layer>
 
-                {/* Text & Icons Layer */}
+                {/* Text & Icons Layer - rendered in z-index order */}
                 <Layer>
-                  {textElements.map((el) => (
-                    <Text
-                      key={el.id}
-                      id={el.id}
-                      text={el.text}
-                      x={el.x}
-                      y={el.y}
-                      fontSize={el.fontSize}
-                      fill={el.fill}
-                      fontStyle={el.fontStyle}
-                      fontFamily="Inter, system-ui, sans-serif"
-                      align={el.align}
-                      width={el.width}
-                      offsetX={el.width / 2}
-                      draggable={el.draggable}
-                      onClick={() => {
-                        setSelectedId(el.id);
-                        setSelectedType('text');
-                        setIsPhoneSelected(false);
-                      }}
-                      onTap={() => {
-                        setSelectedId(el.id);
-                        setSelectedType('text');
-                        setIsPhoneSelected(false);
-                      }}
-                      onDragEnd={(e) => handleDragEnd(e, el.id)}
-                      onTransformEnd={(e) => {
-                        const node = e.target;
-                        updateTextElement(el.id, {
-                          x: node.x(),
-                          y: node.y(),
-                          width: Math.max(50, node.width() * node.scaleX()),
-                          fontSize: Math.max(12, el.fontSize * node.scaleY()),
-                        });
-                        node.scaleX(1);
-                        node.scaleY(1);
-                      }}
-                    />
-                  ))}
-                  {iconElements.map((el) => (
-                    iconImages[el.id] && (
-                      <KonvaImage
-                        key={el.id}
-                        id={el.id}
-                        image={iconImages[el.id]}
-                        x={el.x}
-                        y={el.y}
-                        width={el.size}
-                        height={el.size}
-                        offsetX={el.size / 2}
-                        offsetY={el.size / 2}
-                        draggable={el.draggable}
-                        onClick={() => {
-                          setSelectedId(el.id);
-                          setSelectedType('icon');
-                          setIsPhoneSelected(false);
-                        }}
-                        onTap={() => {
-                          setSelectedId(el.id);
-                          setSelectedType('icon');
-                          setIsPhoneSelected(false);
-                        }}
-                        onDragEnd={(e) => {
-                          setIconElements(prev =>
-                            prev.map(icon =>
-                              icon.id === el.id
-                                ? { ...icon, x: e.target.x(), y: e.target.y() }
-                                : icon
-                            )
-                          );
-                        }}
-                        onTransformEnd={(e) => {
-                          const node = e.target;
-                          const newSize = Math.max(16, el.size * node.scaleX());
-                          updateIconElement(el.id, {
-                            x: node.x(),
-                            y: node.y(),
-                            size: newSize,
-                          });
-                          node.scaleX(1);
-                          node.scaleY(1);
-                        }}
-                      />
-                    )
-                  ))}
+                  {sortedElements.map((el) => {
+                    if (el.type === 'text') {
+                      const textEl = el as TextElement & { type: 'text' };
+                      return (
+                        <Text
+                          key={textEl.id}
+                          id={textEl.id}
+                          text={textEl.text}
+                          x={textEl.x}
+                          y={textEl.y}
+                          fontSize={textEl.fontSize}
+                          fill={textEl.fill}
+                          fontStyle={textEl.fontStyle}
+                          fontFamily="Inter, system-ui, sans-serif"
+                          align={textEl.align}
+                          width={textEl.width}
+                          offsetX={textEl.width / 2}
+                          draggable={textEl.draggable}
+                          onClick={() => {
+                            setSelectedId(textEl.id);
+                            setSelectedType('text');
+                            setIsPhoneSelected(false);
+                          }}
+                          onTap={() => {
+                            setSelectedId(textEl.id);
+                            setSelectedType('text');
+                            setIsPhoneSelected(false);
+                          }}
+                          onDragEnd={(e) => handleDragEnd(e, textEl.id)}
+                          onTransformEnd={(e) => {
+                            const node = e.target;
+                            updateTextElement(textEl.id, {
+                              x: node.x(),
+                              y: node.y(),
+                              width: Math.max(50, node.width() * node.scaleX()),
+                              fontSize: Math.max(12, textEl.fontSize * node.scaleY()),
+                            });
+                            node.scaleX(1);
+                            node.scaleY(1);
+                          }}
+                        />
+                      );
+                    } else {
+                      const iconEl = el as IconElement & { type: 'icon' };
+                      if (!iconImages[iconEl.id]) return null;
+                      return (
+                        <KonvaImage
+                          key={iconEl.id}
+                          id={iconEl.id}
+                          image={iconImages[iconEl.id]}
+                          x={iconEl.x}
+                          y={iconEl.y}
+                          width={iconEl.size}
+                          height={iconEl.size}
+                          offsetX={iconEl.size / 2}
+                          offsetY={iconEl.size / 2}
+                          draggable={iconEl.draggable}
+                          onClick={() => {
+                            setSelectedId(iconEl.id);
+                            setSelectedType('icon');
+                            setIsPhoneSelected(false);
+                          }}
+                          onTap={() => {
+                            setSelectedId(iconEl.id);
+                            setSelectedType('icon');
+                            setIsPhoneSelected(false);
+                          }}
+                          onDragEnd={(e) => {
+                            setIconElements(prev =>
+                              prev.map(icon =>
+                                icon.id === iconEl.id
+                                  ? { ...icon, x: e.target.x(), y: e.target.y() }
+                                  : icon
+                              )
+                            );
+                          }}
+                          onTransformEnd={(e) => {
+                            const node = e.target;
+                            const newSize = Math.max(16, iconEl.size * node.scaleX());
+                            updateIconElement(iconEl.id, {
+                              x: node.x(),
+                              y: node.y(),
+                              size: newSize,
+                            });
+                            node.scaleX(1);
+                            node.scaleY(1);
+                          }}
+                        />
+                      );
+                    }
+                  })}
                   <Transformer
                     ref={transformerRef}
                     boundBoxFunc={(oldBox, newBox) => {
@@ -717,12 +843,12 @@ export default function MockupEditor() {
           {/* Controls */}
           <div className="space-y-4">
             {/* Device Selection */}
-            <Card className="p-4">
-              <Label className="mb-3 flex items-center gap-2 font-medium">
-                <DeviceMobile size={18} weight="duotone" />
-                Device
-              </Label>
-              <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
+            <CollapsibleCard
+              title="Device"
+              icon={<DeviceMobile size={18} weight="duotone" />}
+              defaultOpen={true}
+            >
+              <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto mt-3">
                 {Object.entries(DEVICES).map(([key, config]) => (
                   <button
                     key={key}
@@ -748,263 +874,355 @@ export default function MockupEditor() {
                   </button>
                 ))}
               </div>
-            </Card>
+            </CollapsibleCard>
 
             {/* Background */}
-            <Card className="p-4">
-              <Label className="mb-3 flex items-center gap-2 font-medium">
-                <Palette size={18} weight="duotone" />
-                Fond
-              </Label>
-              <div className="mb-2 text-xs text-gray-500">Couleurs unies</div>
-              <div className="grid grid-cols-5 gap-2">
-                {BACKGROUNDS.filter(bg => bg.type === 'solid').map((bg) => (
-                  <button
-                    key={bg.name}
-                    onClick={() => setBackground(bg)}
-                    className={cn(
-                      'h-10 w-10 rounded-lg border-2 transition-transform',
-                      background.name === bg.name
-                        ? 'border-black scale-110 ring-2 ring-black/20'
-                        : 'border-gray-300 hover:scale-105'
-                    )}
-                    style={{ backgroundColor: bg.colors[0] }}
-                    title={bg.name}
+            <CollapsibleCard
+              title="Fond"
+              icon={<Palette size={18} weight="duotone" />}
+            >
+              <div className="mt-3">
+                <div className="mb-2 text-xs text-gray-500">Couleurs unies</div>
+                <div className="grid grid-cols-5 gap-2">
+                  {BACKGROUNDS.filter(bg => bg.type === 'solid').map((bg) => (
+                    <button
+                      key={bg.name}
+                      onClick={() => setBackground(bg)}
+                      className={cn(
+                        'h-10 w-10 rounded-lg border-2 transition-transform',
+                        background.name === bg.name
+                          ? 'border-black scale-110 ring-2 ring-black/20'
+                          : 'border-gray-300 hover:scale-105'
+                      )}
+                      style={{ backgroundColor: bg.colors[0] }}
+                      title={bg.name}
+                    />
+                  ))}
+                </div>
+                <div className="mt-3 mb-2 text-xs text-gray-500">Dégradés</div>
+                <div className="grid grid-cols-4 gap-2">
+                  {BACKGROUNDS.filter(bg => bg.type === 'gradient').map((bg) => (
+                    <button
+                      key={bg.name}
+                      onClick={() => setBackground(bg)}
+                      className={cn(
+                        'h-10 w-full rounded-lg border-2 transition-transform',
+                        background.name === bg.name
+                          ? 'border-black scale-105 ring-2 ring-black/20'
+                          : 'border-gray-300 hover:scale-105'
+                      )}
+                      style={{
+                        background: `linear-gradient(135deg, ${bg.colors[0]}, ${bg.colors[1]})`
+                      }}
+                      title={bg.name}
+                    />
+                  ))}
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={background.colors[0]}
+                    onChange={(e) => setBackground({ name: 'Custom', type: 'solid', colors: [e.target.value] })}
+                    className="h-10 w-10 cursor-pointer rounded"
                   />
-                ))}
+                  <span className="text-sm text-gray-500">{background.colors[0]}</span>
+                </div>
               </div>
-              <div className="mt-3 mb-2 text-xs text-gray-500">Dégradés</div>
-              <div className="grid grid-cols-4 gap-2">
-                {BACKGROUNDS.filter(bg => bg.type === 'gradient').map((bg) => (
-                  <button
-                    key={bg.name}
-                    onClick={() => setBackground(bg)}
-                    className={cn(
-                      'h-10 w-full rounded-lg border-2 transition-transform',
-                      background.name === bg.name
-                        ? 'border-black scale-105 ring-2 ring-black/20'
-                        : 'border-gray-300 hover:scale-105'
-                    )}
-                    style={{
-                      background: `linear-gradient(135deg, ${bg.colors[0]}, ${bg.colors[1]})`
-                    }}
-                    title={bg.name}
-                  />
-                ))}
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <input
-                  type="color"
-                  value={background.colors[0]}
-                  onChange={(e) => setBackground({ name: 'Custom', type: 'solid', colors: [e.target.value] })}
-                  className="h-10 w-10 cursor-pointer rounded"
-                />
-                <span className="text-sm text-gray-500">{background.colors[0]}</span>
-              </div>
-            </Card>
+            </CollapsibleCard>
 
             {/* Screenshot */}
-            <Card className="p-4">
-              <Label className="mb-3 flex items-center gap-2 font-medium">
-                <ImageIcon size={18} weight="duotone" />
-                Screenshot
-              </Label>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className={cn(
-                  'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
-                  screenshotPreview
-                    ? 'border-green-400 bg-green-50'
-                    : 'border-gray-300 hover:border-blue-400'
-                )}
-              >
-                {screenshotPreview ? (
-                  <div className="text-center">
-                    <img
-                      src={screenshotPreview}
-                      alt=""
-                      className="mx-auto mb-2 h-16 rounded object-contain"
-                    />
-                    <p className="text-xs text-green-600">Cliquez pour changer</p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">Glissez ou cliquez</p>
-                )}
+            <CollapsibleCard
+              title="Screenshot"
+              icon={<ImageIcon size={18} weight="duotone" />}
+            >
+              <div className="mt-3">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
+                    screenshotPreview
+                      ? 'border-green-400 bg-green-50'
+                      : 'border-gray-300 hover:border-blue-400'
+                  )}
+                >
+                  {screenshotPreview ? (
+                    <div className="text-center">
+                      <img
+                        src={screenshotPreview}
+                        alt=""
+                        className="mx-auto mb-2 h-16 rounded object-contain"
+                      />
+                      <p className="text-xs text-green-600">Cliquez pour changer</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">Glissez ou cliquez</p>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleScreenshotUpload}
+                  className="hidden"
+                />
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleScreenshotUpload}
-                className="hidden"
-              />
-            </Card>
+            </CollapsibleCard>
 
             {/* Text Controls */}
-            <Card className="p-4">
-              <Label className="mb-3 flex items-center gap-2 font-medium">
-                <TextT size={18} weight="duotone" />
-                Texte
-              </Label>
-              <Button onClick={addTextElement} variant="outline" className="mb-3 w-full">
-                <Plus size={16} className="mr-2" />
-                Ajouter du texte
-              </Button>
+            <CollapsibleCard
+              title="Texte"
+              icon={<TextT size={18} weight="duotone" />}
+            >
+              <div className="mt-3">
+                <Button onClick={addTextElement} variant="outline" className="mb-3 w-full">
+                  <Plus size={16} className="mr-2" />
+                  Ajouter du texte
+                </Button>
 
-              {selectedTextElement && (
-                <div className="space-y-4 border-t pt-4">
-                  <div>
-                    <Label className="mb-2 block text-sm">Contenu</Label>
-                    <textarea
-                      value={editingText}
-                      onChange={(e) => {
-                        setEditingText(e.target.value);
-                        updateTextElement(selectedId!, { text: e.target.value });
-                      }}
-                      className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                      rows={2}
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="mb-2 block text-sm">Couleur</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {TEXT_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => updateTextElement(selectedId!, { fill: color })}
-                          className={cn(
-                            'h-8 w-8 rounded border-2',
-                            selectedTextElement.fill === color
-                              ? 'border-black scale-110'
-                              : 'border-gray-300'
-                          )}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                      <input
-                        type="color"
-                        value={selectedTextElement.fill}
-                        onChange={(e) =>
-                          updateTextElement(selectedId!, { fill: e.target.value })
-                        }
-                        className="h-8 w-8 cursor-pointer rounded"
+                {selectedTextElement && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div>
+                      <Label className="mb-2 block text-sm">Contenu</Label>
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => {
+                          setEditingText(e.target.value);
+                          updateTextElement(selectedId!, { text: e.target.value });
+                        }}
+                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                        rows={2}
                       />
                     </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">Couleur</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {TEXT_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => updateTextElement(selectedId!, { fill: color })}
+                            className={cn(
+                              'h-8 w-8 rounded border-2',
+                              selectedTextElement.fill === color
+                                ? 'border-black scale-110'
+                                : 'border-gray-300'
+                            )}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={selectedTextElement.fill}
+                          onChange={(e) =>
+                            updateTextElement(selectedId!, { fill: e.target.value })
+                          }
+                          className="h-8 w-8 cursor-pointer rounded"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">
+                        Taille: {selectedTextElement.fontSize}px
+                      </Label>
+                      <Slider
+                        value={[selectedTextElement.fontSize]}
+                        onValueChange={(v) =>
+                          updateTextElement(selectedId!, { fontSize: v[0] })
+                        }
+                        min={12}
+                        max={60}
+                        step={1}
+                      />
+                    </div>
+
+                    {/* Layer ordering controls */}
+                    <div>
+                      <Label className="mb-2 flex items-center gap-2 text-sm">
+                        <Stack size={16} />
+                        Position
+                      </Label>
+                      <div className="grid grid-cols-4 gap-2">
+                        <Button
+                          onClick={sendToBack}
+                          variant="outline"
+                          size="sm"
+                          title="Envoyer à l'arrière"
+                        >
+                          <ArrowDown size={14} />
+                          <ArrowDown size={14} className="-ml-2" />
+                        </Button>
+                        <Button
+                          onClick={moveBackward}
+                          variant="outline"
+                          size="sm"
+                          title="Reculer"
+                        >
+                          <ArrowDown size={16} />
+                        </Button>
+                        <Button
+                          onClick={moveForward}
+                          variant="outline"
+                          size="sm"
+                          title="Avancer"
+                        >
+                          <ArrowUp size={16} />
+                        </Button>
+                        <Button
+                          onClick={bringToFront}
+                          variant="outline"
+                          size="sm"
+                          title="Mettre au premier plan"
+                        >
+                          <ArrowUp size={14} />
+                          <ArrowUp size={14} className="-ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={deleteSelected}
+                      variant="destructive"
+                      className="w-full"
+                    >
+                      <Trash size={16} className="mr-2" />
+                      Supprimer
+                    </Button>
                   </div>
+                )}
 
-                  <div>
-                    <Label className="mb-2 block text-sm">
-                      Taille: {selectedTextElement.fontSize}px
-                    </Label>
-                    <Slider
-                      value={[selectedTextElement.fontSize]}
-                      onValueChange={(v) =>
-                        updateTextElement(selectedId!, { fontSize: v[0] })
-                      }
-                      min={12}
-                      max={60}
-                      step={1}
-                    />
-                  </div>
-
-                  <Button
-                    onClick={deleteSelected}
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    <Trash size={16} className="mr-2" />
-                    Supprimer
-                  </Button>
-                </div>
-              )}
-
-              <p className="mt-3 text-xs text-gray-500">
-                Cliquez sur un texte pour le sélectionner • Glissez pour déplacer
-              </p>
-            </Card>
+                <p className="mt-3 text-xs text-gray-500">
+                  Cliquez sur un texte pour le sélectionner • Glissez pour déplacer
+                </p>
+              </div>
+            </CollapsibleCard>
 
             {/* Icons */}
-            <Card className="p-4">
-              <Label className="mb-3 flex items-center gap-2 font-medium">
-                <Star size={18} weight="duotone" />
-                Icônes
-              </Label>
-              <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto mb-3">
-                {AVAILABLE_ICONS.map((iconData) => {
-                  const IconComp = iconData.icon;
-                  return (
-                    <button
-                      key={iconData.name}
-                      onClick={() => addIconElement(iconData.name)}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
-                      title={iconData.name}
-                    >
-                      <IconComp size={20} weight="fill" />
-                    </button>
-                  );
-                })}
-              </div>
+            <CollapsibleCard
+              title="Icônes"
+              icon={<Star size={18} weight="duotone" />}
+            >
+              <div className="mt-3">
+                <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto mb-3">
+                  {AVAILABLE_ICONS.map((iconData) => {
+                    const IconComp = iconData.icon;
+                    return (
+                      <button
+                        key={iconData.name}
+                        onClick={() => addIconElement(iconData.name)}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                        title={iconData.name}
+                      >
+                        <IconComp size={20} weight="fill" />
+                      </button>
+                    );
+                  })}
+                </div>
 
-              {selectedIconElement && (
-                <div className="space-y-4 border-t pt-4">
-                  <div>
-                    <Label className="mb-2 block text-sm">Couleur</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {TEXT_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => updateIconElement(selectedId!, { fill: color })}
-                          className={cn(
-                            'h-8 w-8 rounded border-2',
-                            selectedIconElement.fill === color
-                              ? 'border-black scale-110'
-                              : 'border-gray-300'
-                          )}
-                          style={{ backgroundColor: color }}
+                {selectedIconElement && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div>
+                      <Label className="mb-2 block text-sm">Couleur</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {TEXT_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => updateIconElement(selectedId!, { fill: color })}
+                            className={cn(
+                              'h-8 w-8 rounded border-2',
+                              selectedIconElement.fill === color
+                                ? 'border-black scale-110'
+                                : 'border-gray-300'
+                            )}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={selectedIconElement.fill}
+                          onChange={(e) =>
+                            updateIconElement(selectedId!, { fill: e.target.value })
+                          }
+                          className="h-8 w-8 cursor-pointer rounded"
                         />
-                      ))}
-                      <input
-                        type="color"
-                        value={selectedIconElement.fill}
-                        onChange={(e) =>
-                          updateIconElement(selectedId!, { fill: e.target.value })
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">
+                        Taille: {selectedIconElement.size}px
+                      </Label>
+                      <Slider
+                        value={[selectedIconElement.size]}
+                        onValueChange={(v) =>
+                          updateIconElement(selectedId!, { size: v[0] })
                         }
-                        className="h-8 w-8 cursor-pointer rounded"
+                        min={16}
+                        max={120}
+                        step={4}
                       />
                     </div>
+
+                    {/* Layer ordering controls */}
+                    <div>
+                      <Label className="mb-2 flex items-center gap-2 text-sm">
+                        <Stack size={16} />
+                        Position
+                      </Label>
+                      <div className="grid grid-cols-4 gap-2">
+                        <Button
+                          onClick={sendToBack}
+                          variant="outline"
+                          size="sm"
+                          title="Envoyer à l'arrière"
+                        >
+                          <ArrowDown size={14} />
+                          <ArrowDown size={14} className="-ml-2" />
+                        </Button>
+                        <Button
+                          onClick={moveBackward}
+                          variant="outline"
+                          size="sm"
+                          title="Reculer"
+                        >
+                          <ArrowDown size={16} />
+                        </Button>
+                        <Button
+                          onClick={moveForward}
+                          variant="outline"
+                          size="sm"
+                          title="Avancer"
+                        >
+                          <ArrowUp size={16} />
+                        </Button>
+                        <Button
+                          onClick={bringToFront}
+                          variant="outline"
+                          size="sm"
+                          title="Mettre au premier plan"
+                        >
+                          <ArrowUp size={14} />
+                          <ArrowUp size={14} className="-ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={deleteSelected}
+                      variant="destructive"
+                      className="w-full"
+                    >
+                      <Trash size={16} className="mr-2" />
+                      Supprimer
+                    </Button>
                   </div>
+                )}
 
-                  <div>
-                    <Label className="mb-2 block text-sm">
-                      Taille: {selectedIconElement.size}px
-                    </Label>
-                    <Slider
-                      value={[selectedIconElement.size]}
-                      onValueChange={(v) =>
-                        updateIconElement(selectedId!, { size: v[0] })
-                      }
-                      min={16}
-                      max={120}
-                      step={4}
-                    />
-                  </div>
-
-                  <Button
-                    onClick={deleteSelected}
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    <Trash size={16} className="mr-2" />
-                    Supprimer
-                  </Button>
-                </div>
-              )}
-
-              <p className="mt-3 text-xs text-gray-500">
-                Cliquez sur une icône pour l'ajouter au canvas
-              </p>
-            </Card>
+                <p className="mt-3 text-xs text-gray-500">
+                  Cliquez sur une icône pour l'ajouter au canvas
+                </p>
+              </div>
+            </CollapsibleCard>
           </div>
         </div>
       </div>
