@@ -1342,14 +1342,19 @@ export default function MockupEditor() {
                     </div>
 
                     <div>
-                      <Label className="mb-2 block text-sm">Taille</Label>
+                      <Label className="mb-2 block text-sm">
+                        Taille: <span className="font-bold text-blue-600">{selectedTextElement.fontSize}px</span>
+                      </Label>
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
                           value={selectedTextElement.fontSize}
                           onChange={(e) => {
                             const newSize = Math.max(12, Math.min(80, parseInt(e.target.value) || 12));
-                            updateTextElement(selectedId!, { fontSize: newSize });
+                            // Direct state update to bypass any issues with updateTextElement
+                            setTextElements(prev =>
+                              prev.map(el => el.id === selectedId ? { ...el, fontSize: newSize } : el)
+                            );
                           }}
                           min={12}
                           max={80}
@@ -1361,13 +1366,18 @@ export default function MockupEditor() {
                           value={selectedTextElement.fontSize}
                           onChange={(e) => {
                             const newSize = parseInt(e.target.value);
-                            updateTextElement(selectedId!, { fontSize: newSize }, true);
+                            setTextElements(prev =>
+                              prev.map(el => el.id === selectedId ? { ...el, fontSize: newSize } : el)
+                            );
                           }}
                           min={12}
                           max={80}
                           step={1}
                           className="flex-1"
                         />
+                      </div>
+                      <div className="mt-1 text-xs text-red-500">
+                        Debug: ID={selectedId}, fontSize in state={textElements.find(e => e.id === selectedId)?.fontSize}
                       </div>
                     </div>
                   </div>
