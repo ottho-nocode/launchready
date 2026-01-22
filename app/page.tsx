@@ -95,11 +95,16 @@ const AVAILABLE_ICONS = [
   { name: 'Smiley', icon: Smiley },
 ];
 
-// Device configurations - varied sizes and aspect ratios
+// Device configurations - App Store required sizes
 const DEVICES = {
-  'iphone-6.7': { name: 'iPhone 15 Pro Max', width: 1290, height: 2796, scale: 0.143, notch: 'dynamic-island' },
+  // iPhone 6.7" (iPhone 14 Pro Max, 15 Pro Max)
+  'iphone-6.7-portrait': { name: 'iPhone 6.7" Portrait', width: 1284, height: 2778, scale: 0.144, notch: 'dynamic-island' },
+  'iphone-6.7-landscape': { name: 'iPhone 6.7" Paysage', width: 2778, height: 1284, scale: 0.31, notch: 'dynamic-island' },
+  // iPhone 6.5" (iPhone XS Max, 11 Pro Max)
+  'iphone-6.5-portrait': { name: 'iPhone 6.5" Portrait', width: 1242, height: 2688, scale: 0.149, notch: 'notch' },
+  'iphone-6.5-landscape': { name: 'iPhone 6.5" Paysage', width: 2688, height: 1242, scale: 0.32, notch: 'notch' },
+  // Other common sizes
   'iphone-6.1-pro': { name: 'iPhone 15 Pro', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
-  'iphone-6.1': { name: 'iPhone 15', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
   'iphone-5.4': { name: 'iPhone 13 mini', width: 1080, height: 2340, scale: 0.17, notch: 'notch' },
   'iphone-se': { name: 'iPhone SE', width: 750, height: 1334, scale: 0.28, notch: 'none' },
   'ipad-12.9': { name: 'iPad Pro 12.9"', width: 2048, height: 2732, scale: 0.14, notch: 'none' },
@@ -200,7 +205,7 @@ export default function MockupEditor() {
   const EXPORT_MULTIPLIER = 3.1;
 
   // State
-  const [device, setDevice] = useState<DeviceType>('iphone-6.7');
+  const [device, setDevice] = useState<DeviceType>('iphone-6.7-portrait');
   const [background, setBackground] = useState(BACKGROUNDS[0]);
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
