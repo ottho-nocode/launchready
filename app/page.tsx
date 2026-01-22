@@ -953,7 +953,7 @@ export default function MockupEditor() {
                         const textEl = item.data as TextElement;
                         return (
                           <Text
-                            key={`${textEl.id}-fs${textEl.fontSize}`}
+                            key={textEl.id}
                             id={textEl.id}
                             text={textEl.text}
                             x={textEl.x}
@@ -978,15 +978,26 @@ export default function MockupEditor() {
                             }}
                             onDragEnd={(e) => handleDragEnd(e, textEl.id)}
                             onTransformEnd={(e) => {
-                              const node = e.target;
+                              const node = e.target as Konva.Text;
+                              const newWidth = Math.round(Math.max(50, node.width() * node.scaleX()));
+                              const newFontSize = Math.round(Math.max(12, textEl.fontSize * node.scaleY()));
+
+                              // Reset scale first
+                              node.scaleX(1);
+                              node.scaleY(1);
+
+                              // Apply new values directly to Konva node
+                              node.width(newWidth);
+                              node.fontSize(newFontSize);
+                              node.offsetX(newWidth / 2);
+
+                              // Update state
                               updateTextElement(textEl.id, {
                                 x: node.x(),
                                 y: node.y(),
-                                width: Math.round(Math.max(50, node.width() * node.scaleX())),
-                                fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
-                              });
-                              node.scaleX(1);
-                              node.scaleY(1);
+                                width: newWidth,
+                                fontSize: newFontSize,
+                              }, true);
                             }}
                           />
                         );
