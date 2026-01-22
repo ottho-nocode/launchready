@@ -109,6 +109,13 @@ Respond ONLY with the JSON object, no additional text.`;
   } catch (error) {
     console.error('Error generating texts:', error);
 
+    if (error instanceof Error && error.message.includes('OPENAI_API_KEY')) {
+      return NextResponse.json(
+        { error: 'API key not configured', message: 'Please set OPENAI_API_KEY in your .env.local file' },
+        { status: 503 }
+      );
+    }
+
     if (error instanceof OpenAI.APIError) {
       return NextResponse.json(
         { error: 'OpenAI API error', message: error.message },

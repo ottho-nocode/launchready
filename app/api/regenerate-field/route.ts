@@ -131,6 +131,13 @@ Respond with a JSON object containing only the field "${field}" with the new val
   } catch (error) {
     console.error('Error regenerating field:', error);
 
+    if (error instanceof Error && error.message.includes('OPENAI_API_KEY')) {
+      return NextResponse.json(
+        { error: 'API key not configured', message: 'Please set OPENAI_API_KEY in your .env.local file' },
+        { status: 503 }
+      );
+    }
+
     if (error instanceof OpenAI.APIError) {
       return NextResponse.json(
         { error: 'OpenAI API error', message: error.message },
