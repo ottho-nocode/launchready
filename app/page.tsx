@@ -933,7 +933,7 @@ export default function MockupEditor() {
                       const textEl = el as TextElement & { type: 'text' };
                       return (
                         <Text
-                          key={textEl.id}
+                          key={`${textEl.id}-${textEl.fontSize}-${textEl.fontFamily}`}
                           id={textEl.id}
                           text={textEl.text}
                           x={textEl.x}
