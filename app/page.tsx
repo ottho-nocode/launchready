@@ -8,27 +8,51 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import Konva from 'konva';
+import {
+  DeviceMobile,
+  Palette,
+  Image as ImageIcon,
+  TextT,
+  Plus,
+  Trash,
+  Download,
+  DeviceTablet,
+} from '@phosphor-icons/react';
 
-// Device configurations
+// Device configurations - varied sizes and aspect ratios
 const DEVICES = {
-  'iphone-6.5': { name: 'iPhone 6.5"', width: 1242, height: 2688, scale: 0.15 },
-  'iphone-6.1': { name: 'iPhone 6.1"', width: 1284, height: 2778, scale: 0.145 },
-  'iphone-5.5': { name: 'iPhone 5.5"', width: 1242, height: 2208, scale: 0.17 },
+  'iphone-6.7': { name: 'iPhone 15 Pro Max', width: 1290, height: 2796, scale: 0.143, notch: 'dynamic-island' },
+  'iphone-6.1-pro': { name: 'iPhone 15 Pro', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
+  'iphone-6.1': { name: 'iPhone 15', width: 1179, height: 2556, scale: 0.155, notch: 'dynamic-island' },
+  'iphone-5.4': { name: 'iPhone 13 mini', width: 1080, height: 2340, scale: 0.17, notch: 'notch' },
+  'iphone-se': { name: 'iPhone SE', width: 750, height: 1334, scale: 0.28, notch: 'none' },
+  'ipad-12.9': { name: 'iPad Pro 12.9"', width: 2048, height: 2732, scale: 0.14, notch: 'none' },
+  'ipad-11': { name: 'iPad Pro 11"', width: 1668, height: 2388, scale: 0.16, notch: 'none' },
 };
 
 type DeviceType = keyof typeof DEVICES;
 
-// Background presets
+// Background presets - solids and gradients
 const BACKGROUNDS = [
-  { name: 'Blue', type: 'solid', color: '#2563EB' },
-  { name: 'Violet', type: 'solid', color: '#7C3AED' },
-  { name: 'Pink', type: 'solid', color: '#DB2777' },
-  { name: 'Red', type: 'solid', color: '#DC2626' },
-  { name: 'Orange', type: 'solid', color: '#EA580C' },
-  { name: 'Green', type: 'solid', color: '#16A34A' },
-  { name: 'Cyan', type: 'solid', color: '#0891B2' },
-  { name: 'Dark', type: 'solid', color: '#1E293B' },
-  { name: 'Light', type: 'solid', color: '#F5F5F4' },
+  // Solid colors
+  { name: 'Blue', type: 'solid' as const, colors: ['#2563EB'] },
+  { name: 'Violet', type: 'solid' as const, colors: ['#7C3AED'] },
+  { name: 'Pink', type: 'solid' as const, colors: ['#DB2777'] },
+  { name: 'Red', type: 'solid' as const, colors: ['#DC2626'] },
+  { name: 'Orange', type: 'solid' as const, colors: ['#EA580C'] },
+  { name: 'Green', type: 'solid' as const, colors: ['#16A34A'] },
+  { name: 'Cyan', type: 'solid' as const, colors: ['#0891B2'] },
+  { name: 'Dark', type: 'solid' as const, colors: ['#1E293B'] },
+  { name: 'Light', type: 'solid' as const, colors: ['#F5F5F4'] },
+  // Gradients
+  { name: 'Ocean', type: 'gradient' as const, colors: ['#667eea', '#764ba2'] },
+  { name: 'Sunset', type: 'gradient' as const, colors: ['#f093fb', '#f5576c'] },
+  { name: 'Forest', type: 'gradient' as const, colors: ['#11998e', '#38ef7d'] },
+  { name: 'Fire', type: 'gradient' as const, colors: ['#f12711', '#f5af19'] },
+  { name: 'Night', type: 'gradient' as const, colors: ['#232526', '#414345'] },
+  { name: 'Sky', type: 'gradient' as const, colors: ['#56CCF2', '#2F80ED'] },
+  { name: 'Candy', type: 'gradient' as const, colors: ['#ff6a88', '#ff99ac'] },
+  { name: 'Aurora', type: 'gradient' as const, colors: ['#00d2ff', '#3a7bd5'] },
 ];
 
 const TEXT_COLORS = ['#FFFFFF', '#FEF3C7', '#000000', '#2563EB', '#DC2626', '#16A34A'];
@@ -57,8 +81,8 @@ export default function MockupEditor() {
   const EXPORT_MULTIPLIER = 3.1;
 
   // State
-  const [device, setDevice] = useState<DeviceType>('iphone-6.5');
-  const [backgroundColor, setBackgroundColor] = useState('#2563EB');
+  const [device, setDevice] = useState<DeviceType>('iphone-6.7');
+  const [background, setBackground] = useState(BACKGROUNDS[0]);
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [phonePosition, setPhonePosition] = useState({ x: 0, y: 40 }); // Offset from center
@@ -249,7 +273,10 @@ export default function MockupEditor() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="mx-auto max-w-6xl">
-        <h1 className="mb-6 text-2xl font-bold">📱 Mockup Editor</h1>
+        <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
+          <DeviceMobile size={28} weight="duotone" />
+          Mockup Editor
+        </h1>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Canvas */}
@@ -274,7 +301,10 @@ export default function MockupEditor() {
                     y={0}
                     width={CANVAS_WIDTH}
                     height={CANVAS_HEIGHT}
-                    fill={backgroundColor}
+                    fill={background.type === 'solid' ? background.colors[0] : undefined}
+                    fillLinearGradientStartPoint={background.type === 'gradient' ? { x: 0, y: 0 } : undefined}
+                    fillLinearGradientEndPoint={background.type === 'gradient' ? { x: 0, y: CANVAS_HEIGHT } : undefined}
+                    fillLinearGradientColorStops={background.type === 'gradient' ? [0, background.colors[0], 1, background.colors[1]] : undefined}
                   />
                 </Layer>
 
@@ -384,15 +414,27 @@ export default function MockupEditor() {
                       )}
                     </Group>
 
-                    {/* Notch */}
-                    <Rect
-                      x={notchOffsetX}
-                      y={notchOffsetY}
-                      width={notchWidth}
-                      height={notchHeight}
-                      fill="#1a1a1a"
-                      cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
-                    />
+                    {/* Notch / Dynamic Island */}
+                    {deviceConfig.notch === 'notch' && (
+                      <Rect
+                        x={notchOffsetX}
+                        y={notchOffsetY}
+                        width={notchWidth}
+                        height={notchHeight}
+                        fill="#1a1a1a"
+                        cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
+                      />
+                    )}
+                    {deviceConfig.notch === 'dynamic-island' && (
+                      <Rect
+                        x={(phoneWidth - phoneWidth * 0.28) / 2}
+                        y={screenOffsetY + 10}
+                        width={phoneWidth * 0.28}
+                        height={notchHeight * 0.7}
+                        fill="#1a1a1a"
+                        cornerRadius={notchHeight * 0.35}
+                      />
+                    )}
                   </Group>
                   <Transformer
                     ref={phoneTransformerRef}
@@ -461,7 +503,8 @@ export default function MockupEditor() {
 
             <div className="mt-4 flex justify-center gap-3">
               <Button onClick={exportMockup} size="lg">
-                ⬇️ Télécharger PNG
+                <Download size={20} className="mr-2" />
+                Télécharger PNG
               </Button>
             </div>
           </Card>
@@ -470,23 +513,33 @@ export default function MockupEditor() {
           <div className="space-y-4">
             {/* Device Selection */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">📱 Device</Label>
-              <div className="grid grid-cols-1 gap-2">
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <DeviceMobile size={18} weight="duotone" />
+                Device
+              </Label>
+              <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
                 {Object.entries(DEVICES).map(([key, config]) => (
                   <button
                     key={key}
                     onClick={() => setDevice(key as DeviceType)}
                     className={cn(
-                      'rounded-lg border-2 px-3 py-2 text-left text-sm transition-colors',
+                      'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-left text-sm transition-colors',
                       device === key
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
-                    {config.name}
-                    <span className="ml-2 text-xs text-gray-500">
-                      {config.width}×{config.height}
-                    </span>
+                    {key.includes('ipad') ? (
+                      <DeviceTablet size={16} weight="duotone" />
+                    ) : (
+                      <DeviceMobile size={16} weight="duotone" />
+                    )}
+                    <div className="flex-1">
+                      <div className="font-medium">{config.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {config.width}×{config.height}
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -494,19 +547,42 @@ export default function MockupEditor() {
 
             {/* Background */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">🎨 Fond</Label>
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <Palette size={18} weight="duotone" />
+                Fond
+              </Label>
+              <div className="mb-2 text-xs text-gray-500">Couleurs unies</div>
               <div className="grid grid-cols-5 gap-2">
-                {BACKGROUNDS.map((bg) => (
+                {BACKGROUNDS.filter(bg => bg.type === 'solid').map((bg) => (
                   <button
-                    key={bg.color}
-                    onClick={() => setBackgroundColor(bg.color)}
+                    key={bg.name}
+                    onClick={() => setBackground(bg)}
                     className={cn(
                       'h-10 w-10 rounded-lg border-2 transition-transform',
-                      backgroundColor === bg.color
+                      background.name === bg.name
                         ? 'border-black scale-110 ring-2 ring-black/20'
                         : 'border-gray-300 hover:scale-105'
                     )}
-                    style={{ backgroundColor: bg.color }}
+                    style={{ backgroundColor: bg.colors[0] }}
+                    title={bg.name}
+                  />
+                ))}
+              </div>
+              <div className="mt-3 mb-2 text-xs text-gray-500">Dégradés</div>
+              <div className="grid grid-cols-4 gap-2">
+                {BACKGROUNDS.filter(bg => bg.type === 'gradient').map((bg) => (
+                  <button
+                    key={bg.name}
+                    onClick={() => setBackground(bg)}
+                    className={cn(
+                      'h-10 w-full rounded-lg border-2 transition-transform',
+                      background.name === bg.name
+                        ? 'border-black scale-105 ring-2 ring-black/20'
+                        : 'border-gray-300 hover:scale-105'
+                    )}
+                    style={{
+                      background: `linear-gradient(135deg, ${bg.colors[0]}, ${bg.colors[1]})`
+                    }}
                     title={bg.name}
                   />
                 ))}
@@ -514,17 +590,20 @@ export default function MockupEditor() {
               <div className="mt-3 flex items-center gap-2">
                 <input
                   type="color"
-                  value={backgroundColor}
-                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  value={background.colors[0]}
+                  onChange={(e) => setBackground({ name: 'Custom', type: 'solid', colors: [e.target.value] })}
                   className="h-10 w-10 cursor-pointer rounded"
                 />
-                <span className="text-sm text-gray-500">{backgroundColor}</span>
+                <span className="text-sm text-gray-500">{background.colors[0]}</span>
               </div>
             </Card>
 
             {/* Screenshot */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">🖼️ Screenshot</Label>
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <ImageIcon size={18} weight="duotone" />
+                Screenshot
+              </Label>
               <div
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
@@ -558,9 +637,13 @@ export default function MockupEditor() {
 
             {/* Text Controls */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">✏️ Texte</Label>
+              <Label className="mb-3 flex items-center gap-2 font-medium">
+                <TextT size={18} weight="duotone" />
+                Texte
+              </Label>
               <Button onClick={addTextElement} variant="outline" className="mb-3 w-full">
-                + Ajouter du texte
+                <Plus size={16} className="mr-2" />
+                Ajouter du texte
               </Button>
 
               {selectedElement && (
@@ -625,7 +708,8 @@ export default function MockupEditor() {
                     variant="destructive"
                     className="w-full"
                   >
-                    🗑️ Supprimer
+                    <Trash size={16} className="mr-2" />
+                    Supprimer
                   </Button>
                 </div>
               )}
