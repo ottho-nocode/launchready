@@ -55,7 +55,10 @@ import {
   ArrowUp,
   ArrowDown,
   Stack,
+  ArrowClockwise,
+  ArrowCounterClockwise,
 } from '@phosphor-icons/react';
+import type { IconWeight } from '@phosphor-icons/react';
 import { renderToString } from 'react-dom/server';
 
 // Available icons for the picker
@@ -165,8 +168,16 @@ interface IconElement {
   y: number;
   size: number;
   fill: string;
+  opacity: number;
+  weight: IconWeight;
   draggable: boolean;
   zIndex: number;
+}
+
+// History state for undo/redo
+interface HistoryState {
+  textElements: TextElement[];
+  iconElements: IconElement[];
 }
 
 // Collapsible card component
@@ -243,6 +254,11 @@ export default function MockupEditor() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<'text' | 'icon' | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+
+  // History for undo/redo
+  const [history, setHistory] = useState<HistoryState[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoingRef = useRef(false);
 
   // Device dimensions
   const deviceConfig = DEVICES[device];
@@ -359,15 +375,64 @@ export default function MockupEditor() {
     setIsPhoneSelected(false);
   }, [nextZIndex]);
 
+  // Save state to history
+  const saveToHistory = useCallback(() => {
+    if (isUndoingRef.current) return;
+
+    const newState: HistoryState = {
+      textElements: JSON.parse(JSON.stringify(textElements)),
+      iconElements: JSON.parse(JSON.stringify(iconElements)),
+    };
+
+    setHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(newState);
+      // Limit history to 50 states
+      if (newHistory.length > 50) newHistory.shift();
+      return newHistory;
+    });
+    setHistoryIndex(prev => Math.min(prev + 1, 49));
+  }, [textElements, iconElements, historyIndex]);
+
+  // Undo
+  const undo = useCallback(() => {
+    if (historyIndex <= 0) return;
+
+    isUndoingRef.current = true;
+    const prevState = history[historyIndex - 1];
+    setTextElements(prevState.textElements);
+    setIconElements(prevState.iconElements);
+    setHistoryIndex(prev => prev - 1);
+    setSelectedId(null);
+    setSelectedType(null);
+
+    setTimeout(() => { isUndoingRef.current = false; }, 100);
+  }, [history, historyIndex]);
+
+  // Redo
+  const redo = useCallback(() => {
+    if (historyIndex >= history.length - 1) return;
+
+    isUndoingRef.current = true;
+    const nextState = history[historyIndex + 1];
+    setTextElements(nextState.textElements);
+    setIconElements(nextState.iconElements);
+    setHistoryIndex(prev => prev + 1);
+    setSelectedId(null);
+    setSelectedType(null);
+
+    setTimeout(() => { isUndoingRef.current = false; }, 100);
+  }, [history, historyIndex]);
+
   // Create icon image from Phosphor icon
-  const createIconImage = useCallback((iconName: string, color: string, size: number): Promise<HTMLImageElement> => {
+  const createIconImage = useCallback((iconName: string, color: string, size: number, weight: IconWeight = 'fill', opacity: number = 1): Promise<HTMLImageElement> => {
     return new Promise((resolve) => {
       const iconData = AVAILABLE_ICONS.find(i => i.name === iconName);
       if (!iconData) return;
 
       const IconComponent = iconData.icon;
       const svgString = renderToString(
-        <IconComponent size={size} color={color} weight="fill" />
+        <IconComponent size={size} color={color} weight={weight} opacity={opacity} />
       );
 
       const img = new window.Image();
@@ -378,11 +443,14 @@ export default function MockupEditor() {
 
   // Add new icon element
   const addIconElement = useCallback(async (iconName: string) => {
+    saveToHistory();
     const newId = `icon-${Date.now()}`;
     const color = '#FFFFFF';
     const size = 48;
+    const weight: IconWeight = 'fill';
+    const opacity = 1;
 
-    const img = await createIconImage(iconName, color, size);
+    const img = await createIconImage(iconName, color, size, weight, opacity);
     setIconImages(prev => ({ ...prev, [newId]: img }));
 
     setIconElements((prev) => [
@@ -394,6 +462,8 @@ export default function MockupEditor() {
         y: 150 + prev.length * 60,
         size,
         fill: color,
+        opacity,
+        weight,
         draggable: true,
         zIndex: nextZIndex,
       },
@@ -407,6 +477,7 @@ export default function MockupEditor() {
   // Move element forward (higher z-index)
   const moveForward = useCallback(() => {
     if (!selectedId || !selectedType) return;
+    saveToHistory();
 
     if (selectedType === 'text') {
       setTextElements(prev => prev.map(el =>
@@ -417,11 +488,12 @@ export default function MockupEditor() {
         el.id === selectedId ? { ...el, zIndex: el.zIndex + 1 } : el
       ));
     }
-  }, [selectedId, selectedType]);
+  }, [selectedId, selectedType, saveToHistory]);
 
   // Move element backward (lower z-index)
   const moveBackward = useCallback(() => {
     if (!selectedId || !selectedType) return;
+    saveToHistory();
 
     if (selectedType === 'text') {
       setTextElements(prev => prev.map(el =>
@@ -432,11 +504,12 @@ export default function MockupEditor() {
         el.id === selectedId ? { ...el, zIndex: Math.max(0, el.zIndex - 1) } : el
       ));
     }
-  }, [selectedId, selectedType]);
+  }, [selectedId, selectedType, saveToHistory]);
 
   // Bring to front
   const bringToFront = useCallback(() => {
     if (!selectedId || !selectedType) return;
+    saveToHistory();
 
     const maxZ = Math.max(
       ...textElements.map(el => el.zIndex),
@@ -454,11 +527,12 @@ export default function MockupEditor() {
       ));
     }
     setNextZIndex(maxZ + 2);
-  }, [selectedId, selectedType, textElements, iconElements]);
+  }, [selectedId, selectedType, textElements, iconElements, saveToHistory]);
 
   // Send to back
   const sendToBack = useCallback(() => {
     if (!selectedId || !selectedType) return;
+    saveToHistory();
 
     // Decrease all other elements' z-index
     if (selectedType === 'text') {
@@ -472,30 +546,35 @@ export default function MockupEditor() {
       ));
       setTextElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
     }
-  }, [selectedId, selectedType]);
+  }, [selectedId, selectedType, saveToHistory]);
 
   // Update icon element
-  const updateIconElement = useCallback(async (id: string, updates: Partial<IconElement>) => {
+  const updateIconElement = useCallback(async (id: string, updates: Partial<IconElement>, skipHistory = false) => {
+    if (!skipHistory) saveToHistory();
+
     setIconElements((prev) =>
       prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
     );
 
-    // Regenerate image if color or size changed
+    // Regenerate image if color, size, weight or opacity changed
     const element = iconElements.find(el => el.id === id);
-    if (element && (updates.fill || updates.size)) {
+    if (element && (updates.fill || updates.size || updates.weight || updates.opacity !== undefined)) {
       const newColor = updates.fill || element.fill;
       const newSize = updates.size || element.size;
-      const img = await createIconImage(element.iconName, newColor, newSize);
+      const newWeight = updates.weight || element.weight;
+      const newOpacity = updates.opacity !== undefined ? updates.opacity : element.opacity;
+      const img = await createIconImage(element.iconName, newColor, newSize, newWeight, newOpacity);
       setIconImages(prev => ({ ...prev, [id]: img }));
     }
-  }, [iconElements, createIconImage]);
+  }, [iconElements, createIconImage, saveToHistory]);
 
   // Update text element
-  const updateTextElement = useCallback((id: string, updates: Partial<TextElement>) => {
+  const updateTextElement = useCallback((id: string, updates: Partial<TextElement>, skipHistory = false) => {
+    if (!skipHistory) saveToHistory();
     setTextElements((prev) =>
       prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
     );
-  }, []);
+  }, [saveToHistory]);
 
   // Delete selected element (text or icon)
   const deleteSelected = useCallback(() => {
@@ -576,53 +655,74 @@ export default function MockupEditor() {
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Canvas */}
           <Card className="p-4">
-            {/* Layer position controls - shown when element is selected */}
-            {(selectedId || isPhoneSelected) && (
-              <div className="mb-3 flex items-center justify-end gap-2">
-                <span className="text-sm text-gray-500 flex items-center gap-1">
-                  <Stack size={16} />
-                  Position :
-                </span>
+            {/* Toolbar - Undo/Redo and Layer controls */}
+            <div className="mb-3 flex items-center justify-between">
+              {/* Undo/Redo */}
+              <div className="flex items-center gap-2">
                 <Button
-                  onClick={sendToBack}
+                  onClick={undo}
                   variant="outline"
                   size="sm"
-                  title="Envoyer à l'arrière"
-                  disabled={isPhoneSelected}
+                  title="Annuler (Undo)"
+                  disabled={historyIndex <= 0}
                 >
-                  <ArrowDown size={14} />
-                  <ArrowDown size={14} className="-ml-2" />
+                  <ArrowCounterClockwise size={16} />
                 </Button>
                 <Button
-                  onClick={moveBackward}
+                  onClick={redo}
                   variant="outline"
                   size="sm"
-                  title="Reculer"
-                  disabled={isPhoneSelected}
+                  title="Rétablir (Redo)"
+                  disabled={historyIndex >= history.length - 1}
                 >
-                  <ArrowDown size={16} />
-                </Button>
-                <Button
-                  onClick={moveForward}
-                  variant="outline"
-                  size="sm"
-                  title="Avancer"
-                  disabled={isPhoneSelected}
-                >
-                  <ArrowUp size={16} />
-                </Button>
-                <Button
-                  onClick={bringToFront}
-                  variant="outline"
-                  size="sm"
-                  title="Mettre au premier plan"
-                  disabled={isPhoneSelected}
-                >
-                  <ArrowUp size={14} />
-                  <ArrowUp size={14} className="-ml-2" />
+                  <ArrowClockwise size={16} />
                 </Button>
               </div>
-            )}
+
+              {/* Layer position controls - shown when element is selected */}
+              {selectedId && selectedType && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <Stack size={16} />
+                    Position :
+                  </span>
+                  <Button
+                    onClick={sendToBack}
+                    variant="outline"
+                    size="sm"
+                    title="Envoyer à l'arrière"
+                  >
+                    <ArrowDown size={14} />
+                    <ArrowDown size={14} className="-ml-2" />
+                  </Button>
+                  <Button
+                    onClick={moveBackward}
+                    variant="outline"
+                    size="sm"
+                    title="Reculer"
+                  >
+                    <ArrowDown size={16} />
+                  </Button>
+                  <Button
+                    onClick={moveForward}
+                    variant="outline"
+                    size="sm"
+                    title="Avancer"
+                  >
+                    <ArrowUp size={16} />
+                  </Button>
+                  <Button
+                    onClick={bringToFront}
+                    variant="outline"
+                    size="sm"
+                    title="Mettre au premier plan"
+                  >
+                    <ArrowUp size={14} />
+                    <ArrowUp size={14} className="-ml-2" />
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <div
               className="mx-auto rounded-lg bg-gray-200 p-3"
@@ -1206,6 +1306,41 @@ export default function MockupEditor() {
                         max={120}
                         step={4}
                       />
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">
+                        Opacité: {Math.round((selectedIconElement.opacity ?? 1) * 100)}%
+                      </Label>
+                      <Slider
+                        value={[(selectedIconElement.opacity ?? 1) * 100]}
+                        onValueChange={(v) =>
+                          updateIconElement(selectedId!, { opacity: v[0] / 100 })
+                        }
+                        min={10}
+                        max={100}
+                        step={5}
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block text-sm">Style</Label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(['fill', 'bold', 'duotone'] as const).map((w) => (
+                          <button
+                            key={w}
+                            onClick={() => updateIconElement(selectedId!, { weight: w })}
+                            className={cn(
+                              'rounded-lg border-2 px-2 py-1.5 text-xs font-medium transition-colors capitalize',
+                              selectedIconElement.weight === w
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-200 hover:border-gray-300'
+                            )}
+                          >
+                            {w}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <Button
