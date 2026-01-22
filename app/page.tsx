@@ -926,98 +926,104 @@ export default function MockupEditor() {
                   />
                 </Layer>
 
-                {/* Text & Icons Layer - rendered in z-index order */}
+                {/* Text & Icons Layer */}
                 <Layer>
-                  {sortedElements.map((el) => {
-                    if (el.type === 'text') {
-                      const textEl = el as TextElement & { type: 'text' };
-                      return (
-                        <Text
-                          key={`${textEl.id}-${textEl.fontSize}-${textEl.fontFamily}`}
-                          id={textEl.id}
-                          text={textEl.text}
-                          x={textEl.x}
-                          y={textEl.y}
-                          fontSize={textEl.fontSize}
-                          fill={textEl.fill}
-                          fontStyle={textEl.fontStyle}
-                          fontFamily={textEl.fontFamily}
-                          align={textEl.align}
-                          width={textEl.width}
-                          offsetX={textEl.width / 2}
-                          draggable={textEl.draggable}
-                          onClick={() => {
-                            setSelectedId(textEl.id);
-                            setSelectedType('text');
-                            setIsPhoneSelected(false);
-                          }}
-                          onTap={() => {
-                            setSelectedId(textEl.id);
-                            setSelectedType('text');
-                            setIsPhoneSelected(false);
-                          }}
-                          onDragEnd={(e) => handleDragEnd(e, textEl.id)}
-                          onTransformEnd={(e) => {
-                            const node = e.target;
-                            updateTextElement(textEl.id, {
-                              x: node.x(),
-                              y: node.y(),
-                              width: Math.round(Math.max(50, node.width() * node.scaleX())),
-                              fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
-                            });
-                            node.scaleX(1);
-                            node.scaleY(1);
-                          }}
-                        />
-                      );
-                    } else {
-                      const iconEl = el as IconElement & { type: 'icon' };
-                      if (!iconImages[iconEl.id]) return null;
-                      return (
-                        <KonvaImage
-                          key={iconEl.id}
-                          id={iconEl.id}
-                          image={iconImages[iconEl.id]}
-                          x={iconEl.x}
-                          y={iconEl.y}
-                          width={iconEl.size}
-                          height={iconEl.size}
-                          offsetX={iconEl.size / 2}
-                          offsetY={iconEl.size / 2}
-                          draggable={iconEl.draggable}
-                          onClick={() => {
-                            setSelectedId(iconEl.id);
-                            setSelectedType('icon');
-                            setIsPhoneSelected(false);
-                          }}
-                          onTap={() => {
-                            setSelectedId(iconEl.id);
-                            setSelectedType('icon');
-                            setIsPhoneSelected(false);
-                          }}
-                          onDragEnd={(e) => {
-                            setIconElements(prev =>
-                              prev.map(icon =>
-                                icon.id === iconEl.id
-                                  ? { ...icon, x: e.target.x(), y: e.target.y() }
-                                  : icon
-                              )
-                            );
-                          }}
-                          onTransformEnd={(e) => {
-                            const node = e.target;
-                            const newSize = Math.max(16, iconEl.size * node.scaleX());
-                            updateIconElement(iconEl.id, {
-                              x: node.x(),
-                              y: node.y(),
-                              size: newSize,
-                            });
-                            node.scaleX(1);
-                            node.scaleY(1);
-                          }}
-                        />
-                      );
-                    }
+                  {/* Debug: show fontSize on canvas */}
+                  <Text
+                    text={`Debug fontSize: ${textElements[0]?.fontSize || 'N/A'}px`}
+                    x={10}
+                    y={10}
+                    fontSize={16}
+                    fill="#FF0000"
+                    fontStyle="bold"
+                  />
+                  {/* Render text elements */}
+                  {textElements.map((textEl) => (
+                    <Text
+                      key={textEl.id}
+                      id={textEl.id}
+                      text={textEl.text}
+                      x={textEl.x}
+                      y={textEl.y}
+                      fontSize={textEl.fontSize}
+                      fill={textEl.fill}
+                      fontStyle={textEl.fontStyle}
+                      fontFamily={textEl.fontFamily}
+                      align={textEl.align}
+                      width={textEl.width}
+                      offsetX={textEl.width / 2}
+                      draggable={textEl.draggable}
+                      onClick={() => {
+                        setSelectedId(textEl.id);
+                        setSelectedType('text');
+                        setIsPhoneSelected(false);
+                      }}
+                      onTap={() => {
+                        setSelectedId(textEl.id);
+                        setSelectedType('text');
+                        setIsPhoneSelected(false);
+                      }}
+                      onDragEnd={(e) => handleDragEnd(e, textEl.id)}
+                      onTransformEnd={(e) => {
+                        const node = e.target;
+                        updateTextElement(textEl.id, {
+                          x: node.x(),
+                          y: node.y(),
+                          width: Math.round(Math.max(50, node.width() * node.scaleX())),
+                          fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
+                        });
+                        node.scaleX(1);
+                        node.scaleY(1);
+                      }}
+                    />
+                  ))}
+                  {/* Render icon elements */}
+                  {iconElements.map((iconEl) => {
+                    if (!iconImages[iconEl.id]) return null;
+                    return (
+                      <KonvaImage
+                        key={iconEl.id}
+                        id={iconEl.id}
+                        image={iconImages[iconEl.id]}
+                        x={iconEl.x}
+                        y={iconEl.y}
+                        width={iconEl.size}
+                        height={iconEl.size}
+                        offsetX={iconEl.size / 2}
+                        offsetY={iconEl.size / 2}
+                        draggable={iconEl.draggable}
+                        onClick={() => {
+                          setSelectedId(iconEl.id);
+                          setSelectedType('icon');
+                          setIsPhoneSelected(false);
+                        }}
+                        onTap={() => {
+                          setSelectedId(iconEl.id);
+                          setSelectedType('icon');
+                          setIsPhoneSelected(false);
+                        }}
+                        onDragEnd={(e) => {
+                          setIconElements(prev =>
+                            prev.map(icon =>
+                              icon.id === iconEl.id
+                                ? { ...icon, x: e.target.x(), y: e.target.y() }
+                                : icon
+                            )
+                          );
+                        }}
+                        onTransformEnd={(e) => {
+                          const node = e.target;
+                          const newSize = Math.max(16, iconEl.size * node.scaleX());
+                          updateIconElement(iconEl.id, {
+                            x: node.x(),
+                            y: node.y(),
+                            size: newSize,
+                          });
+                          node.scaleX(1);
+                          node.scaleY(1);
+                        }}
+                      />
+                    );
                   })}
                   <Transformer
                     ref={transformerRef}
