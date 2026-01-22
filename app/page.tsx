@@ -1304,27 +1304,11 @@ export default function MockupEditor() {
                       </div>
                     </div>
 
-                    <div>
-                      <Label className="mb-2 block text-sm">
-                        Taille: {selectedTextElement.fontSize}px
-                      </Label>
-                      <Slider
-                        value={[selectedTextElement.fontSize]}
-                        onValueChange={(v) => {
-                          setTextElements(prev =>
-                            prev.map(el => el.id === selectedId ? { ...el, fontSize: v[0] } : el)
-                          );
-                        }}
-                        min={12}
-                        max={80}
-                        step={1}
-                      />
-                    </div>
                   </div>
                 )}
 
                 <p className="mt-3 text-xs text-gray-500">
-                  Cliquez sur un texte pour le sélectionner • Glissez pour déplacer
+                  Cliquez sur un texte pour le sélectionner • Redimensionnez pour changer la taille
                 </p>
               </div>
             </CollapsibleCard>
