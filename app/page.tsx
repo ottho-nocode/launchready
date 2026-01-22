@@ -1342,18 +1342,33 @@ export default function MockupEditor() {
                     </div>
 
                     <div>
-                      <Label className="mb-2 block text-sm">
-                        Taille: {Math.round(selectedTextElement.fontSize)}px
-                      </Label>
-                      <Slider
-                        value={[selectedTextElement.fontSize]}
-                        onValueChange={(v) =>
-                          updateTextElement(selectedId!, { fontSize: Math.round(v[0]) })
-                        }
-                        min={12}
-                        max={80}
-                        step={1}
-                      />
+                      <Label className="mb-2 block text-sm">Taille</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={selectedTextElement.fontSize}
+                          onChange={(e) => {
+                            const newSize = Math.max(12, Math.min(80, parseInt(e.target.value) || 12));
+                            updateTextElement(selectedId!, { fontSize: newSize });
+                          }}
+                          min={12}
+                          max={80}
+                          className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                        <span className="text-sm text-gray-500">px</span>
+                        <input
+                          type="range"
+                          value={selectedTextElement.fontSize}
+                          onChange={(e) => {
+                            const newSize = parseInt(e.target.value);
+                            updateTextElement(selectedId!, { fontSize: newSize }, true);
+                          }}
+                          min={12}
+                          max={80}
+                          step={1}
+                          className="flex-1"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
