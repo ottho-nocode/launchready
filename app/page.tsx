@@ -253,6 +253,7 @@ export default function MockupEditor() {
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [phonePosition, setPhonePosition] = useState({ x: 0, y: 40 }); // Offset from center
   const [phoneScale, setPhoneScale] = useState(1); // Scale factor for phone
+  const [phoneZIndex, setPhoneZIndex] = useState(0); // Phone layer position
   const [isPhoneSelected, setIsPhoneSelected] = useState(false);
   const phoneTransformerRef = useRef<Konva.Transformer>(null);
   const [textElements, setTextElements] = useState<TextElement[]>([
@@ -501,6 +502,10 @@ export default function MockupEditor() {
 
   // Move element forward (higher z-index)
   const moveForward = useCallback(() => {
+    if (isPhoneSelected) {
+      setPhoneZIndex(prev => prev + 1);
+      return;
+    }
     if (!selectedId || !selectedType) return;
     saveToHistory();
 
@@ -513,10 +518,14 @@ export default function MockupEditor() {
         el.id === selectedId ? { ...el, zIndex: el.zIndex + 1 } : el
       ));
     }
-  }, [selectedId, selectedType, saveToHistory]);
+  }, [selectedId, selectedType, isPhoneSelected, saveToHistory]);
 
   // Move element backward (lower z-index)
   const moveBackward = useCallback(() => {
+    if (isPhoneSelected) {
+      setPhoneZIndex(prev => Math.max(0, prev - 1));
+      return;
+    }
     if (!selectedId || !selectedType) return;
     saveToHistory();
 
@@ -529,18 +538,24 @@ export default function MockupEditor() {
         el.id === selectedId ? { ...el, zIndex: Math.max(0, el.zIndex - 1) } : el
       ));
     }
-  }, [selectedId, selectedType, saveToHistory]);
+  }, [selectedId, selectedType, isPhoneSelected, saveToHistory]);
 
   // Bring to front
   const bringToFront = useCallback(() => {
-    if (!selectedId || !selectedType) return;
-    saveToHistory();
-
     const maxZ = Math.max(
       ...textElements.map(el => el.zIndex),
       ...iconElements.map(el => el.zIndex),
+      phoneZIndex,
       0
     );
+
+    if (isPhoneSelected) {
+      setPhoneZIndex(maxZ + 1);
+      setNextZIndex(maxZ + 2);
+      return;
+    }
+    if (!selectedId || !selectedType) return;
+    saveToHistory();
 
     if (selectedType === 'text') {
       setTextElements(prev => prev.map(el =>
@@ -552,10 +567,16 @@ export default function MockupEditor() {
       ));
     }
     setNextZIndex(maxZ + 2);
-  }, [selectedId, selectedType, textElements, iconElements, saveToHistory]);
+  }, [selectedId, selectedType, isPhoneSelected, textElements, iconElements, phoneZIndex, saveToHistory]);
 
   // Send to back
   const sendToBack = useCallback(() => {
+    if (isPhoneSelected) {
+      setPhoneZIndex(0);
+      setTextElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+      setIconElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+      return;
+    }
     if (!selectedId || !selectedType) return;
     saveToHistory();
 
@@ -565,13 +586,15 @@ export default function MockupEditor() {
         el.id === selectedId ? { ...el, zIndex: 0 } : { ...el, zIndex: el.zIndex + 1 }
       ));
       setIconElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+      setPhoneZIndex(prev => prev + 1);
     } else if (selectedType === 'icon') {
       setIconElements(prev => prev.map(el =>
         el.id === selectedId ? { ...el, zIndex: 0 } : { ...el, zIndex: el.zIndex + 1 }
       ));
       setTextElements(prev => prev.map(el => ({ ...el, zIndex: el.zIndex + 1 })));
+      setPhoneZIndex(prev => prev + 1);
     }
-  }, [selectedId, selectedType, saveToHistory]);
+  }, [selectedId, selectedType, isPhoneSelected, saveToHistory]);
 
   // Update icon element
   const updateIconElement = useCallback(async (id: string, updates: Partial<IconElement>, skipHistory = false) => {
@@ -704,12 +727,12 @@ export default function MockupEditor() {
                 </Button>
               </div>
 
-              {/* Layer position controls and delete - shown when element is selected */}
-              {selectedId && selectedType && (
+              {/* Layer position controls and delete - shown when element or phone is selected */}
+              {(selectedId && selectedType) || isPhoneSelected ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500 flex items-center gap-1">
                     <Stack size={16} />
-                    Position :
+                    Position {isPhoneSelected ? '(Phone)' : ''} :
                   </span>
                   <Button
                     onClick={sendToBack}
@@ -745,17 +768,21 @@ export default function MockupEditor() {
                     <ArrowUp size={14} />
                     <ArrowUp size={14} className="-ml-2" />
                   </Button>
-                  <div className="w-px h-6 bg-gray-300 mx-1" />
-                  <Button
-                    onClick={deleteSelected}
-                    variant="destructive"
-                    size="sm"
-                    title="Supprimer"
-                  >
-                    <Trash size={16} />
-                  </Button>
+                  {!isPhoneSelected && (
+                    <>
+                      <div className="w-px h-6 bg-gray-300 mx-1" />
+                      <Button
+                        onClick={deleteSelected}
+                        variant="destructive"
+                        size="sm"
+                        title="Supprimer"
+                      >
+                        <Trash size={16} />
+                      </Button>
+                    </>
+                  )}
                 </div>
-              )}
+              ) : null}
             </div>
 
             <div
@@ -785,134 +812,236 @@ export default function MockupEditor() {
                   />
                 </Layer>
 
-                {/* Phone Layer */}
+                {/* Content Layer - Phone, Text & Icons sorted by z-index */}
                 <Layer>
-                  <Group
-                    id="phone-group"
-                    x={phoneX}
-                    y={phoneY}
-                    scaleX={phoneScale}
-                    scaleY={phoneScale}
-                    draggable
-                    onClick={() => {
-                      setIsPhoneSelected(true);
-                      setSelectedId(null);
-                    }}
-                    onTap={() => {
-                      setIsPhoneSelected(true);
-                      setSelectedId(null);
-                    }}
-                    onDragEnd={(e) => {
-                      const newX = e.target.x() - basePhoneX;
-                      const newY = e.target.y() - basePhoneY;
-                      setPhonePosition({ x: newX, y: newY });
-                    }}
-                    onTransformEnd={(e) => {
-                      const node = e.target;
-                      const newScale = node.scaleX();
-                      setPhoneScale(newScale);
-                      setPhonePosition({
-                        x: node.x() - basePhoneX,
-                        y: node.y() - basePhoneY,
-                      });
-                    }}
-                    onMouseEnter={(e) => {
-                      const container = e.target.getStage()?.container();
-                      if (container) container.style.cursor = 'move';
-                    }}
-                    onMouseLeave={(e) => {
-                      const container = e.target.getStage()?.container();
-                      if (container) container.style.cursor = 'default';
-                    }}
-                  >
-                    {/* Phone outer frame */}
-                    <Rect
-                      x={0}
-                      y={0}
-                      width={phoneWidth}
-                      height={phoneHeight}
-                      fill="#1a1a1a"
-                      cornerRadius={cornerRadius}
-                    />
+                  {(() => {
+                    // Create sorted array of all elements
+                    const allElements = [
+                      { type: 'phone' as const, zIndex: phoneZIndex },
+                      ...textElements.map(el => ({ type: 'text' as const, data: el, zIndex: el.zIndex })),
+                      ...iconElements.map(el => ({ type: 'icon' as const, data: el, zIndex: el.zIndex })),
+                    ].sort((a, b) => a.zIndex - b.zIndex);
 
-                    {/* Phone bezel */}
-                    <Rect
-                      x={3}
-                      y={3}
-                      width={phoneWidth - 6}
-                      height={phoneHeight - 6}
-                      fill="#2d2d2d"
-                      cornerRadius={cornerRadius - 3}
-                    />
-
-                    {/* Screen with clipping */}
-                    <Group
-                      clipFunc={(ctx) => {
-                        ctx.beginPath();
-                        const r = cornerRadius - bezelWidth;
-                        const sx = screenOffsetX;
-                        const sy = screenOffsetY;
-                        ctx.moveTo(sx + r, sy);
-                        ctx.lineTo(sx + screenWidth - r, sy);
-                        ctx.quadraticCurveTo(sx + screenWidth, sy, sx + screenWidth, sy + r);
-                        ctx.lineTo(sx + screenWidth, sy + screenHeight - r);
-                        ctx.quadraticCurveTo(sx + screenWidth, sy + screenHeight, sx + screenWidth - r, sy + screenHeight);
-                        ctx.lineTo(sx + r, sy + screenHeight);
-                        ctx.quadraticCurveTo(sx, sy + screenHeight, sx, sy + screenHeight - r);
-                        ctx.lineTo(sx, sy + r);
-                        ctx.quadraticCurveTo(sx, sy, sx + r, sy);
-                        ctx.closePath();
-                      }}
-                    >
-                      {/* Screen background */}
-                      <Rect
-                        x={screenOffsetX}
-                        y={screenOffsetY}
-                        width={screenWidth}
-                        height={screenHeight}
-                        fill="#000"
-                      />
-
-                      {/* Screenshot */}
-                      {screenshot && (
-                        <KonvaImage
-                          image={screenshot}
-                          x={screenOffsetX}
-                          y={screenOffsetY}
-                          width={screenWidth}
-                          height={screenHeight}
-                          crop={{
-                            x: 0,
-                            y: 0,
-                            width: screenshot.width,
-                            height: Math.min(screenshot.height, screenshot.width * (screenHeight / screenWidth)),
-                          }}
-                        />
-                      )}
-                    </Group>
-
-                    {/* Notch / Dynamic Island */}
-                    {deviceConfig.notch === 'notch' && (
-                      <Rect
-                        x={notchOffsetX}
-                        y={notchOffsetY}
-                        width={notchWidth}
-                        height={notchHeight}
-                        fill="#1a1a1a"
-                        cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
-                      />
-                    )}
-                    {deviceConfig.notch === 'dynamic-island' && (
-                      <Rect
-                        x={(phoneWidth - phoneWidth * 0.28) / 2}
-                        y={screenOffsetY + 10}
-                        width={phoneWidth * 0.28}
-                        height={notchHeight * 0.7}
-                        fill="#1a1a1a"
-                        cornerRadius={notchHeight * 0.35}
-                      />
-                    )}
-                  </Group>
+                    return allElements.map((item, index) => {
+                      if (item.type === 'phone') {
+                        return (
+                          <Group
+                            key="phone-group"
+                            id="phone-group"
+                            x={phoneX}
+                            y={phoneY}
+                            scaleX={phoneScale}
+                            scaleY={phoneScale}
+                            draggable
+                            onClick={() => {
+                              setIsPhoneSelected(true);
+                              setSelectedId(null);
+                              setSelectedType(null);
+                            }}
+                            onTap={() => {
+                              setIsPhoneSelected(true);
+                              setSelectedId(null);
+                              setSelectedType(null);
+                            }}
+                            onDragEnd={(e) => {
+                              const newX = e.target.x() - basePhoneX;
+                              const newY = e.target.y() - basePhoneY;
+                              setPhonePosition({ x: newX, y: newY });
+                            }}
+                            onTransformEnd={(e) => {
+                              const node = e.target;
+                              const newScale = node.scaleX();
+                              setPhoneScale(newScale);
+                              setPhonePosition({
+                                x: node.x() - basePhoneX,
+                                y: node.y() - basePhoneY,
+                              });
+                            }}
+                            onMouseEnter={(e) => {
+                              const container = e.target.getStage()?.container();
+                              if (container) container.style.cursor = 'move';
+                            }}
+                            onMouseLeave={(e) => {
+                              const container = e.target.getStage()?.container();
+                              if (container) container.style.cursor = 'default';
+                            }}
+                          >
+                            {/* Phone outer frame */}
+                            <Rect
+                              x={0}
+                              y={0}
+                              width={phoneWidth}
+                              height={phoneHeight}
+                              fill="#1a1a1a"
+                              cornerRadius={cornerRadius}
+                            />
+                            {/* Phone bezel */}
+                            <Rect
+                              x={3}
+                              y={3}
+                              width={phoneWidth - 6}
+                              height={phoneHeight - 6}
+                              fill="#2d2d2d"
+                              cornerRadius={cornerRadius - 3}
+                            />
+                            {/* Screen with clipping */}
+                            <Group
+                              clipFunc={(ctx) => {
+                                ctx.beginPath();
+                                const r = cornerRadius - bezelWidth;
+                                const sx = screenOffsetX;
+                                const sy = screenOffsetY;
+                                ctx.moveTo(sx + r, sy);
+                                ctx.lineTo(sx + screenWidth - r, sy);
+                                ctx.quadraticCurveTo(sx + screenWidth, sy, sx + screenWidth, sy + r);
+                                ctx.lineTo(sx + screenWidth, sy + screenHeight - r);
+                                ctx.quadraticCurveTo(sx + screenWidth, sy + screenHeight, sx + screenWidth - r, sy + screenHeight);
+                                ctx.lineTo(sx + r, sy + screenHeight);
+                                ctx.quadraticCurveTo(sx, sy + screenHeight, sx, sy + screenHeight - r);
+                                ctx.lineTo(sx, sy + r);
+                                ctx.quadraticCurveTo(sx, sy, sx + r, sy);
+                                ctx.closePath();
+                              }}
+                            >
+                              <Rect
+                                x={screenOffsetX}
+                                y={screenOffsetY}
+                                width={screenWidth}
+                                height={screenHeight}
+                                fill="#000"
+                              />
+                              {screenshot && (
+                                <KonvaImage
+                                  image={screenshot}
+                                  x={screenOffsetX}
+                                  y={screenOffsetY}
+                                  width={screenWidth}
+                                  height={screenHeight}
+                                  crop={{
+                                    x: 0,
+                                    y: 0,
+                                    width: screenshot.width,
+                                    height: Math.min(screenshot.height, screenshot.width * (screenHeight / screenWidth)),
+                                  }}
+                                />
+                              )}
+                            </Group>
+                            {/* Notch / Dynamic Island */}
+                            {deviceConfig.notch === 'notch' && (
+                              <Rect
+                                x={notchOffsetX}
+                                y={notchOffsetY}
+                                width={notchWidth}
+                                height={notchHeight}
+                                fill="#1a1a1a"
+                                cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
+                              />
+                            )}
+                            {deviceConfig.notch === 'dynamic-island' && (
+                              <Rect
+                                x={(phoneWidth - phoneWidth * 0.28) / 2}
+                                y={screenOffsetY + 10}
+                                width={phoneWidth * 0.28}
+                                height={notchHeight * 0.7}
+                                fill="#1a1a1a"
+                                cornerRadius={notchHeight * 0.35}
+                              />
+                            )}
+                          </Group>
+                        );
+                      } else if (item.type === 'text') {
+                        const textEl = item.data as TextElement;
+                        return (
+                          <Text
+                            key={`${textEl.id}-fs${textEl.fontSize}`}
+                            id={textEl.id}
+                            text={textEl.text}
+                            x={textEl.x}
+                            y={textEl.y}
+                            fontSize={textEl.fontSize}
+                            fill={textEl.fill}
+                            fontStyle={textEl.fontStyle}
+                            fontFamily="Arial"
+                            align={textEl.align}
+                            width={textEl.width}
+                            offsetX={textEl.width / 2}
+                            draggable={textEl.draggable}
+                            onClick={() => {
+                              setSelectedId(textEl.id);
+                              setSelectedType('text');
+                              setIsPhoneSelected(false);
+                            }}
+                            onTap={() => {
+                              setSelectedId(textEl.id);
+                              setSelectedType('text');
+                              setIsPhoneSelected(false);
+                            }}
+                            onDragEnd={(e) => handleDragEnd(e, textEl.id)}
+                            onTransformEnd={(e) => {
+                              const node = e.target;
+                              updateTextElement(textEl.id, {
+                                x: node.x(),
+                                y: node.y(),
+                                width: Math.round(Math.max(50, node.width() * node.scaleX())),
+                                fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
+                              });
+                              node.scaleX(1);
+                              node.scaleY(1);
+                            }}
+                          />
+                        );
+                      } else if (item.type === 'icon') {
+                        const iconEl = item.data as IconElement;
+                        if (!iconImages[iconEl.id]) return null;
+                        return (
+                          <KonvaImage
+                            key={iconEl.id}
+                            id={iconEl.id}
+                            image={iconImages[iconEl.id]}
+                            x={iconEl.x}
+                            y={iconEl.y}
+                            width={iconEl.size}
+                            height={iconEl.size}
+                            offsetX={iconEl.size / 2}
+                            offsetY={iconEl.size / 2}
+                            draggable={iconEl.draggable}
+                            onClick={() => {
+                              setSelectedId(iconEl.id);
+                              setSelectedType('icon');
+                              setIsPhoneSelected(false);
+                            }}
+                            onTap={() => {
+                              setSelectedId(iconEl.id);
+                              setSelectedType('icon');
+                              setIsPhoneSelected(false);
+                            }}
+                            onDragEnd={(e) => {
+                              setIconElements(prev =>
+                                prev.map(icon =>
+                                  icon.id === iconEl.id
+                                    ? { ...icon, x: e.target.x(), y: e.target.y() }
+                                    : icon
+                                )
+                              );
+                            }}
+                            onTransformEnd={(e) => {
+                              const node = e.target;
+                              const newSize = Math.max(16, iconEl.size * node.scaleX());
+                              updateIconElement(iconEl.id, {
+                                x: node.x(),
+                                y: node.y(),
+                                size: newSize,
+                              });
+                              node.scaleX(1);
+                              node.scaleY(1);
+                            }}
+                          />
+                        );
+                      }
+                      return null;
+                    });
+                  })()}
+                  {/* Transformers */}
                   <Transformer
                     ref={phoneTransformerRef}
                     keepRatio={true}
@@ -924,98 +1053,6 @@ export default function MockupEditor() {
                       return newBox;
                     }}
                   />
-                </Layer>
-
-                {/* Text & Icons Layer */}
-                <Layer>
-                  {/* Render text elements */}
-                  {textElements.map((textEl) => (
-                    <Text
-                      key={`${textEl.id}-fs${textEl.fontSize}`}
-                      id={textEl.id}
-                      text={textEl.text}
-                      x={textEl.x}
-                      y={textEl.y}
-                      fontSize={textEl.fontSize}
-                      fill={textEl.fill}
-                      fontStyle={textEl.fontStyle}
-                      fontFamily="Arial"
-                      align={textEl.align}
-                      width={textEl.width}
-                      offsetX={textEl.width / 2}
-                      draggable={textEl.draggable}
-                      onClick={() => {
-                        setSelectedId(textEl.id);
-                        setSelectedType('text');
-                        setIsPhoneSelected(false);
-                      }}
-                      onTap={() => {
-                        setSelectedId(textEl.id);
-                        setSelectedType('text');
-                        setIsPhoneSelected(false);
-                      }}
-                      onDragEnd={(e) => handleDragEnd(e, textEl.id)}
-                      onTransformEnd={(e) => {
-                        const node = e.target;
-                        updateTextElement(textEl.id, {
-                          x: node.x(),
-                          y: node.y(),
-                          width: Math.round(Math.max(50, node.width() * node.scaleX())),
-                          fontSize: Math.round(Math.max(12, textEl.fontSize * node.scaleY())),
-                        });
-                        node.scaleX(1);
-                        node.scaleY(1);
-                      }}
-                    />
-                  ))}
-                  {/* Render icon elements */}
-                  {iconElements.map((iconEl) => {
-                    if (!iconImages[iconEl.id]) return null;
-                    return (
-                      <KonvaImage
-                        key={iconEl.id}
-                        id={iconEl.id}
-                        image={iconImages[iconEl.id]}
-                        x={iconEl.x}
-                        y={iconEl.y}
-                        width={iconEl.size}
-                        height={iconEl.size}
-                        offsetX={iconEl.size / 2}
-                        offsetY={iconEl.size / 2}
-                        draggable={iconEl.draggable}
-                        onClick={() => {
-                          setSelectedId(iconEl.id);
-                          setSelectedType('icon');
-                          setIsPhoneSelected(false);
-                        }}
-                        onTap={() => {
-                          setSelectedId(iconEl.id);
-                          setSelectedType('icon');
-                          setIsPhoneSelected(false);
-                        }}
-                        onDragEnd={(e) => {
-                          setIconElements(prev =>
-                            prev.map(icon =>
-                              icon.id === iconEl.id
-                                ? { ...icon, x: e.target.x(), y: e.target.y() }
-                                : icon
-                            )
-                          );
-                        }}
-                        onTransformEnd={(e) => {
-                          const node = e.target;
-                          const newSize = Math.max(16, iconEl.size * node.scaleX());
-                          updateIconElement(iconEl.id, {
-                            x: node.x(),
-                            y: node.y(),
-                            size: newSize,
-                          });
-                          node.scaleX(1);
-                          node.scaleY(1);
-                        }}
-                      />
-                    );
-                  })}
                   <Transformer
                     ref={transformerRef}
                     boundBoxFunc={(oldBox, newBox) => {
