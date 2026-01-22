@@ -1,53 +1,244 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import * as fabric from 'fabric';
 
-interface MockupTemplate {
-  id: string;
-  name: string;
-  colors: {
-    bg1: string;
-    bg2: string;
-    phone: string;
-  };
-}
-
-const TEMPLATES: MockupTemplate[] = [
-  {
-    id: 'blue-waves',
-    name: 'Blue Waves',
-    colors: {
-      bg1: '#2563EB',
-      bg2: '#1E40AF',
-      phone: '#1a1a1a',
-    },
-  },
+// Preset background colors
+const BACKGROUND_COLORS = [
+  '#2563EB', // Blue
+  '#7C3AED', // Violet
+  '#DB2777', // Pink
+  '#DC2626', // Red
+  '#EA580C', // Orange
+  '#16A34A', // Green
+  '#0891B2', // Cyan
+  '#1E293B', // Slate
+  '#F5F5F4', // Light gray
 ];
 
-export default function MockupGenerator() {
-  const [selectedTemplate, setSelectedTemplate] = useState<MockupTemplate>(TEMPLATES[0]);
+export default function MockupEditor() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fabricRef = useRef<fabric.Canvas | null>(null);
+  const phoneGroupRef = useRef<fabric.Group | null>(null);
+  const screenshotRef = useRef<fabric.Image | null>(null);
+  const textRef = useRef<fabric.IText | null>(null);
+
+  const [backgroundColor, setBackgroundColor] = useState('#2563EB');
   const [screenshot, setScreenshot] = useState<string | null>(null);
-  const [headline, setHeadline] = useState('Votre texte\npromotionnel ici');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedMockup, setGeneratedMockup] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file upload
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // Canvas dimensions (iPhone 6.5" aspect ratio)
+  const CANVAS_WIDTH = 414;
+  const CANVAS_HEIGHT = 896;
+  const EXPORT_SCALE = 3; // Export at 1242x2688
+
+  // Phone dimensions relative to canvas
+  const PHONE_WIDTH = CANVAS_WIDTH * 0.85;
+  const PHONE_HEIGHT = CANVAS_HEIGHT * 0.78;
+  const PHONE_X = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
+  const PHONE_Y = CANVAS_HEIGHT * 0.20;
+  const PHONE_RADIUS = 35;
+  const PHONE_BEZEL = 8;
+
+  // Initialize Fabric canvas
+  useEffect(() => {
+    if (!canvasRef.current || fabricRef.current) return;
+
+    const canvas = new fabric.Canvas(canvasRef.current, {
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      backgroundColor: backgroundColor,
+      selection: true,
+    });
+
+    fabricRef.current = canvas;
+
+    // Create phone frame
+    createPhoneFrame(canvas);
+
+    // Create default editable text
+    createEditableText(canvas);
+
+    setIsReady(true);
+
+    return () => {
+      canvas.dispose();
+      fabricRef.current = null;
+    };
+  }, []);
+
+  // Update background color
+  useEffect(() => {
+    if (!fabricRef.current) return;
+    fabricRef.current.backgroundColor = backgroundColor;
+    fabricRef.current.renderAll();
+  }, [backgroundColor]);
+
+  // Create phone frame group
+  const createPhoneFrame = (canvas: fabric.Canvas) => {
+    // Phone outer frame
+    const phoneFrame = new fabric.Rect({
+      left: 0,
+      top: 0,
+      width: PHONE_WIDTH,
+      height: PHONE_HEIGHT,
+      rx: PHONE_RADIUS,
+      ry: PHONE_RADIUS,
+      fill: '#1a1a1a',
+      selectable: false,
+    });
+
+    // Phone bezel
+    const phoneBezel = new fabric.Rect({
+      left: 4,
+      top: 4,
+      width: PHONE_WIDTH - 8,
+      height: PHONE_HEIGHT - 8,
+      rx: PHONE_RADIUS - 4,
+      ry: PHONE_RADIUS - 4,
+      fill: '#2a2a2a',
+      selectable: false,
+    });
+
+    // Phone screen (black background for screenshot)
+    const phoneScreen = new fabric.Rect({
+      left: PHONE_BEZEL,
+      top: PHONE_BEZEL,
+      width: PHONE_WIDTH - PHONE_BEZEL * 2,
+      height: PHONE_HEIGHT - PHONE_BEZEL * 2,
+      rx: PHONE_RADIUS - PHONE_BEZEL,
+      ry: PHONE_RADIUS - PHONE_BEZEL,
+      fill: '#000000',
+      selectable: false,
+    });
+
+    // Notch
+    const notchWidth = PHONE_WIDTH * 0.35;
+    const notch = new fabric.Rect({
+      left: (PHONE_WIDTH - notchWidth) / 2,
+      top: PHONE_BEZEL,
+      width: notchWidth,
+      height: 25,
+      rx: 12,
+      ry: 12,
+      fill: '#1a1a1a',
+      selectable: false,
+    });
+
+    // Camera dot
+    const camera = new fabric.Circle({
+      left: (PHONE_WIDTH - notchWidth) / 2 + notchWidth - 25,
+      top: PHONE_BEZEL + 8,
+      radius: 5,
+      fill: '#1a3a5c',
+      selectable: false,
+    });
+
+    // Group all phone elements
+    const phoneGroup = new fabric.Group([phoneFrame, phoneBezel, phoneScreen, notch, camera], {
+      left: PHONE_X,
+      top: PHONE_Y,
+      selectable: false,
+      evented: false,
+    });
+
+    canvas.add(phoneGroup);
+    phoneGroupRef.current = phoneGroup;
+  };
+
+  // Create editable text
+  const createEditableText = (canvas: fabric.Canvas) => {
+    const text = new fabric.IText('Votre texte\npromotionnel', {
+      left: CANVAS_WIDTH / 2,
+      top: 60,
+      fontSize: 32,
+      fontFamily: 'Inter, SF Pro Display, system-ui, sans-serif',
+      fontWeight: 'bold',
+      fill: '#FEF3C7',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'top',
+      editable: true,
+      selectable: true,
+    });
+
+    canvas.add(text);
+    textRef.current = text;
+  };
+
+  // Handle screenshot upload
+  const handleScreenshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setScreenshot(event.target?.result as string);
-        setGeneratedMockup(null);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file || !fabricRef.current) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setScreenshot(dataUrl);
+
+      // Load image into fabric
+      fabric.Image.fromURL(dataUrl).then((img) => {
+        const canvas = fabricRef.current!;
+
+        // Remove previous screenshot
+        if (screenshotRef.current) {
+          canvas.remove(screenshotRef.current);
+        }
+
+        // Calculate screen area
+        const screenX = PHONE_X + PHONE_BEZEL;
+        const screenY = PHONE_Y + PHONE_BEZEL + 25; // +25 for notch
+        const screenWidth = PHONE_WIDTH - PHONE_BEZEL * 2;
+        const screenHeight = PHONE_HEIGHT - PHONE_BEZEL * 2 - 25;
+
+        // Scale image to fit screen
+        const scaleX = screenWidth / img.width!;
+        const scaleY = screenHeight / img.height!;
+        const scale = Math.max(scaleX, scaleY);
+
+        img.set({
+          left: screenX,
+          top: screenY,
+          scaleX: scale,
+          scaleY: scale,
+          selectable: false,
+          evented: false,
+        });
+
+        // Clip to screen bounds
+        img.clipPath = new fabric.Rect({
+          left: screenX,
+          top: screenY,
+          width: screenWidth,
+          height: screenHeight,
+          rx: PHONE_RADIUS - PHONE_BEZEL,
+          ry: PHONE_RADIUS - PHONE_BEZEL,
+          absolutePositioned: true,
+        });
+
+        canvas.add(img);
+        screenshotRef.current = img;
+
+        // Ensure proper layer order
+        if (phoneGroupRef.current) {
+          canvas.bringObjectToFront(phoneGroupRef.current);
+          // But keep notch on top
+        }
+        if (textRef.current) {
+          canvas.bringObjectToFront(textRef.current);
+        }
+
+        canvas.renderAll();
+      });
+    };
+    reader.readAsDataURL(file);
   }, []);
 
   // Handle drag and drop
@@ -55,131 +246,114 @@ export default function MockupGenerator() {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setScreenshot(event.target?.result as string);
-        setGeneratedMockup(null);
-      };
-      reader.readAsDataURL(file);
+      // Create a fake event to reuse the upload handler
+      const fakeEvent = {
+        target: { files: [file] },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      handleScreenshotUpload(fakeEvent);
     }
+  }, [handleScreenshotUpload]);
+
+  // Export as PNG
+  const exportMockup = useCallback(() => {
+    if (!fabricRef.current) return;
+
+    const dataUrl = fabricRef.current.toDataURL({
+      format: 'png',
+      multiplier: EXPORT_SCALE,
+    });
+
+    const link = document.createElement('a');
+    link.download = `mockup-${Date.now()}.png`;
+    link.href = dataUrl;
+    link.click();
   }, []);
 
-  // Generate mockup via API
-  const generateMockup = useCallback(async () => {
-    if (!screenshot) return;
+  // Add new text
+  const addNewText = useCallback(() => {
+    if (!fabricRef.current) return;
 
-    setIsGenerating(true);
-    try {
-      const response = await fetch('/api/generate-mockup-v2', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          templateId: selectedTemplate.id,
-          screenshot,
-          headline,
-        }),
-      });
+    const text = new fabric.IText('Nouveau texte', {
+      left: CANVAS_WIDTH / 2,
+      top: 120,
+      fontSize: 24,
+      fontFamily: 'Inter, SF Pro Display, system-ui, sans-serif',
+      fontWeight: 'bold',
+      fill: '#FFFFFF',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'top',
+      editable: true,
+      selectable: true,
+    });
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        setGeneratedMockup(url);
-      } else {
-        const error = await response.json();
-        console.error('Failed to generate mockup:', error);
-        alert('Erreur lors de la génération');
-      }
-    } catch (error) {
-      console.error('Error generating mockup:', error);
-      alert('Erreur lors de la génération');
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [screenshot, headline, selectedTemplate]);
-
-  // Download mockup
-  const downloadMockup = useCallback(() => {
-    if (generatedMockup) {
-      const a = document.createElement('a');
-      a.href = generatedMockup;
-      a.download = `mockup-${Date.now()}.png`;
-      a.click();
-    }
-  }, [generatedMockup]);
+    fabricRef.current.add(text);
+    fabricRef.current.setActiveObject(text);
+    fabricRef.current.renderAll();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-100 p-4">
       <div className="mx-auto max-w-6xl">
-        <h1 className="mb-8 text-3xl font-bold">Mockup Generator</h1>
+        <h1 className="mb-6 text-2xl font-bold">Mockup Editor</h1>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Left Panel - Controls */}
-          <div className="space-y-6">
-            {/* Template Selection */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+          {/* Canvas Area */}
+          <Card className="overflow-hidden p-4">
+            <div
+              className="mx-auto flex items-center justify-center rounded-lg bg-gray-200 p-4"
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              style={{ maxWidth: CANVAS_WIDTH + 32 }}
+            >
+              <canvas ref={canvasRef} className="rounded-lg shadow-lg" />
+            </div>
+
+            <div className="mt-4 flex justify-center gap-4">
+              <Button onClick={exportMockup} disabled={!isReady}>
+                Telecharger PNG
+              </Button>
+            </div>
+          </Card>
+
+          {/* Controls Panel */}
+          <div className="space-y-4">
+            {/* Background Color */}
             <Card className="p-4">
-              <Label className="mb-3 block text-lg font-medium">Template</Label>
-              <div className="grid grid-cols-3 gap-3">
-                {TEMPLATES.map((template) => (
+              <Label className="mb-3 block font-medium">Couleur de fond</Label>
+              <div className="grid grid-cols-5 gap-2">
+                {BACKGROUND_COLORS.map((color) => (
                   <button
-                    key={template.id}
-                    onClick={() => {
-                      setSelectedTemplate(template);
-                      setGeneratedMockup(null);
-                    }}
+                    key={color}
+                    onClick={() => setBackgroundColor(color)}
                     className={cn(
-                      'overflow-hidden rounded-lg border-2 transition-all',
-                      selectedTemplate.id === template.id
-                        ? 'border-blue-500 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-gray-300'
+                      'h-10 w-10 rounded-lg border-2 transition-all',
+                      backgroundColor === color
+                        ? 'border-black ring-2 ring-black/20 scale-110'
+                        : 'border-transparent hover:scale-105'
                     )}
-                  >
-                    {/* Template preview - generated visually */}
-                    <div
-                      className="relative aspect-[9/19] w-full"
-                      style={{
-                        background: `linear-gradient(to bottom, ${template.colors.bg1}, ${template.colors.bg2})`,
-                      }}
-                    >
-                      {/* Phone mockup shape */}
-                      <div
-                        className="absolute left-1/2 top-1/3 h-2/3 w-3/4 -translate-x-1/2 rounded-lg"
-                        style={{ backgroundColor: template.colors.phone }}
-                      >
-                        <div className="mx-auto mt-1 h-1 w-1/3 rounded-full bg-gray-700" />
-                        <div className="mx-1 mt-1 h-[calc(100%-12px)] rounded-md bg-gray-200" />
-                      </div>
-                      {/* Text placeholder */}
-                      <div className="absolute left-1/2 top-[15%] -translate-x-1/2 space-y-1 text-center">
-                        <div className="mx-auto h-2 w-16 rounded bg-amber-100/80" />
-                        <div className="mx-auto h-2 w-12 rounded bg-amber-100/80" />
-                      </div>
-                    </div>
-                    <div className="bg-white p-2 text-center text-xs font-medium">
-                      {template.name}
-                    </div>
-                  </button>
+                    style={{ backgroundColor: color }}
+                  />
                 ))}
-
-                {/* Add template placeholder */}
-                <button
-                  className="flex aspect-[9/19] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500"
-                  onClick={() => alert('Fonctionnalité bientôt disponible')}
-                >
-                  <span className="text-3xl">+</span>
-                  <span className="mt-1 text-xs">Ajouter</span>
-                </button>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <input
+                  type="color"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  className="h-10 w-10 cursor-pointer rounded border-0"
+                />
+                <span className="text-sm text-gray-500">{backgroundColor}</span>
               </div>
             </Card>
 
             {/* Screenshot Upload */}
             <Card className="p-4">
-              <Label className="mb-3 block text-lg font-medium">Screenshot</Label>
+              <Label className="mb-3 block font-medium">Screenshot</Label>
               <div
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
-                  'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
+                  'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
                   screenshot
                     ? 'border-green-300 bg-green-50'
                     : 'border-gray-300 hover:border-gray-400'
@@ -190,18 +364,14 @@ export default function MockupGenerator() {
                     <img
                       src={screenshot}
                       alt="Screenshot"
-                      className="mx-auto mb-2 h-32 rounded object-contain"
+                      className="mx-auto mb-2 h-20 rounded object-contain"
                     />
-                    <p className="text-sm text-green-600">Image chargee</p>
-                    <p className="text-xs text-gray-500">Cliquez pour changer</p>
+                    <p className="text-xs text-green-600">Cliquez pour changer</p>
                   </div>
                 ) : (
                   <>
-                    <div className="mb-2 text-4xl text-gray-400">📱</div>
-                    <p className="text-sm text-gray-600">
-                      Glissez votre screenshot ici
-                    </p>
-                    <p className="text-xs text-gray-400">ou cliquez pour parcourir</p>
+                    <div className="text-2xl">📱</div>
+                    <p className="text-sm text-gray-600">Glissez ou cliquez</p>
                   </>
                 )}
               </div>
@@ -209,104 +379,33 @@ export default function MockupGenerator() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleFileUpload}
+                onChange={handleScreenshotUpload}
                 className="hidden"
               />
             </Card>
 
-            {/* Text Editor */}
+            {/* Text Controls */}
             <Card className="p-4">
-              <Label className="mb-3 block text-lg font-medium">Texte promotionnel</Label>
-              <Textarea
-                value={headline}
-                onChange={(e) => {
-                  setHeadline(e.target.value);
-                  setGeneratedMockup(null);
-                }}
-                placeholder="Entrez votre texte..."
-                rows={4}
-                className="resize-none text-lg"
-              />
+              <Label className="mb-3 block font-medium">Texte</Label>
+              <Button onClick={addNewText} variant="outline" className="w-full">
+                + Ajouter du texte
+              </Button>
               <p className="mt-2 text-xs text-gray-500">
-                Utilisez Entree pour creer des lignes multiples
+                Double-cliquez sur le texte pour l&apos;editer.
+                Glissez pour le deplacer.
               </p>
             </Card>
 
-            {/* Generate Button */}
-            <Button
-              onClick={generateMockup}
-              disabled={!screenshot || isGenerating}
-              className="w-full py-6 text-lg"
-              size="lg"
-            >
-              {isGenerating ? 'Generation...' : 'Generer le mockup'}
-            </Button>
-          </div>
-
-          {/* Right Panel - Preview */}
-          <div className="space-y-4">
-            <Card className="overflow-hidden p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <Label className="text-lg font-medium">Apercu</Label>
-                {generatedMockup && (
-                  <Button onClick={downloadMockup} variant="outline" size="sm">
-                    Telecharger
-                  </Button>
-                )}
-              </div>
-
-              <div className="flex aspect-[9/19] items-center justify-center rounded-lg bg-gray-100">
-                {generatedMockup ? (
-                  <img
-                    src={generatedMockup}
-                    alt="Generated mockup"
-                    className="h-full w-full object-contain"
-                  />
-                ) : screenshot ? (
-                  <div
-                    className="relative h-full w-full rounded-lg"
-                    style={{
-                      background: `linear-gradient(to bottom, ${selectedTemplate.colors.bg1}, ${selectedTemplate.colors.bg2})`,
-                    }}
-                  >
-                    {/* Preview text area */}
-                    <div className="absolute left-1/2 top-[8%] -translate-x-1/2 space-y-2 text-center">
-                      {headline.split('\n').slice(0, 4).map((line, i) => (
-                        <div
-                          key={i}
-                          className="text-sm font-bold text-amber-100"
-                          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
-                        >
-                          {line || '\u00A0'}
-                        </div>
-                      ))}
-                    </div>
-                    {/* Phone preview */}
-                    <div
-                      className="absolute left-1/2 top-[22%] h-[75%] w-[80%] -translate-x-1/2 rounded-2xl p-2"
-                      style={{ backgroundColor: selectedTemplate.colors.phone }}
-                    >
-                      <div className="mx-auto mb-1 h-2 w-1/4 rounded-full bg-gray-800" />
-                      <img
-                        src={screenshot}
-                        alt="Preview"
-                        className="h-[calc(100%-12px)] w-full rounded-xl object-cover object-top"
-                      />
-                    </div>
-                    {/* Overlay message */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <p className="rounded bg-black/60 px-4 py-2 text-sm text-white">
-                        Cliquez sur Generer pour le rendu final
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <p className="text-lg">Apercu du mockup</p>
-                    <p className="text-sm">Uploadez un screenshot pour commencer</p>
-                  </div>
-                )}
-              </div>
+            {/* Instructions */}
+            <Card className="bg-blue-50 p-4">
+              <h3 className="mb-2 font-medium text-blue-900">Instructions</h3>
+              <ul className="space-y-1 text-sm text-blue-800">
+                <li>• Uploadez votre screenshot</li>
+                <li>• Choisissez la couleur de fond</li>
+                <li>• Double-cliquez pour editer le texte</li>
+                <li>• Glissez le texte pour le positionner</li>
+                <li>• Telechargez en PNG (1242x2688)</li>
+              </ul>
             </Card>
           </div>
         </div>
