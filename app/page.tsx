@@ -61,6 +61,7 @@ export default function MockupEditor() {
   const [backgroundColor, setBackgroundColor] = useState('#2563EB');
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [phonePosition, setPhonePosition] = useState({ x: 0, y: 40 }); // Offset from center
   const [textElements, setTextElements] = useState<TextElement[]>([
     {
       id: 'text-1',
@@ -82,22 +83,24 @@ export default function MockupEditor() {
   const deviceConfig = DEVICES[device];
   const phoneWidth = deviceConfig.width * deviceConfig.scale;
   const phoneHeight = deviceConfig.height * deviceConfig.scale;
-  const phoneX = (CANVAS_WIDTH - phoneWidth) / 2;
-  const phoneY = (CANVAS_HEIGHT - phoneHeight) / 2 + 40;
+  const basePhoneX = (CANVAS_WIDTH - phoneWidth) / 2;
+  const basePhoneY = (CANVAS_HEIGHT - phoneHeight) / 2;
+  const phoneX = basePhoneX + phonePosition.x;
+  const phoneY = basePhoneY + phonePosition.y;
 
-  // Screen dimensions (inside phone)
+  // Screen dimensions (inside phone) - relative to phone position
   const bezelWidth = phoneWidth * 0.03;
   const cornerRadius = phoneWidth * 0.12;
-  const screenX = phoneX + bezelWidth;
-  const screenY = phoneY + bezelWidth;
+  const screenOffsetX = bezelWidth;
+  const screenOffsetY = bezelWidth;
   const screenWidth = phoneWidth - bezelWidth * 2;
   const screenHeight = phoneHeight - bezelWidth * 2;
 
-  // Notch dimensions
+  // Notch dimensions - relative to phone
   const notchWidth = phoneWidth * 0.35;
   const notchHeight = phoneHeight * 0.035;
-  const notchX = phoneX + (phoneWidth - notchWidth) / 2;
-  const notchY = screenY;
+  const notchOffsetX = (phoneWidth - notchWidth) / 2;
+  const notchOffsetY = bezelWidth;
 
   // Update transformer when selection changes
   useEffect(() => {
@@ -259,80 +262,100 @@ export default function MockupEditor() {
 
                 {/* Phone Layer */}
                 <Layer>
-                  {/* Phone outer frame */}
-                  <Rect
+                  <Group
                     x={phoneX}
                     y={phoneY}
-                    width={phoneWidth}
-                    height={phoneHeight}
-                    fill="#1a1a1a"
-                    cornerRadius={cornerRadius}
-                  />
-
-                  {/* Phone bezel */}
-                  <Rect
-                    x={phoneX + 3}
-                    y={phoneY + 3}
-                    width={phoneWidth - 6}
-                    height={phoneHeight - 6}
-                    fill="#2d2d2d"
-                    cornerRadius={cornerRadius - 3}
-                  />
-
-                  {/* Screen */}
-                  <Group
-                    clipFunc={(ctx) => {
-                      ctx.beginPath();
-                      const r = cornerRadius - bezelWidth;
-                      ctx.moveTo(screenX + r, screenY);
-                      ctx.lineTo(screenX + screenWidth - r, screenY);
-                      ctx.quadraticCurveTo(screenX + screenWidth, screenY, screenX + screenWidth, screenY + r);
-                      ctx.lineTo(screenX + screenWidth, screenY + screenHeight - r);
-                      ctx.quadraticCurveTo(screenX + screenWidth, screenY + screenHeight, screenX + screenWidth - r, screenY + screenHeight);
-                      ctx.lineTo(screenX + r, screenY + screenHeight);
-                      ctx.quadraticCurveTo(screenX, screenY + screenHeight, screenX, screenY + screenHeight - r);
-                      ctx.lineTo(screenX, screenY + r);
-                      ctx.quadraticCurveTo(screenX, screenY, screenX + r, screenY);
-                      ctx.closePath();
+                    draggable
+                    onDragEnd={(e) => {
+                      const newX = e.target.x() - basePhoneX;
+                      const newY = e.target.y() - basePhoneY;
+                      setPhonePosition({ x: newX, y: newY });
+                    }}
+                    onMouseEnter={(e) => {
+                      const container = e.target.getStage()?.container();
+                      if (container) container.style.cursor = 'move';
+                    }}
+                    onMouseLeave={(e) => {
+                      const container = e.target.getStage()?.container();
+                      if (container) container.style.cursor = 'default';
                     }}
                   >
-                    {/* Screen background */}
+                    {/* Phone outer frame */}
                     <Rect
-                      x={screenX}
-                      y={screenY}
-                      width={screenWidth}
-                      height={screenHeight}
-                      fill="#000"
+                      x={0}
+                      y={0}
+                      width={phoneWidth}
+                      height={phoneHeight}
+                      fill="#1a1a1a"
+                      cornerRadius={cornerRadius}
                     />
 
-                    {/* Screenshot */}
-                    {screenshot && (
-                      <KonvaImage
-                        image={screenshot}
-                        x={screenX}
-                        y={screenY}
+                    {/* Phone bezel */}
+                    <Rect
+                      x={3}
+                      y={3}
+                      width={phoneWidth - 6}
+                      height={phoneHeight - 6}
+                      fill="#2d2d2d"
+                      cornerRadius={cornerRadius - 3}
+                    />
+
+                    {/* Screen with clipping */}
+                    <Group
+                      clipFunc={(ctx) => {
+                        ctx.beginPath();
+                        const r = cornerRadius - bezelWidth;
+                        const sx = screenOffsetX;
+                        const sy = screenOffsetY;
+                        ctx.moveTo(sx + r, sy);
+                        ctx.lineTo(sx + screenWidth - r, sy);
+                        ctx.quadraticCurveTo(sx + screenWidth, sy, sx + screenWidth, sy + r);
+                        ctx.lineTo(sx + screenWidth, sy + screenHeight - r);
+                        ctx.quadraticCurveTo(sx + screenWidth, sy + screenHeight, sx + screenWidth - r, sy + screenHeight);
+                        ctx.lineTo(sx + r, sy + screenHeight);
+                        ctx.quadraticCurveTo(sx, sy + screenHeight, sx, sy + screenHeight - r);
+                        ctx.lineTo(sx, sy + r);
+                        ctx.quadraticCurveTo(sx, sy, sx + r, sy);
+                        ctx.closePath();
+                      }}
+                    >
+                      {/* Screen background */}
+                      <Rect
+                        x={screenOffsetX}
+                        y={screenOffsetY}
                         width={screenWidth}
                         height={screenHeight}
-                        // Cover fit
-                        crop={{
-                          x: 0,
-                          y: 0,
-                          width: screenshot.width,
-                          height: Math.min(screenshot.height, screenshot.width * (screenHeight / screenWidth)),
-                        }}
+                        fill="#000"
                       />
-                    )}
-                  </Group>
 
-                  {/* Notch */}
-                  <Rect
-                    x={notchX}
-                    y={notchY}
-                    width={notchWidth}
-                    height={notchHeight}
-                    fill="#1a1a1a"
-                    cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
-                  />
+                      {/* Screenshot */}
+                      {screenshot && (
+                        <KonvaImage
+                          image={screenshot}
+                          x={screenOffsetX}
+                          y={screenOffsetY}
+                          width={screenWidth}
+                          height={screenHeight}
+                          crop={{
+                            x: 0,
+                            y: 0,
+                            width: screenshot.width,
+                            height: Math.min(screenshot.height, screenshot.width * (screenHeight / screenWidth)),
+                          }}
+                        />
+                      )}
+                    </Group>
+
+                    {/* Notch */}
+                    <Rect
+                      x={notchOffsetX}
+                      y={notchOffsetY}
+                      width={notchWidth}
+                      height={notchHeight}
+                      fill="#1a1a1a"
+                      cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
+                    />
+                  </Group>
                 </Layer>
 
                 {/* Text Layer */}
