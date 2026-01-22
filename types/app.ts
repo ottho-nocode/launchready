@@ -5,7 +5,7 @@ export type DeviceType =
   | 'ipad-12.9'
   | 'unknown';
 
-export type MockupTemplate = 'frame' | 'gradient' | 'text-overlay';
+export type MockupTemplate = 'app-store' | 'frame' | 'gradient' | 'text-overlay';
 
 export type DeviceColor = 'black' | 'white' | 'gold';
 

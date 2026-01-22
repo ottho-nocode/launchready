@@ -14,6 +14,17 @@ interface Template {
 
 const TEMPLATES: Template[] = [
   {
+    id: 'app-store',
+    name: 'App Store',
+    description: 'Style Todoist avec titre et ombre',
+    preview: (
+      <div className="flex h-full flex-col items-center justify-start bg-gradient-to-b from-amber-100 to-amber-200 p-2 pt-3">
+        <div className="mb-1 h-1 w-10 rounded bg-gray-800" />
+        <div className="h-12 w-6 rounded-lg bg-white shadow-lg" />
+      </div>
+    ),
+  },
+  {
     id: 'frame',
     name: 'Device Frame',
     description: 'Screenshot dans un cadre iPhone',

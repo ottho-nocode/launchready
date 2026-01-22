@@ -43,6 +43,9 @@ export async function generateMockup(
   let result: Buffer;
 
   switch (options.template) {
+    case 'app-store':
+      result = await renderAppStoreTemplate(processedScreenshot, options);
+      break;
     case 'frame':
       result = await renderFrameTemplate(processedScreenshot, options);
       break;
@@ -53,7 +56,7 @@ export async function generateMockup(
       result = await renderTextOverlayTemplate(processedScreenshot, options);
       break;
     default:
-      result = await renderFrameTemplate(processedScreenshot, options);
+      result = await renderAppStoreTemplate(processedScreenshot, options);
   }
 
   return {
@@ -241,6 +244,201 @@ async function renderTextOverlayTemplate(
     ])
     .png()
     .toBuffer();
+}
+
+/**
+ * Template: App Store - Todoist style with pastel background, headline, and rounded screenshot
+ */
+async function renderAppStoreTemplate(
+  screenshotBuffer: Buffer,
+  options: MockupOptions
+): Promise<Buffer> {
+  const frame = getDeviceFrame(options.deviceType)!;
+
+  // Canvas dimensions (App Store standard)
+  const canvasWidth = frame.frameWidth;
+  const canvasHeight = frame.frameHeight;
+
+  // Reserve space for headline (top 25%)
+  const headlineAreaHeight = Math.round(canvasHeight * 0.25);
+  const screenshotAreaTop = headlineAreaHeight;
+  const screenshotAreaHeight = canvasHeight - headlineAreaHeight;
+
+  // Calculate screenshot size and position (centered, with padding)
+  const padding = 60;
+  const maxWidth = canvasWidth - padding * 2;
+  const maxHeight = screenshotAreaHeight - padding;
+  const scale = Math.min(maxWidth / frame.screenWidth, maxHeight / frame.screenHeight);
+  const scaledWidth = Math.round(frame.screenWidth * scale);
+  const scaledHeight = Math.round(frame.screenHeight * scale);
+  const x = Math.round((canvasWidth - scaledWidth) / 2);
+  const y = screenshotAreaTop + Math.round((screenshotAreaHeight - scaledHeight) / 2);
+
+  // Resize screenshot
+  const resizedScreenshot = await sharp(screenshotBuffer)
+    .resize(scaledWidth, scaledHeight)
+    .png()
+    .toBuffer();
+
+  // Create rounded screenshot with large radius (Todoist style)
+  const radius = Math.round(44 * scale); // Large rounded corners
+  const roundedScreenshot = await createRoundedImage(
+    resizedScreenshot,
+    scaledWidth,
+    scaledHeight,
+    radius
+  );
+
+  // Add subtle shadow to screenshot
+  const shadowOffset = 8;
+  const shadowBlur = 30;
+  const screenshotWithShadow = await addShadowToImage(
+    roundedScreenshot,
+    scaledWidth,
+    scaledHeight,
+    shadowOffset,
+    shadowBlur
+  );
+
+  // Create background with gradient and headline
+  const bgSvg = createAppStoreSvg(
+    canvasWidth,
+    canvasHeight,
+    options.backgroundColor,
+    adjustColor(options.backgroundColor, -15),
+    options.headline || '',
+    headlineAreaHeight,
+    options.fontFamily
+  );
+
+  const background = await sharp(Buffer.from(bgSvg))
+    .png()
+    .toBuffer();
+
+  // Composite: background + screenshot with shadow
+  return sharp(background)
+    .composite([
+      {
+        input: screenshotWithShadow,
+        top: y - shadowOffset,
+        left: x - shadowOffset,
+      },
+    ])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * Add drop shadow to an image
+ */
+async function addShadowToImage(
+  imageBuffer: Buffer,
+  width: number,
+  height: number,
+  offset: number,
+  blur: number
+): Promise<Buffer> {
+  const shadowWidth = width + offset * 2 + blur * 2;
+  const shadowHeight = height + offset * 2 + blur * 2;
+
+  // Create shadow layer (semi-transparent black rectangle with blur)
+  const shadowSvg = `
+<svg width="${shadowWidth}" height="${shadowHeight}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="${blur / 2}"/>
+      <feOffset dx="0" dy="${offset / 2}"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.25"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect x="${blur}" y="${blur}" width="${width}" height="${height}" rx="44" fill="black" filter="url(#shadow)"/>
+</svg>`;
+
+  const shadowLayer = await sharp(Buffer.from(shadowSvg))
+    .png()
+    .toBuffer();
+
+  // Composite image on top of shadow
+  return sharp(shadowLayer)
+    .composite([
+      {
+        input: imageBuffer,
+        top: blur,
+        left: blur,
+      },
+    ])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * Create App Store style SVG background with gradient and headline
+ */
+function createAppStoreSvg(
+  width: number,
+  height: number,
+  color1: string,
+  color2: string,
+  headline: string,
+  headlineHeight: number,
+  fontFamily?: string
+): string {
+  const textColor = getContrastColor(color1);
+  const fontSize = Math.round(width * 0.055);
+  const lineHeight = fontSize * 1.2;
+
+  // Split headline into lines if too long (max ~20 chars per line for this style)
+  const words = headline.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    if ((currentLine + ' ' + word).trim().length <= 22) {
+      currentLine = (currentLine + ' ' + word).trim();
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+
+  // Escape special characters
+  const escapedLines = lines.map(line =>
+    line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+  );
+
+  // Calculate vertical position for centered text
+  const totalTextHeight = lines.length * lineHeight;
+  const textStartY = (headlineHeight - totalTextHeight) / 2 + fontSize;
+
+  const textElements = escapedLines
+    .map((line, i) =>
+      `<text x="${width / 2}" y="${textStartY + i * lineHeight}"
+            font-family="'${fontFamily || 'SF Pro Display'}', 'Inter', system-ui, sans-serif"
+            font-size="${fontSize}"
+            font-weight="700"
+            fill="${textColor}"
+            text-anchor="middle"
+            dominant-baseline="middle">${line}</text>`
+    )
+    .join('\n  ');
+
+  return `
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:${color1}"/>
+      <stop offset="100%" style="stop-color:${color2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="${width}" height="${height}" fill="url(#bgGrad)"/>
+  ${textElements}
+</svg>`;
 }
 
 // SVG Helper functions

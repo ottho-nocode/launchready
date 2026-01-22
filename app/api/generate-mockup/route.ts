@@ -7,7 +7,7 @@ const requestSchema = z.object({
   screenshot: z.string().min(1, 'Screenshot is required (base64)'),
   deviceType: z.enum(['iphone-6.7', 'iphone-6.5', 'iphone-5.5', 'ipad-12.9']),
   deviceColor: z.enum(['black', 'white', 'gold']).default('black'),
-  template: z.enum(['frame', 'gradient', 'text-overlay']).default('frame'),
+  template: z.enum(['app-store', 'frame', 'gradient', 'text-overlay']).default('app-store'),
   backgroundColor: z.string().default('#6366f1'),
   headline: z.string().optional(),
   fontFamily: z.string().optional(),

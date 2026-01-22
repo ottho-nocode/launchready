@@ -71,9 +71,9 @@ interface AppState {
 }
 
 const initialMockupOptions: MockupOptions = {
-  template: 'frame',
+  template: 'app-store',
   deviceColor: 'black',
-  backgroundColor: '#6366f1',
+  backgroundColor: '#FEF3C7',
   headline: '',
   fontFamily: 'Inter',
 };

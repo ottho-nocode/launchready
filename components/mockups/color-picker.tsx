@@ -12,18 +12,24 @@ const DEVICE_COLORS: { id: DeviceColor; name: string; color: string }[] = [
 ];
 
 const BACKGROUND_COLORS = [
+  // Pastels (App Store style - Todoist-like)
+  '#FEF3C7', // Cream/Amber pastel
+  '#FECACA', // Rose pastel
+  '#FED7AA', // Peach pastel
+  '#D1FAE5', // Mint pastel
+  '#CFFAFE', // Cyan pastel
+  '#DBEAFE', // Blue pastel
+  '#E9D5FF', // Purple pastel
+  '#FCE7F3', // Pink pastel
+  // Vivid colors
   '#6366f1', // Indigo
   '#8b5cf6', // Violet
   '#ec4899', // Pink
-  '#f43f5e', // Rose
-  '#ef4444', // Red
-  '#f97316', // Orange
-  '#f59e0b', // Amber
   '#22c55e', // Green
-  '#14b8a6', // Teal
   '#0ea5e9', // Sky
-  '#3b82f6', // Blue
+  '#f97316', // Orange
   '#1e293b', // Slate
+  '#ffffff', // White
 ];
 
 export function ColorPicker() {
