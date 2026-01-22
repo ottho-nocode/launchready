@@ -10,14 +10,22 @@ import { cn } from '@/lib/utils';
 interface MockupTemplate {
   id: string;
   name: string;
-  thumbnail: string;
+  colors: {
+    bg1: string;
+    bg2: string;
+    phone: string;
+  };
 }
 
 const TEMPLATES: MockupTemplate[] = [
   {
     id: 'blue-waves',
     name: 'Blue Waves',
-    thumbnail: '/templates/frame-template.jpg',
+    colors: {
+      bg1: '#2563EB',
+      bg2: '#1E40AF',
+      phone: '#1a1a1a',
+    },
   },
 ];
 
@@ -125,11 +133,27 @@ export default function MockupGenerator() {
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
-                    <img
-                      src={template.thumbnail}
-                      alt={template.name}
-                      className="aspect-[9/19] w-full object-cover"
-                    />
+                    {/* Template preview - generated visually */}
+                    <div
+                      className="relative aspect-[9/19] w-full"
+                      style={{
+                        background: `linear-gradient(to bottom, ${template.colors.bg1}, ${template.colors.bg2})`,
+                      }}
+                    >
+                      {/* Phone mockup shape */}
+                      <div
+                        className="absolute left-1/2 top-1/3 h-2/3 w-3/4 -translate-x-1/2 rounded-lg"
+                        style={{ backgroundColor: template.colors.phone }}
+                      >
+                        <div className="mx-auto mt-1 h-1 w-1/3 rounded-full bg-gray-700" />
+                        <div className="mx-1 mt-1 h-[calc(100%-12px)] rounded-md bg-gray-200" />
+                      </div>
+                      {/* Text placeholder */}
+                      <div className="absolute left-1/2 top-[15%] -translate-x-1/2 space-y-1 text-center">
+                        <div className="mx-auto h-2 w-16 rounded bg-amber-100/80" />
+                        <div className="mx-auto h-2 w-12 rounded bg-amber-100/80" />
+                      </div>
+                    </div>
                     <div className="bg-white p-2 text-center text-xs font-medium">
                       {template.name}
                     </div>
@@ -239,15 +263,40 @@ export default function MockupGenerator() {
                     className="h-full w-full object-contain"
                   />
                 ) : screenshot ? (
-                  <div className="relative h-full w-full">
-                    <img
-                      src={selectedTemplate.thumbnail}
-                      alt="Template preview"
-                      className="h-full w-full object-contain opacity-50"
-                    />
+                  <div
+                    className="relative h-full w-full rounded-lg"
+                    style={{
+                      background: `linear-gradient(to bottom, ${selectedTemplate.colors.bg1}, ${selectedTemplate.colors.bg2})`,
+                    }}
+                  >
+                    {/* Preview text area */}
+                    <div className="absolute left-1/2 top-[8%] -translate-x-1/2 space-y-2 text-center">
+                      {headline.split('\n').slice(0, 4).map((line, i) => (
+                        <div
+                          key={i}
+                          className="text-sm font-bold text-amber-100"
+                          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
+                        >
+                          {line || '\u00A0'}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Phone preview */}
+                    <div
+                      className="absolute left-1/2 top-[22%] h-[75%] w-[80%] -translate-x-1/2 rounded-2xl p-2"
+                      style={{ backgroundColor: selectedTemplate.colors.phone }}
+                    >
+                      <div className="mx-auto mb-1 h-2 w-1/4 rounded-full bg-gray-800" />
+                      <img
+                        src={screenshot}
+                        alt="Preview"
+                        className="h-[calc(100%-12px)] w-full rounded-xl object-cover object-top"
+                      />
+                    </div>
+                    {/* Overlay message */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <p className="rounded bg-black/50 px-4 py-2 text-white">
-                        Cliquez sur Generer pour voir le resultat
+                      <p className="rounded bg-black/60 px-4 py-2 text-sm text-white">
+                        Cliquez sur Generer pour le rendu final
                       </p>
                     </div>
                   </div>
