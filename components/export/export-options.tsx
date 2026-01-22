@@ -39,6 +39,18 @@ export function ExportOptions() {
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
+              id="iphone61"
+              checked={exportOptions.includeIphone61}
+              onCheckedChange={(checked: boolean | 'indeterminate') =>
+                setExportOption('includeIphone61', checked === true)
+              }
+            />
+            <Label htmlFor="iphone61" className="font-normal">
+              iPhone 6.1&quot; (1284 × 2778)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
               id="iphone55"
               checked={exportOptions.includeIphone55}
               onCheckedChange={(checked: boolean | 'indeterminate') =>

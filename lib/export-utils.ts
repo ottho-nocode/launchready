@@ -12,6 +12,7 @@ interface ExportData {
 const DEVICE_FOLDER_NAMES: Record<string, string> = {
   'iphone-6.7': 'iPhone_6.7',
   'iphone-6.5': 'iPhone_6.5',
+  'iphone-6.1': 'iPhone_6.1',
   'iphone-5.5': 'iPhone_5.5',
   'ipad-12.9': 'iPad_12.9',
 };
@@ -57,6 +58,7 @@ ${texts.keywords}`;
     const shouldInclude =
       (screenshot.deviceType === 'iphone-6.7' && options.includeIphone67) ||
       (screenshot.deviceType === 'iphone-6.5' && options.includeIphone65) ||
+      (screenshot.deviceType === 'iphone-6.1' && options.includeIphone61) ||
       (screenshot.deviceType === 'iphone-5.5' && options.includeIphone55) ||
       (screenshot.deviceType === 'ipad-12.9' && options.includeIpad129);
 
@@ -104,6 +106,7 @@ ${folderName}/
 ├── mockups/
 │   ├── iPhone_6.7/
 │   ├── iPhone_6.5/
+│   ├── iPhone_6.1/
 │   ├── iPhone_5.5/
 │   └── iPad_12.9/
 └── README.md
@@ -114,6 +117,7 @@ ${folderName}/
 ### Screenshot Sizes
 - iPhone 6.7": 1290 x 2796 pixels
 - iPhone 6.5": 1242 x 2688 pixels
+- iPhone 6.1": 1284 x 2778 pixels
 - iPhone 5.5": 1242 x 2208 pixels
 - iPad 12.9": 2048 x 2732 pixels
 
@@ -150,6 +154,7 @@ export function countExportItems(
     if (!s.mockupUrl) return false;
     if (s.deviceType === 'iphone-6.7' && options.includeIphone67) return true;
     if (s.deviceType === 'iphone-6.5' && options.includeIphone65) return true;
+    if (s.deviceType === 'iphone-6.1' && options.includeIphone61) return true;
     if (s.deviceType === 'iphone-5.5' && options.includeIphone55) return true;
     if (s.deviceType === 'ipad-12.9' && options.includeIpad129) return true;
     return false;

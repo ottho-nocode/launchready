@@ -52,6 +52,19 @@ export const DEVICE_FRAMES: Record<Exclude<DeviceType, 'unknown'>, DeviceFrame> 
     bezelWidth: 40,
     notchHeight: 120, // Notch
   },
+  'iphone-6.1': {
+    name: 'iPhone 12 Pro / 13 Pro / 14 Pro',
+    deviceType: 'iphone-6.1',
+    screenWidth: 1284,
+    screenHeight: 2778,
+    frameWidth: 1364,
+    frameHeight: 2858,
+    screenOffsetX: 40,
+    screenOffsetY: 40,
+    cornerRadius: 105,
+    bezelWidth: 40,
+    notchHeight: 130, // Dynamic Island / Notch
+  },
   'iphone-5.5': {
     name: 'iPhone 8 Plus / 7 Plus / 6s Plus',
     deviceType: 'iphone-5.5',

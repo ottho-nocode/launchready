@@ -1,6 +1,7 @@
 export type DeviceType =
   | 'iphone-6.7'
   | 'iphone-6.5'
+  | 'iphone-6.1'
   | 'iphone-5.5'
   | 'ipad-12.9'
   | 'unknown';
@@ -40,6 +41,7 @@ export interface MockupOptions {
 export interface ExportOptions {
   includeIphone67: boolean;
   includeIphone65: boolean;
+  includeIphone61: boolean;
   includeIphone55: boolean;
   includeIpad129: boolean;
   includeTextsJson: boolean;

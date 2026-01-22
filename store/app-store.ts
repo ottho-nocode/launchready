@@ -81,6 +81,7 @@ const initialMockupOptions: MockupOptions = {
 const initialExportOptions: ExportOptions = {
   includeIphone67: true,
   includeIphone65: true,
+  includeIphone61: true,
   includeIphone55: false,
   includeIpad129: false,
   includeTextsJson: true,

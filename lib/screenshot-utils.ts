@@ -4,6 +4,7 @@ import type { DeviceType, Screenshot } from '@/types/app';
 const DEVICE_DIMENSIONS: Record<DeviceType, { width: number; height: number }> = {
   'iphone-6.7': { width: 1290, height: 2796 }, // iPhone 14 Pro Max, 15 Pro Max
   'iphone-6.5': { width: 1242, height: 2688 }, // iPhone 11 Pro Max, XS Max
+  'iphone-6.1': { width: 1284, height: 2778 }, // iPhone 12 Pro, 13 Pro, 14 Pro
   'iphone-5.5': { width: 1242, height: 2208 }, // iPhone 8 Plus, 7 Plus, 6s Plus
   'ipad-12.9': { width: 2048, height: 2732 },  // iPad Pro 12.9"
   unknown: { width: 0, height: 0 },
@@ -12,6 +13,7 @@ const DEVICE_DIMENSIONS: Record<DeviceType, { width: number; height: number }> =
 // Aspect ratios for detection
 const DEVICE_RATIOS: { device: DeviceType; ratio: number }[] = [
   { device: 'iphone-6.7', ratio: 2796 / 1290 }, // ~2.17
+  { device: 'iphone-6.1', ratio: 2778 / 1284 }, // ~2.16
   { device: 'iphone-6.5', ratio: 2688 / 1242 }, // ~2.16
   { device: 'iphone-5.5', ratio: 2208 / 1242 }, // ~1.78
   { device: 'ipad-12.9', ratio: 2732 / 2048 },  // ~1.33
@@ -20,6 +22,7 @@ const DEVICE_RATIOS: { device: DeviceType; ratio: number }[] = [
 export const DEVICE_OPTIONS: { value: DeviceType; label: string }[] = [
   { value: 'iphone-6.7', label: 'iPhone 6.7"' },
   { value: 'iphone-6.5', label: 'iPhone 6.5"' },
+  { value: 'iphone-6.1', label: 'iPhone 6.1"' },
   { value: 'iphone-5.5', label: 'iPhone 5.5"' },
   { value: 'ipad-12.9', label: 'iPad 12.9"' },
 ];
