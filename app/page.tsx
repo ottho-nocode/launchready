@@ -940,7 +940,7 @@ export default function MockupEditor() {
                   {/* Render text elements */}
                   {textElements.map((textEl) => (
                     <Text
-                      key={textEl.id}
+                      key={`${textEl.id}-fs${textEl.fontSize}`}
                       id={textEl.id}
                       text={textEl.text}
                       x={textEl.x}
@@ -948,7 +948,7 @@ export default function MockupEditor() {
                       fontSize={textEl.fontSize}
                       fill={textEl.fill}
                       fontStyle={textEl.fontStyle}
-                      fontFamily={textEl.fontFamily}
+                      fontFamily="Arial"
                       align={textEl.align}
                       width={textEl.width}
                       offsetX={textEl.width / 2}
