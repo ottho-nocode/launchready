@@ -697,7 +697,7 @@ export default function MockupEditor() {
       <div className="mx-auto max-w-6xl">
         <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
           <DeviceMobile size={28} weight="duotone" />
-          Mockup Editor
+          iPhone Cover Generator
         </h1>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">

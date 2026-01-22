@@ -68,9 +68,9 @@ const ubuntu = Ubuntu({
 });
 
 export const metadata: Metadata = {
-  title: 'LaunchReady - App Store Assets Generator',
+  title: 'iPhone Cover Generator by Ottho',
   description:
-    'Generate all your App Store Connect assets in minutes. Texts, keywords, and mockups.',
+    'Generate beautiful iPhone mockups for your App Store screenshots.',
 };
 
 export default function RootLayout({
