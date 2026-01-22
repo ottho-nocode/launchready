@@ -15,19 +15,24 @@ export function MockupGenerator() {
     updateScreenshotMockup,
   } = useAppStore();
   const [generatedCount, setGeneratedCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const generateMockups = useCallback(async () => {
     if (screenshots.length === 0) return;
 
     setIsGeneratingMockups(true);
     setGeneratedCount(0);
+    setError(null);
 
-    const validScreenshots = screenshots.filter(
-      (s) => s.deviceType !== 'unknown'
-    );
+    let failedCount = 0;
 
-    for (let i = 0; i < validScreenshots.length; i++) {
-      const screenshot = validScreenshots[i];
+    for (let i = 0; i < screenshots.length; i++) {
+      const screenshot = screenshots[i];
+
+      // Use detected device type, fallback to iphone-6.7 if unknown
+      const deviceType = screenshot.deviceType === 'unknown'
+        ? 'iphone-6.7'
+        : screenshot.deviceType;
 
       try {
         const response = await fetch('/api/generate-mockup', {
@@ -37,7 +42,7 @@ export function MockupGenerator() {
           },
           body: JSON.stringify({
             screenshot: screenshot.preview,
-            deviceType: screenshot.deviceType,
+            deviceType,
             deviceColor: mockupOptions.deviceColor,
             template: mockupOptions.template,
             backgroundColor: mockupOptions.backgroundColor,
@@ -50,12 +55,21 @@ export function MockupGenerator() {
           const blob = await response.blob();
           const mockupUrl = URL.createObjectURL(blob);
           updateScreenshotMockup(screenshot.id, mockupUrl);
+        } else {
+          failedCount++;
+          const errorData = await response.json().catch(() => ({}));
+          console.error(`Failed to generate mockup:`, errorData);
         }
-      } catch (error) {
-        console.error(`Failed to generate mockup for ${screenshot.id}:`, error);
+      } catch (err) {
+        failedCount++;
+        console.error(`Failed to generate mockup for ${screenshot.id}:`, err);
       }
 
       setGeneratedCount(i + 1);
+    }
+
+    if (failedCount > 0) {
+      setError(`${failedCount} mockup(s) failed to generate. Check console for details.`);
     }
 
     setIsGeneratingMockups(false);
@@ -66,8 +80,6 @@ export function MockupGenerator() {
     updateScreenshotMockup,
   ]);
 
-  const validScreenshots = screenshots.filter((s) => s.deviceType !== 'unknown');
-  const unknownCount = screenshots.length - validScreenshots.length;
   const mockupsGenerated = screenshots.filter((s) => s.mockupUrl).length;
 
   return (
@@ -76,21 +88,27 @@ export function MockupGenerator() {
         <div>
           <h3 className="font-medium">Generated Mockups</h3>
           <p className="text-sm text-muted-foreground">
-            {mockupsGenerated} of {validScreenshots.length} screenshots
-            {unknownCount > 0 && ` (${unknownCount} unknown device skipped)`}
+            {mockupsGenerated} of {screenshots.length} screenshots
           </p>
         </div>
         <Button
           onClick={generateMockups}
-          disabled={isGeneratingMockups || validScreenshots.length === 0}
+          disabled={isGeneratingMockups || screenshots.length === 0}
         >
           {isGeneratingMockups
-            ? `Generating... (${generatedCount}/${validScreenshots.length})`
+            ? `Generating... (${generatedCount}/${screenshots.length})`
             : mockupsGenerated > 0
               ? 'Regenerate All'
               : 'Generate Mockups'}
         </Button>
       </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Mockup Grid */}
       {mockupsGenerated > 0 && (
