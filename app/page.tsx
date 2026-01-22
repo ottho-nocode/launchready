@@ -1063,6 +1063,62 @@ export default function MockupEditor() {
                   </button>
                 ))}
               </div>
+
+              {/* Phone position controls */}
+              <div className="mt-4 pt-4 border-t space-y-3">
+                <Label className="text-sm font-medium">Position du téléphone</Label>
+
+                <div>
+                  <Label className="mb-1 block text-xs text-gray-500">
+                    Horizontal: {phonePosition.x}px
+                  </Label>
+                  <Slider
+                    value={[phonePosition.x]}
+                    onValueChange={(v) => setPhonePosition(prev => ({ ...prev, x: v[0] }))}
+                    min={-150}
+                    max={150}
+                    step={5}
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-1 block text-xs text-gray-500">
+                    Vertical: {phonePosition.y}px
+                  </Label>
+                  <Slider
+                    value={[phonePosition.y]}
+                    onValueChange={(v) => setPhonePosition(prev => ({ ...prev, y: v[0] }))}
+                    min={-100}
+                    max={200}
+                    step={5}
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-1 block text-xs text-gray-500">
+                    Échelle: {Math.round(phoneScale * 100)}%
+                  </Label>
+                  <Slider
+                    value={[phoneScale * 100]}
+                    onValueChange={(v) => setPhoneScale(v[0] / 100)}
+                    min={50}
+                    max={150}
+                    step={5}
+                  />
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setPhonePosition({ x: 0, y: 40 });
+                    setPhoneScale(1);
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  Réinitialiser position
+                </Button>
+              </div>
             </CollapsibleCard>
 
             {/* Background */}
