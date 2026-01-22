@@ -62,6 +62,9 @@ export default function MockupEditor() {
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [phonePosition, setPhonePosition] = useState({ x: 0, y: 40 }); // Offset from center
+  const [phoneScale, setPhoneScale] = useState(1); // Scale factor for phone
+  const [isPhoneSelected, setIsPhoneSelected] = useState(false);
+  const phoneTransformerRef = useRef<Konva.Transformer>(null);
   const [textElements, setTextElements] = useState<TextElement[]>([
     {
       id: 'text-1',
@@ -102,7 +105,7 @@ export default function MockupEditor() {
   const notchOffsetX = (phoneWidth - notchWidth) / 2;
   const notchOffsetY = bezelWidth;
 
-  // Update transformer when selection changes
+  // Update text transformer when selection changes
   useEffect(() => {
     if (selectedId && transformerRef.current && stageRef.current) {
       const node = stageRef.current.findOne(`#${selectedId}`);
@@ -115,6 +118,20 @@ export default function MockupEditor() {
       transformerRef.current.getLayer()?.batchDraw();
     }
   }, [selectedId]);
+
+  // Update phone transformer when phone is selected
+  useEffect(() => {
+    if (isPhoneSelected && phoneTransformerRef.current && stageRef.current) {
+      const node = stageRef.current.findOne('#phone-group');
+      if (node) {
+        phoneTransformerRef.current.nodes([node]);
+        phoneTransformerRef.current.getLayer()?.batchDraw();
+      }
+    } else if (phoneTransformerRef.current) {
+      phoneTransformerRef.current.nodes([]);
+      phoneTransformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [isPhoneSelected]);
 
   // Update editing text when selection changes
   useEffect(() => {
@@ -200,6 +217,7 @@ export default function MockupEditor() {
   const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     if (e.target === e.target.getStage()) {
       setSelectedId(null);
+      setIsPhoneSelected(false);
     }
   }, []);
 
@@ -263,13 +281,33 @@ export default function MockupEditor() {
                 {/* Phone Layer */}
                 <Layer>
                   <Group
+                    id="phone-group"
                     x={phoneX}
                     y={phoneY}
+                    scaleX={phoneScale}
+                    scaleY={phoneScale}
                     draggable
+                    onClick={() => {
+                      setIsPhoneSelected(true);
+                      setSelectedId(null);
+                    }}
+                    onTap={() => {
+                      setIsPhoneSelected(true);
+                      setSelectedId(null);
+                    }}
                     onDragEnd={(e) => {
                       const newX = e.target.x() - basePhoneX;
                       const newY = e.target.y() - basePhoneY;
                       setPhonePosition({ x: newX, y: newY });
+                    }}
+                    onTransformEnd={(e) => {
+                      const node = e.target;
+                      const newScale = node.scaleX();
+                      setPhoneScale(newScale);
+                      setPhonePosition({
+                        x: node.x() - basePhoneX,
+                        y: node.y() - basePhoneY,
+                      });
                     }}
                     onMouseEnter={(e) => {
                       const container = e.target.getStage()?.container();
@@ -356,6 +394,17 @@ export default function MockupEditor() {
                       cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
                     />
                   </Group>
+                  <Transformer
+                    ref={phoneTransformerRef}
+                    keepRatio={true}
+                    enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+                    boundBoxFunc={(oldBox, newBox) => {
+                      if (newBox.width < 50 || newBox.height < 50) {
+                        return oldBox;
+                      }
+                      return newBox;
+                    }}
+                  />
                 </Layer>
 
                 {/* Text Layer */}
@@ -375,8 +424,14 @@ export default function MockupEditor() {
                       width={el.width}
                       offsetX={el.width / 2}
                       draggable={el.draggable}
-                      onClick={() => setSelectedId(el.id)}
-                      onTap={() => setSelectedId(el.id)}
+                      onClick={() => {
+                        setSelectedId(el.id);
+                        setIsPhoneSelected(false);
+                      }}
+                      onTap={() => {
+                        setSelectedId(el.id);
+                        setIsPhoneSelected(false);
+                      }}
                       onDragEnd={(e) => handleDragEnd(e, el.id)}
                       onTransformEnd={(e) => {
                         const node = e.target;
