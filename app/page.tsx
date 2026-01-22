@@ -1,178 +1,127 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Stage, Layer, Rect, Group, Image as KonvaImage, Text, Transformer } from 'react-konva';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import Konva from 'konva';
 
-// Preset background colors
-const BACKGROUND_COLORS = [
-  '#2563EB', // Blue
-  '#7C3AED', // Violet
-  '#DB2777', // Pink
-  '#DC2626', // Red
-  '#EA580C', // Orange
-  '#16A34A', // Green
-  '#0891B2', // Cyan
-  '#1E293B', // Slate
-  '#F5F5F4', // Light gray
+// Device configurations
+const DEVICES = {
+  'iphone-6.5': { name: 'iPhone 6.5"', width: 1242, height: 2688, scale: 0.15 },
+  'iphone-6.1': { name: 'iPhone 6.1"', width: 1284, height: 2778, scale: 0.145 },
+  'iphone-5.5': { name: 'iPhone 5.5"', width: 1242, height: 2208, scale: 0.17 },
+};
+
+type DeviceType = keyof typeof DEVICES;
+
+// Background presets
+const BACKGROUNDS = [
+  { name: 'Blue', type: 'solid', color: '#2563EB' },
+  { name: 'Violet', type: 'solid', color: '#7C3AED' },
+  { name: 'Pink', type: 'solid', color: '#DB2777' },
+  { name: 'Red', type: 'solid', color: '#DC2626' },
+  { name: 'Orange', type: 'solid', color: '#EA580C' },
+  { name: 'Green', type: 'solid', color: '#16A34A' },
+  { name: 'Cyan', type: 'solid', color: '#0891B2' },
+  { name: 'Dark', type: 'solid', color: '#1E293B' },
+  { name: 'Light', type: 'solid', color: '#F5F5F4' },
 ];
 
-// Text colors
-const TEXT_COLORS = [
-  '#FFFFFF',
-  '#FEF3C7',
-  '#000000',
-  '#2563EB',
-  '#DC2626',
-  '#16A34A',
-];
+const TEXT_COLORS = ['#FFFFFF', '#FEF3C7', '#000000', '#2563EB', '#DC2626', '#16A34A'];
 
-// Canvas and phone dimensions
-const CANVAS_WIDTH = 400;
-const CANVAS_HEIGHT = 867;
-const EXPORT_SCALE = 3.1;
-
-const PHONE_WIDTH = 280;
-const PHONE_HEIGHT = 580;
-const PHONE_X = (CANVAS_WIDTH - PHONE_WIDTH) / 2;
-const PHONE_Y = 200;
-const CORNER_RADIUS = 45;
-const BEZEL_WIDTH = 8;
-
-// Screen area
-const SCREEN_X = PHONE_X + BEZEL_WIDTH + 4;
-const SCREEN_Y = PHONE_Y + BEZEL_WIDTH + 4;
-const SCREEN_WIDTH = PHONE_WIDTH - (BEZEL_WIDTH + 4) * 2;
-const SCREEN_HEIGHT = PHONE_HEIGHT - (BEZEL_WIDTH + 4) * 2;
-const SCREEN_RADIUS = CORNER_RADIUS - BEZEL_WIDTH - 4;
+interface TextElement {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fill: string;
+  fontStyle: string;
+  align: string;
+  width: number;
+  draggable: boolean;
+}
 
 export default function MockupEditor() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
 
+  // Canvas dimensions
+  const CANVAS_WIDTH = 400;
+  const CANVAS_HEIGHT = 800;
+  const EXPORT_MULTIPLIER = 3.1;
+
+  // State
+  const [device, setDevice] = useState<DeviceType>('iphone-6.5');
   const [backgroundColor, setBackgroundColor] = useState('#2563EB');
   const [screenshot, setScreenshot] = useState<HTMLImageElement | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
-  const [headline, setHeadline] = useState('Votre texte\npromotionnel');
-  const [textColor, setTextColor] = useState('#FFFFFF');
-  const [textOpacity, setTextOpacity] = useState(100);
-  const [fontSize, setFontSize] = useState(36);
+  const [textElements, setTextElements] = useState<TextElement[]>([
+    {
+      id: 'text-1',
+      text: 'Votre texte\npromotionnel',
+      x: CANVAS_WIDTH / 2,
+      y: 50,
+      fontSize: 32,
+      fill: '#FFFFFF',
+      fontStyle: 'bold',
+      align: 'center',
+      width: 350,
+      draggable: true,
+    },
+  ]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState<string>('');
 
-  // Draw everything on canvas
-  const drawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // Device dimensions
+  const deviceConfig = DEVICES[device];
+  const phoneWidth = deviceConfig.width * deviceConfig.scale;
+  const phoneHeight = deviceConfig.height * deviceConfig.scale;
+  const phoneX = (CANVAS_WIDTH - phoneWidth) / 2;
+  const phoneY = (CANVAS_HEIGHT - phoneHeight) / 2 + 40;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  // Screen dimensions (inside phone)
+  const bezelWidth = phoneWidth * 0.03;
+  const cornerRadius = phoneWidth * 0.12;
+  const screenX = phoneX + bezelWidth;
+  const screenY = phoneY + bezelWidth;
+  const screenWidth = phoneWidth - bezelWidth * 2;
+  const screenHeight = phoneHeight - bezelWidth * 2;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  // Notch dimensions
+  const notchWidth = phoneWidth * 0.35;
+  const notchHeight = phoneHeight * 0.035;
+  const notchX = phoneX + (phoneWidth - notchWidth) / 2;
+  const notchY = screenY;
 
-    // Draw background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // Draw headline text
-    ctx.save();
-    ctx.globalAlpha = textOpacity / 100;
-    ctx.fillStyle = textColor;
-    ctx.font = `700 ${fontSize}px Inter, system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-
-    const lines = headline.split('\n');
-    const lineHeight = fontSize * 1.2;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, CANVAS_WIDTH / 2, 50 + i * lineHeight);
-    });
-    ctx.restore();
-
-    // Draw phone outer frame
-    ctx.fillStyle = '#1a1a1a';
-    roundRect(ctx, PHONE_X, PHONE_Y, PHONE_WIDTH, PHONE_HEIGHT, CORNER_RADIUS);
-    ctx.fill();
-
-    // Draw phone bezel
-    ctx.fillStyle = '#2d2d2d';
-    roundRect(
-      ctx,
-      PHONE_X + 4,
-      PHONE_Y + 4,
-      PHONE_WIDTH - 8,
-      PHONE_HEIGHT - 8,
-      CORNER_RADIUS - 4
-    );
-    ctx.fill();
-
-    // Draw screen background (black)
-    ctx.fillStyle = '#000000';
-    roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
-    ctx.fill();
-
-    // Draw screenshot if available
-    if (screenshot) {
-      ctx.save();
-
-      // Create clipping path for screen
-      ctx.beginPath();
-      roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
-      ctx.clip();
-
-      // Calculate scale to cover screen
-      const imgRatio = screenshot.width / screenshot.height;
-      const screenRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
-
-      let drawWidth, drawHeight, drawX, drawY;
-
-      if (imgRatio > screenRatio) {
-        drawHeight = SCREEN_HEIGHT;
-        drawWidth = drawHeight * imgRatio;
-        drawX = SCREEN_X - (drawWidth - SCREEN_WIDTH) / 2;
-        drawY = SCREEN_Y;
-      } else {
-        drawWidth = SCREEN_WIDTH;
-        drawHeight = drawWidth / imgRatio;
-        drawX = SCREEN_X;
-        drawY = SCREEN_Y;
-      }
-
-      ctx.drawImage(screenshot, drawX, drawY, drawWidth, drawHeight);
-      ctx.restore();
-    }
-
-    // Draw notch
-    const notchWidth = 90;
-    const notchHeight = 28;
-    const notchX = PHONE_X + (PHONE_WIDTH - notchWidth) / 2;
-    const notchY = SCREEN_Y;
-
-    ctx.fillStyle = '#1a1a1a';
-    ctx.beginPath();
-    ctx.roundRect(notchX, notchY, notchWidth, notchHeight, [0, 0, 14, 14]);
-    ctx.fill();
-
-    // Draw camera in notch
-    ctx.fillStyle = '#0d2137';
-    ctx.beginPath();
-    ctx.arc(notchX + notchWidth - 20, notchY + notchHeight / 2, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw speaker in notch
-    ctx.fillStyle = '#0d2137';
-    ctx.beginPath();
-    ctx.roundRect(notchX + 20, notchY + notchHeight / 2 - 2, 40, 4, 2);
-    ctx.fill();
-
-  }, [backgroundColor, screenshot, headline, textColor, textOpacity, fontSize]);
-
-  // Redraw when dependencies change
+  // Update transformer when selection changes
   useEffect(() => {
-    drawCanvas();
-  }, [drawCanvas]);
+    if (selectedId && transformerRef.current && stageRef.current) {
+      const node = stageRef.current.findOne(`#${selectedId}`);
+      if (node) {
+        transformerRef.current.nodes([node]);
+        transformerRef.current.getLayer()?.batchDraw();
+      }
+    } else if (transformerRef.current) {
+      transformerRef.current.nodes([]);
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [selectedId]);
+
+  // Update editing text when selection changes
+  useEffect(() => {
+    if (selectedId) {
+      const element = textElements.find((el) => el.id === selectedId);
+      if (element) {
+        setEditingText(element.text);
+      }
+    }
+  }, [selectedId, textElements]);
 
   // Handle screenshot upload
   const handleScreenshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,10 +133,8 @@ export default function MockupEditor() {
       const dataUrl = event.target?.result as string;
       setScreenshotPreview(dataUrl);
 
-      const img = new Image();
-      img.onload = () => {
-        setScreenshot(img);
-      };
+      const img = new window.Image();
+      img.onload = () => setScreenshot(img);
       img.src = dataUrl;
     };
     reader.readAsDataURL(file);
@@ -205,116 +152,85 @@ export default function MockupEditor() {
     }
   }, []);
 
+  // Add new text element
+  const addTextElement = useCallback(() => {
+    const newId = `text-${Date.now()}`;
+    setTextElements((prev) => [
+      ...prev,
+      {
+        id: newId,
+        text: 'Nouveau texte',
+        x: CANVAS_WIDTH / 2,
+        y: 120 + prev.length * 50,
+        fontSize: 24,
+        fill: '#FFFFFF',
+        fontStyle: 'bold',
+        align: 'center',
+        width: 300,
+        draggable: true,
+      },
+    ]);
+    setSelectedId(newId);
+  }, []);
+
+  // Update text element
+  const updateTextElement = useCallback((id: string, updates: Partial<TextElement>) => {
+    setTextElements((prev) =>
+      prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
+    );
+  }, []);
+
+  // Delete selected text
+  const deleteSelected = useCallback(() => {
+    if (selectedId) {
+      setTextElements((prev) => prev.filter((el) => el.id !== selectedId));
+      setSelectedId(null);
+    }
+  }, [selectedId]);
+
+  // Handle text drag end
+  const handleDragEnd = useCallback((e: Konva.KonvaEventObject<DragEvent>, id: string) => {
+    updateTextElement(id, { x: e.target.x(), y: e.target.y() });
+  }, [updateTextElement]);
+
+  // Handle stage click (deselect)
+  const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (e.target === e.target.getStage()) {
+      setSelectedId(null);
+    }
+  }, []);
+
   // Export PNG
   const exportMockup = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!stageRef.current) return;
 
-    // Create high-res canvas
-    const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = CANVAS_WIDTH * EXPORT_SCALE;
-    exportCanvas.height = CANVAS_HEIGHT * EXPORT_SCALE;
+    // Deselect before export
+    setSelectedId(null);
 
-    const ctx = exportCanvas.getContext('2d');
-    if (!ctx) return;
+    setTimeout(() => {
+      const uri = stageRef.current?.toDataURL({
+        pixelRatio: EXPORT_MULTIPLIER,
+        mimeType: 'image/png',
+      });
 
-    ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
-
-    // Redraw everything on export canvas
-    // Background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // Headline
-    ctx.save();
-    ctx.globalAlpha = textOpacity / 100;
-    ctx.fillStyle = textColor;
-    ctx.font = `700 ${fontSize}px Inter, system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-
-    const lines = headline.split('\n');
-    const lineHeight = fontSize * 1.2;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, CANVAS_WIDTH / 2, 50 + i * lineHeight);
-    });
-    ctx.restore();
-
-    // Phone frame
-    ctx.fillStyle = '#1a1a1a';
-    roundRect(ctx, PHONE_X, PHONE_Y, PHONE_WIDTH, PHONE_HEIGHT, CORNER_RADIUS);
-    ctx.fill();
-
-    ctx.fillStyle = '#2d2d2d';
-    roundRect(ctx, PHONE_X + 4, PHONE_Y + 4, PHONE_WIDTH - 8, PHONE_HEIGHT - 8, CORNER_RADIUS - 4);
-    ctx.fill();
-
-    ctx.fillStyle = '#000000';
-    roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
-    ctx.fill();
-
-    // Screenshot
-    if (screenshot) {
-      ctx.save();
-      ctx.beginPath();
-      roundRect(ctx, SCREEN_X, SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_RADIUS);
-      ctx.clip();
-
-      const imgRatio = screenshot.width / screenshot.height;
-      const screenRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
-
-      let drawWidth, drawHeight, drawX, drawY;
-
-      if (imgRatio > screenRatio) {
-        drawHeight = SCREEN_HEIGHT;
-        drawWidth = drawHeight * imgRatio;
-        drawX = SCREEN_X - (drawWidth - SCREEN_WIDTH) / 2;
-        drawY = SCREEN_Y;
-      } else {
-        drawWidth = SCREEN_WIDTH;
-        drawHeight = drawWidth / imgRatio;
-        drawX = SCREEN_X;
-        drawY = SCREEN_Y;
+      if (uri) {
+        const link = document.createElement('a');
+        link.download = `mockup-${Date.now()}.png`;
+        link.href = uri;
+        link.click();
       }
+    }, 100);
+  }, []);
 
-      ctx.drawImage(screenshot, drawX, drawY, drawWidth, drawHeight);
-      ctx.restore();
-    }
-
-    // Notch
-    const notchWidth = 90;
-    const notchHeight = 28;
-    const notchX = PHONE_X + (PHONE_WIDTH - notchWidth) / 2;
-    const notchY = SCREEN_Y;
-
-    ctx.fillStyle = '#1a1a1a';
-    ctx.beginPath();
-    ctx.roundRect(notchX, notchY, notchWidth, notchHeight, [0, 0, 14, 14]);
-    ctx.fill();
-
-    ctx.fillStyle = '#0d2137';
-    ctx.beginPath();
-    ctx.arc(notchX + notchWidth - 20, notchY + notchHeight / 2, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#0d2137';
-    ctx.beginPath();
-    ctx.roundRect(notchX + 20, notchY + notchHeight / 2 - 2, 40, 4, 2);
-    ctx.fill();
-
-    // Download
-    const link = document.createElement('a');
-    link.download = `mockup-${Date.now()}.png`;
-    link.href = exportCanvas.toDataURL('image/png');
-    link.click();
-  }, [backgroundColor, screenshot, headline, textColor, textOpacity, fontSize]);
+  // Get selected text element
+  const selectedElement = textElements.find((el) => el.id === selectedId);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="mx-auto max-w-6xl">
         <h1 className="mb-6 text-2xl font-bold">📱 Mockup Editor</h1>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           {/* Canvas */}
           <Card className="p-4">
             <div
@@ -323,14 +239,149 @@ export default function MockupEditor() {
               onDragOver={(e) => e.preventDefault()}
               style={{ width: 'fit-content' }}
             >
-              <canvas
-                ref={canvasRef}
+              <Stage
+                ref={stageRef}
                 width={CANVAS_WIDTH}
                 height={CANVAS_HEIGHT}
-                className="rounded-lg shadow-xl"
-              />
+                onClick={handleStageClick}
+                style={{ borderRadius: '8px', overflow: 'hidden' }}
+              >
+                {/* Background Layer */}
+                <Layer>
+                  <Rect
+                    x={0}
+                    y={0}
+                    width={CANVAS_WIDTH}
+                    height={CANVAS_HEIGHT}
+                    fill={backgroundColor}
+                  />
+                </Layer>
+
+                {/* Phone Layer */}
+                <Layer>
+                  {/* Phone outer frame */}
+                  <Rect
+                    x={phoneX}
+                    y={phoneY}
+                    width={phoneWidth}
+                    height={phoneHeight}
+                    fill="#1a1a1a"
+                    cornerRadius={cornerRadius}
+                  />
+
+                  {/* Phone bezel */}
+                  <Rect
+                    x={phoneX + 3}
+                    y={phoneY + 3}
+                    width={phoneWidth - 6}
+                    height={phoneHeight - 6}
+                    fill="#2d2d2d"
+                    cornerRadius={cornerRadius - 3}
+                  />
+
+                  {/* Screen */}
+                  <Group
+                    clipFunc={(ctx) => {
+                      ctx.beginPath();
+                      const r = cornerRadius - bezelWidth;
+                      ctx.moveTo(screenX + r, screenY);
+                      ctx.lineTo(screenX + screenWidth - r, screenY);
+                      ctx.quadraticCurveTo(screenX + screenWidth, screenY, screenX + screenWidth, screenY + r);
+                      ctx.lineTo(screenX + screenWidth, screenY + screenHeight - r);
+                      ctx.quadraticCurveTo(screenX + screenWidth, screenY + screenHeight, screenX + screenWidth - r, screenY + screenHeight);
+                      ctx.lineTo(screenX + r, screenY + screenHeight);
+                      ctx.quadraticCurveTo(screenX, screenY + screenHeight, screenX, screenY + screenHeight - r);
+                      ctx.lineTo(screenX, screenY + r);
+                      ctx.quadraticCurveTo(screenX, screenY, screenX + r, screenY);
+                      ctx.closePath();
+                    }}
+                  >
+                    {/* Screen background */}
+                    <Rect
+                      x={screenX}
+                      y={screenY}
+                      width={screenWidth}
+                      height={screenHeight}
+                      fill="#000"
+                    />
+
+                    {/* Screenshot */}
+                    {screenshot && (
+                      <KonvaImage
+                        image={screenshot}
+                        x={screenX}
+                        y={screenY}
+                        width={screenWidth}
+                        height={screenHeight}
+                        // Cover fit
+                        crop={{
+                          x: 0,
+                          y: 0,
+                          width: screenshot.width,
+                          height: Math.min(screenshot.height, screenshot.width * (screenHeight / screenWidth)),
+                        }}
+                      />
+                    )}
+                  </Group>
+
+                  {/* Notch */}
+                  <Rect
+                    x={notchX}
+                    y={notchY}
+                    width={notchWidth}
+                    height={notchHeight}
+                    fill="#1a1a1a"
+                    cornerRadius={[0, 0, notchHeight / 2, notchHeight / 2]}
+                  />
+                </Layer>
+
+                {/* Text Layer */}
+                <Layer>
+                  {textElements.map((el) => (
+                    <Text
+                      key={el.id}
+                      id={el.id}
+                      text={el.text}
+                      x={el.x}
+                      y={el.y}
+                      fontSize={el.fontSize}
+                      fill={el.fill}
+                      fontStyle={el.fontStyle}
+                      fontFamily="Inter, system-ui, sans-serif"
+                      align={el.align}
+                      width={el.width}
+                      offsetX={el.width / 2}
+                      draggable={el.draggable}
+                      onClick={() => setSelectedId(el.id)}
+                      onTap={() => setSelectedId(el.id)}
+                      onDragEnd={(e) => handleDragEnd(e, el.id)}
+                      onTransformEnd={(e) => {
+                        const node = e.target;
+                        updateTextElement(el.id, {
+                          x: node.x(),
+                          y: node.y(),
+                          width: Math.max(50, node.width() * node.scaleX()),
+                          fontSize: Math.max(12, el.fontSize * node.scaleY()),
+                        });
+                        node.scaleX(1);
+                        node.scaleY(1);
+                      }}
+                    />
+                  ))}
+                  <Transformer
+                    ref={transformerRef}
+                    boundBoxFunc={(oldBox, newBox) => {
+                      if (newBox.width < 50 || newBox.height < 20) {
+                        return oldBox;
+                      }
+                      return newBox;
+                    }}
+                  />
+                </Layer>
+              </Stage>
             </div>
-            <div className="mt-4 flex justify-center">
+
+            <div className="mt-4 flex justify-center gap-3">
               <Button onClick={exportMockup} size="lg">
                 ⬇️ Télécharger PNG
               </Button>
@@ -339,21 +390,46 @@ export default function MockupEditor() {
 
           {/* Controls */}
           <div className="space-y-4">
+            {/* Device Selection */}
+            <Card className="p-4">
+              <Label className="mb-3 block font-medium">📱 Device</Label>
+              <div className="grid grid-cols-1 gap-2">
+                {Object.entries(DEVICES).map(([key, config]) => (
+                  <button
+                    key={key}
+                    onClick={() => setDevice(key as DeviceType)}
+                    className={cn(
+                      'rounded-lg border-2 px-3 py-2 text-left text-sm transition-colors',
+                      device === key
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    )}
+                  >
+                    {config.name}
+                    <span className="ml-2 text-xs text-gray-500">
+                      {config.width}×{config.height}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+
             {/* Background */}
             <Card className="p-4">
-              <Label className="mb-3 block font-medium">🎨 Couleur de fond</Label>
+              <Label className="mb-3 block font-medium">🎨 Fond</Label>
               <div className="grid grid-cols-5 gap-2">
-                {BACKGROUND_COLORS.map((color) => (
+                {BACKGROUNDS.map((bg) => (
                   <button
-                    key={color}
-                    onClick={() => setBackgroundColor(color)}
+                    key={bg.color}
+                    onClick={() => setBackgroundColor(bg.color)}
                     className={cn(
                       'h-10 w-10 rounded-lg border-2 transition-transform',
-                      backgroundColor === color
+                      backgroundColor === bg.color
                         ? 'border-black scale-110 ring-2 ring-black/20'
                         : 'border-gray-300 hover:scale-105'
                     )}
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: bg.color }}
+                    title={bg.name}
                   />
                 ))}
               </div>
@@ -375,16 +451,22 @@ export default function MockupEditor() {
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   'flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors',
-                  screenshotPreview ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-blue-400'
+                  screenshotPreview
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-gray-300 hover:border-blue-400'
                 )}
               >
                 {screenshotPreview ? (
                   <div className="text-center">
-                    <img src={screenshotPreview} alt="" className="mx-auto mb-2 h-20 rounded object-contain" />
+                    <img
+                      src={screenshotPreview}
+                      alt=""
+                      className="mx-auto mb-2 h-16 rounded object-contain"
+                    />
                     <p className="text-xs text-green-600">Cliquez pour changer</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">📱 Glissez ou cliquez</p>
+                  <p className="text-sm text-gray-500">Glissez ou cliquez</p>
                 )}
               </div>
               <input
@@ -396,89 +478,87 @@ export default function MockupEditor() {
               />
             </Card>
 
-            {/* Text */}
+            {/* Text Controls */}
             <Card className="p-4">
               <Label className="mb-3 block font-medium">✏️ Texte</Label>
-              <textarea
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                className="w-full rounded-md border border-gray-300 p-2 text-sm"
-                rows={3}
-                placeholder="Votre texte promotionnel"
-              />
+              <Button onClick={addTextElement} variant="outline" className="mb-3 w-full">
+                + Ajouter du texte
+              </Button>
 
-              <div className="mt-4 space-y-4">
-                <div>
-                  <Label className="mb-2 block text-sm">Couleur</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {TEXT_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setTextColor(color)}
-                        className={cn(
-                          'h-8 w-8 rounded border-2',
-                          textColor === color ? 'border-black scale-110' : 'border-gray-300'
-                        )}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                    <input
-                      type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="h-8 w-8 cursor-pointer rounded"
+              {selectedElement && (
+                <div className="space-y-4 border-t pt-4">
+                  <div>
+                    <Label className="mb-2 block text-sm">Contenu</Label>
+                    <textarea
+                      value={editingText}
+                      onChange={(e) => {
+                        setEditingText(e.target.value);
+                        updateTextElement(selectedId!, { text: e.target.value });
+                      }}
+                      className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                      rows={2}
                     />
                   </div>
-                </div>
 
-                <div>
-                  <Label className="mb-2 block text-sm">Taille: {fontSize}px</Label>
-                  <Slider
-                    value={[fontSize]}
-                    onValueChange={(v) => setFontSize(v[0])}
-                    min={20}
-                    max={60}
-                    step={2}
-                  />
-                </div>
+                  <div>
+                    <Label className="mb-2 block text-sm">Couleur</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {TEXT_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => updateTextElement(selectedId!, { fill: color })}
+                          className={cn(
+                            'h-8 w-8 rounded border-2',
+                            selectedElement.fill === color
+                              ? 'border-black scale-110'
+                              : 'border-gray-300'
+                          )}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        value={selectedElement.fill}
+                        onChange={(e) =>
+                          updateTextElement(selectedId!, { fill: e.target.value })
+                        }
+                        className="h-8 w-8 cursor-pointer rounded"
+                      />
+                    </div>
+                  </div>
 
-                <div>
-                  <Label className="mb-2 block text-sm">Opacité: {textOpacity}%</Label>
-                  <Slider
-                    value={[textOpacity]}
-                    onValueChange={(v) => setTextOpacity(v[0])}
-                    min={0}
-                    max={100}
-                    step={5}
-                  />
+                  <div>
+                    <Label className="mb-2 block text-sm">
+                      Taille: {selectedElement.fontSize}px
+                    </Label>
+                    <Slider
+                      value={[selectedElement.fontSize]}
+                      onValueChange={(v) =>
+                        updateTextElement(selectedId!, { fontSize: v[0] })
+                      }
+                      min={12}
+                      max={60}
+                      step={1}
+                    />
+                  </div>
+
+                  <Button
+                    onClick={deleteSelected}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    🗑️ Supprimer
+                  </Button>
                 </div>
-              </div>
+              )}
+
+              <p className="mt-3 text-xs text-gray-500">
+                Cliquez sur un texte pour le sélectionner • Glissez pour déplacer
+              </p>
             </Card>
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-// Helper function to draw rounded rectangles
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
 }
